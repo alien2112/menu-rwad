@@ -1,10 +1,20 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/maraksh';
+// Resolve MongoDB URI with sensible fallbacks and ignore unresolved Vercel secret refs
+function resolveMongoUri(): string {
+  // Highest priority: custom project var that won't collide with Vercel secrets
+  const custom = process.env.MARAKSH_MONGODB_URI;
+  if (custom && custom.trim()) return custom.trim();
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  // Next: standard var if it's a real value (not a Vercel secret reference like "@mongodb_uri")
+  const std = process.env.MONGODB_URI;
+  if (std && std.trim() && !std.trim().startsWith('@')) return std.trim();
+
+  // Fallback for local/dev environments
+  return 'mongodb://localhost:27017/maraksh';
 }
+
+const MONGODB_URI = resolveMongoUri();
 
 interface MongooseCache {
   conn: typeof mongoose | null;
