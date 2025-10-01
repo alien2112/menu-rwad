@@ -15,6 +15,9 @@ export default function About() {
   const reviewsSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Only run GSAP animations on client side
+    if (typeof window === 'undefined') return;
+    
     // Set initial states for journey sections
     gsap.set(journeyPart1Ref.current, {
       opacity: 0,

@@ -72,6 +72,13 @@ const nextConfig = {
         fs: false,
         net: false,
         tls: false,
+        // Add more fallbacks for browser compatibility
+        path: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        buffer: false,
+        process: false,
       };
     }
 
@@ -101,8 +108,7 @@ const nextConfig = {
     return config;
   },
 
-  // Enable SWC minification (faster than Terser)
-  swcMinify: true,
+  // Enable SWC minification (faster than Terser) - removed deprecated swcMinify
 
   // Experimental features for better performance
   experimental: {

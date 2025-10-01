@@ -11,8 +11,10 @@ import { CartIcon, CartModal } from "@/components/CartComponents";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-// Register the ScrollTo plugin
-gsap.registerPlugin(ScrollToPlugin);
+// Register the ScrollTo plugin only on client side
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollToPlugin);
+}
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -345,6 +347,9 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Only run GSAP animations on client side
+    if (typeof window === 'undefined') return;
+    
     // Set initial states
     gsap.set([headerRef.current, brandLogoRef.current, brandTextRef.current, menuButtonRef.current, contentCardsRef.current, signatureSectionRef.current, offersSectionRef.current, footerRef.current].filter(Boolean), {
       opacity: 0,
