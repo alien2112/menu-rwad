@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { CartIcon, CartModal } from "@/components/CartComponents";
 import { MenuHeader } from "@/components/MenuHeader";
 import { CategoryTile } from "@/components/CategoryTile";
+import { MenuPageSkeleton } from "@/components/SkeletonLoader";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface PageBackground {
   _id: string;
@@ -154,21 +156,27 @@ export default function Menu() {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/30 z-0" />
 
-      <div className="relative z-10 px-6 pb-8 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-        <MenuHeader />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map((item, index) => (
-            <div className="stagger-fade" style={{ animationDelay: `${index * 100}ms` }} key={item.id}>
-              <CategoryTile
-                title={item.title}
-                icon={item.iconSrc}
-                color={item.color || '#ffffff'}
-                href={item.route}
-              />
+      {loading ? (
+        <MenuPageSkeleton />
+      ) : (
+        <ErrorBoundary>
+          <div className="relative z-10 px-6 pb-8 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
+            <MenuHeader />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {menuItems.map((item, index) => (
+                <div className="stagger-fade" style={{ animationDelay: `${index * 100}ms` }} key={item.id}>
+                  <CategoryTile
+                    title={item.title}
+                    icon={item.iconSrc}
+                    color={item.color || '#ffffff'}
+                    href={item.route}
+                  />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </ErrorBoundary>
+      )}
 
       {/* Cart Components */}
       <div className="fixed top-6 right-6 z-40">

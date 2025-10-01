@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MenuDetailTemplate } from "@/components/MenuDetailTemplate";
 import { MenuItemCard } from "@/components/MenuItemCard";
+import { MenuItemsSkeleton } from "@/components/SkeletonLoader";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 interface PageBackground {
   _id: string;
@@ -172,8 +174,21 @@ export default function CategoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-900 via-orange-800 to-red-900">
-        <div className="text-white text-xl">Loading...</div>
+      <div 
+        className="min-h-screen"
+        style={{
+          backgroundImage: pageBackground?.backgroundImageId 
+            ? `url('/api/images/${pageBackground.backgroundImageId}')`
+            : pageBackground?.backgroundImageUrl 
+            ? `url('${pageBackground.backgroundImageUrl}')`
+            : 'linear-gradient(to bottom right, #201007, #1c0e06, #0a0502)',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <div className="absolute inset-0 bg-black/30" />
+        <MenuItemsSkeleton />
       </div>
     );
   }
@@ -219,17 +234,19 @@ export default function CategoryPage() {
       <div className="absolute inset-0 bg-black/30 z-0" />
 
       <div className="container relative z-10 mx-auto max-w-7xl px-6 py-8">
-        <header className="mb-6 text-right">
-          <h2 className="mb-2 text-3xl font-bold text-white">{category.name}</h2>
-          {category.description && (
-            <p className="text-base text-white/80">{category.description}</p>
-          )}
-        </header>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {displayItems.map((it, idx) => (
-            <MenuItemCard key={idx} {...it} />
-          ))}
-        </div>
+        <ErrorBoundary>
+          <header className="mb-6 text-right">
+            <h2 className="mb-2 text-3xl font-bold text-white">{category.name}</h2>
+            {category.description && (
+              <p className="text-base text-white/80">{category.description}</p>
+            )}
+          </header>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {displayItems.map((it, idx) => (
+              <MenuItemCard key={idx} {...it} />
+            ))}
+          </div>
+        </ErrorBoundary>
       </div>
     </div>
   );
