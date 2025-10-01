@@ -5,11 +5,12 @@ import Offer from '@/lib/models/Offer';
 // GET single offer
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
-    const offer = await Offer.findById(params.id);
+    const offer = await Offer.findById(id);
     if (!offer) {
       return NextResponse.json(
         { success: false, error: 'Offer not found' },
@@ -28,12 +29,12 @@ export async function GET(
 // PUT update offer
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const offer = await Offer.findByIdAndUpdate(params.id, body, {
+    const offer = await Offer.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -55,11 +56,11 @@ export async function PUT(
 // DELETE offer
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const offer = await Offer.findByIdAndDelete(params.id);
+    const offer = await Offer.findByIdAndDelete(id);
     if (!offer) {
       return NextResponse.json(
         { success: false, error: 'Offer not found' },

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import Review from '@/lib/models/Review';
 
 // GET - Fetch approved reviews
 export async function GET() {
   try {
-    await connectDB();
+    await dbConnect();
     
     const reviews = await Review.find({ isApproved: true })
       .sort({ createdAt: -1 })
@@ -27,7 +27,7 @@ export async function GET() {
 // POST - Create new review
 export async function POST(request: NextRequest) {
   try {
-    await connectDB();
+    await dbConnect();
     
     const body = await request.json();
     const { author_name, rating, text, email, phone } = body;

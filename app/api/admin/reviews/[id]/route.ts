@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import Review from '@/lib/models/Review';
 
 // PATCH - Update review status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
+    await dbConnect();
     
+    const { id } = await params;
     const { isApproved } = await request.json();
     
     const review = await Review.findByIdAndUpdate(
-      params.id,
+      id,
       { isApproved },
       { new: true }
-    );
+    ) as any;
     
     if (!review) {
       return NextResponse.json(
@@ -41,12 +42,13 @@ export async function PATCH(
 // DELETE - Delete review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await connectDB();
+    await dbConnect();
     
-    const review = await Review.findByIdAndDelete(params.id);
+    const { id } = await params;
+    const review = await Review.findByIdAndDelete(id) as any;
     
     if (!review) {
       return NextResponse.json(

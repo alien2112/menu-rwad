@@ -6,11 +6,12 @@ import { deleteFromGridFS } from '@/lib/gridfs';
 // GET single homepage image
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
-    const image = await HomepageImage.findById(params.id);
+    const image = await HomepageImage.findById(id);
     if (!image) {
       return NextResponse.json(
         { success: false, error: 'Image not found' },
@@ -29,12 +30,12 @@ export async function GET(
 // PUT update homepage image
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const image = await HomepageImage.findByIdAndUpdate(params.id, body, {
+    const image = await HomepageImage.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -56,11 +57,11 @@ export async function PUT(
 // DELETE homepage image
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const image = await HomepageImage.findById(params.id);
+    const image = await HomepageImage.findById(id);
 
     if (!image) {
       return NextResponse.json(
@@ -79,7 +80,7 @@ export async function DELETE(
     }
 
     // Delete document
-    await HomepageImage.findByIdAndDelete(params.id);
+    await HomepageImage.findByIdAndDelete(id);
 
     return NextResponse.json({ success: true, data: {} });
   } catch (error: any) {

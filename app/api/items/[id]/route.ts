@@ -5,11 +5,12 @@ import MenuItem from '@/lib/models/MenuItem';
 // GET single item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
-    const item = await MenuItem.findById(params.id);
+    const item = await MenuItem.findById(id);
     if (!item) {
       return NextResponse.json(
         { success: false, error: 'Item not found' },
@@ -28,12 +29,12 @@ export async function GET(
 // PUT update item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const item = await MenuItem.findByIdAndUpdate(params.id, body, {
+    const item = await MenuItem.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -55,11 +56,11 @@ export async function PUT(
 // DELETE item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const item = await MenuItem.findByIdAndDelete(params.id);
+    const item = await MenuItem.findByIdAndDelete(id);
     if (!item) {
       return NextResponse.json(
         { success: false, error: 'Item not found' },

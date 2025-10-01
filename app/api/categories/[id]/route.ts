@@ -5,11 +5,12 @@ import Category from '@/lib/models/Category';
 // GET single category
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await dbConnect();
-    const category = await Category.findById(params.id);
+    const category = await Category.findById(id);
     if (!category) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },
@@ -28,12 +29,12 @@ export async function GET(
 // PUT update category
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const category = await Category.findByIdAndUpdate(params.id, body, {
+    const category = await Category.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
     });
@@ -55,11 +56,11 @@ export async function PUT(
 // DELETE category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const category = await Category.findByIdAndDelete(params.id);
+    const category = await Category.findByIdAndDelete(id);
     if (!category) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },

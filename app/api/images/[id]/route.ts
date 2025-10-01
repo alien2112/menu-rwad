@@ -4,10 +4,11 @@ import { getFromGridFS } from '@/lib/gridfs';
 // GET image from GridFS
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { stream, contentType } = await getFromGridFS(params.id);
+    const { id } = await params;
+    const { stream, contentType } = await getFromGridFS(id);
 
     // Convert stream to buffer
     const chunks: any[] = [];

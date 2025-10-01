@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import Review from '@/lib/models/Review';
 
 // GET - Fetch all reviews for admin
 export async function GET() {
   try {
-    await connectDB();
+    await dbConnect();
     
     const reviews = await Review.find()
       .sort({ createdAt: -1 });
