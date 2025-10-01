@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description: "تجربة قهوة استثنائية في قلب المدينة المنورة",
 };
 
+// Force all routes under this layout to be dynamically rendered (SSR)
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{
