@@ -201,3 +201,4 @@ function CartItem({ item }: { item: any }) {
     </div>
   );
 }
+

@@ -42,7 +42,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Glass overlay */}
           <div className="absolute inset-0 m-4">
-            <div className="glass-sidebar rounded-2xl h-full p-4 flex flex-col" style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
+            <div className="glass-sidebar rounded-2xl h-full p-4 flex flex-col" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
 
               {/* Menu Title */}
               <div className="text-center py-8">
@@ -68,7 +68,14 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   </div>
                 ))}
               </nav>
-
+              {/* Bottom Logo */}
+              <div className="pt-6 pb-2 flex items-end justify-center">
+                <img
+                  src="/موال مراكش طواجن  1 (1).png"
+                  alt="موال مراكش طواجن"
+                  className="w-32 h-24 object-contain"
+                />
+              </div>
             </div>
           </div>
         </div>

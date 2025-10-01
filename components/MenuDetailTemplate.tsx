@@ -150,12 +150,12 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
               <div
                 key={item.id}
                 className="menu-grid-item glass-shadow h-48 md:h-56 animate-in slide-in-from-bottom-4 duration-700 relative"
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  backgroundImage: item.image ? `url('${item.image}')` : undefined,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center'
-                }}
+                     style={{
+                       animationDelay: `${index * 100}ms`,
+                       backgroundImage: item.image ? `url('${item.image}')` : undefined,
+                       backgroundSize: 'cover',
+                       backgroundPosition: 'center'
+                     }}
               >
                 <div className="h-full flex flex-col justify-end p-4">
                   <div className="bg-black/30 rounded-lg p-3 backdrop-blur-sm">

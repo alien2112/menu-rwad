@@ -45,3 +45,4 @@ const PageBackground: Model<IPageBackground> =
   mongoose.models.PageBackground || mongoose.model<IPageBackground>('PageBackground', PageBackgroundSchema);
 
 export default PageBackground;
+

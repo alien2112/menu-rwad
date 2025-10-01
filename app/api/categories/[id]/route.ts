@@ -34,6 +34,8 @@ export async function PUT(
   try {
     await dbConnect();
     const body = await request.json();
+    const { id } = await params;
+    console.log('Updating category', id, 'with data:', body);
     const category = await Category.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -44,8 +46,10 @@ export async function PUT(
         { status: 404 }
       );
     }
+    console.log('Updated category:', category);
     return NextResponse.json({ success: true, data: category });
   } catch (error: any) {
+    console.error('Error updating category:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 400 }
@@ -60,6 +64,7 @@ export async function DELETE(
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     const category = await Category.findByIdAndDelete(id);
     if (!category) {
       return NextResponse.json(

@@ -22,7 +22,8 @@ export function NotificationCard({ className, icon, children, backgroundImage, c
         <img
           src={backgroundImage}
           alt="Background"
-          className="absolute inset-0 w-full h-full object-cover opacity-30 inner-card-image inner-card-pulse"
+          className="absolute inset-0 w-full h-full object-cover inner-card-image"
+          style={{ opacity: 1 }}
         />
       )}
       {icon && (

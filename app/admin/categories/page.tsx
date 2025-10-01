@@ -19,6 +19,8 @@ export default function CategoriesPage() {
     image: '',
     color: '#4F3500',
     order: 0,
+    featured: false,
+    featuredOrder: 0,
     status: 'active',
   });
 
@@ -48,19 +50,36 @@ export default function CategoriesPage() {
         : '/api/categories';
       const method = editingCategory ? 'PUT' : 'POST';
 
+      // Prepare data with proper types
+      const submitData = {
+        ...formData,
+        featured: !!formData.featured,
+        featuredOrder: formData.featured ? (formData.featuredOrder || 1) : 0,
+      };
+
+      console.log('FormData before submit:', formData);
+      console.log('Submitting category data:', submitData);
+      console.log('Featured:', submitData.featured, 'FeaturedOrder:', submitData.featuredOrder);
+
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
 
       const data = await res.json();
+      console.log('API Response:', data);
+
       if (data.success) {
         fetchCategories();
         handleCloseModal();
+      } else {
+        console.error('API Error:', data.error);
+        alert(`خطأ: ${data.error}`);
       }
     } catch (error) {
       console.error('Error saving category:', error);
+      alert('حدث خطأ أثناء الحفظ');
     }
   };
 
@@ -80,7 +99,11 @@ export default function CategoriesPage() {
 
   const handleEdit = (category: ICategory) => {
     setEditingCategory(category);
-    setFormData(category);
+    setFormData({
+      ...category,
+      featured: category.featured ?? false,
+      featuredOrder: category.featuredOrder ?? 0,
+    });
     setShowModal(true);
   };
 
@@ -94,6 +117,8 @@ export default function CategoriesPage() {
       image: '',
       color: '#4F3500',
       order: 0,
+      featured: false,
+      featuredOrder: 0,
       status: 'active',
     });
   };
@@ -200,6 +225,19 @@ export default function CategoriesPage() {
                 {category.status === 'active' ? 'نشط' : 'غير نشط'}
               </span>
             </div>
+
+            {category.featured && (
+              <div className="mt-3 pt-3 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-yellow-400 text-sm font-medium flex items-center gap-1">
+                    ⭐ مميزة في الرئيسية
+                  </span>
+                  <span className="text-white/50 text-xs">
+                    ترتيب: {category.featuredOrder || 0}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -298,6 +336,44 @@ export default function CategoriesPage() {
                     <option value="inactive">غير نشط</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Featured toggle */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-white mb-2 block">عرض في الرئيسية (مميزة)</label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={!!formData.featured}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setFormData({
+                          ...formData,
+                          featured: isChecked,
+                          featuredOrder: isChecked ? (formData.featuredOrder || 1) : 0
+                        });
+                      }}
+                      className="w-5 h-5 accent-coffee-green"
+                    />
+                    <span className="text-white/80 text-sm">إظهار ضمن "إكتشف قائمة مشروباتنا"</span>
+                  </div>
+                </div>
+
+                {formData.featured && (
+                  <div>
+                    <label className="text-sm font-semibold text-white mb-2 block">ترتيب الظهور في الرئيسية</label>
+                    <select
+                      value={formData.featuredOrder || 1}
+                      onChange={(e) => setFormData({ ...formData, featuredOrder: parseInt(e.target.value) })}
+                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                    >
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <option key={i + 1} value={i + 1}>{i + 1}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 pt-4">

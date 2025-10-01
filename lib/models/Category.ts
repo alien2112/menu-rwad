@@ -9,6 +9,8 @@ export interface ICategory {
   color: string;
   icon?: string;
   order: number;
+  featured?: boolean;
+  featuredOrder?: number;
   status: 'active' | 'inactive';
   createdAt?: Date;
   updatedAt?: Date;
@@ -43,6 +45,15 @@ const CategorySchema = new Schema<ICategory>(
       type: Number,
       default: 0,
     },
+    featured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    featuredOrder: {
+      type: Number,
+      default: 0,
+    },
     status: {
       type: String,
       enum: ['active', 'inactive'],
@@ -51,10 +62,18 @@ const CategorySchema = new Schema<ICategory>(
   },
   {
     timestamps: true,
+    strict: false,
   }
 );
 
-const Category: Model<ICategory> =
-  mongoose.models.Category || mongoose.model<ICategory>('Category', CategorySchema);
+// Add index for featured categories
+CategorySchema.index({ featured: 1, featuredOrder: 1 });
+
+// Delete the existing model to force recompilation
+if (mongoose.models.Category) {
+  delete mongoose.models.Category;
+}
+
+const Category: Model<ICategory> = mongoose.model<ICategory>('Category', CategorySchema);
 
 export default Category;

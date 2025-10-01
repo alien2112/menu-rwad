@@ -5,6 +5,11 @@ import { CartProvider } from "@/contexts/CartContext";
 export const metadata: Metadata = {
   title: "مراكش - Maraksh Restaurant",
   description: "تجربة قهوة استثنائية في قلب المدينة المنورة",
+  icons: {
+    icon: "/موال مراكش طواجن  1 (1).png",
+    shortcut: "/موال مراكش طواجن  1 (1).png",
+    apple: "/موال مراكش طواجن  1 (1).png",
+  },
 };
 
 // Force all routes under this layout to be dynamically rendered (SSR)

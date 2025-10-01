@@ -3,15 +3,8 @@ const nextConfig = {
   // External packages for server components
   serverExternalPackages: ['mongoose'],
   
-  // Image optimization
+  // Image optimization (no external Builder.io patterns)
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'api.builder.io',
-        pathname: '/api/v1/image/assets/**',
-      },
-    ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
   },

@@ -20,6 +20,8 @@ export default function Home() {
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [categoryIds, setCategoryIds] = useState<Record<string, string>>({});
+  const [featuredCategories, setFeaturedCategories] = useState<Array<{ _id: string; name: string; nameEn?: string; image?: string; icon?: string; color?: string }>>([]);
   
   // Refs for GSAP animations
   const headerRef = useRef<HTMLDivElement>(null);
@@ -38,9 +40,6 @@ export default function Home() {
   const journeyPart3Ref = useRef<HTMLDivElement>(null);
   
   // Refs for inner cards in the second section
-  const imageCard1Ref = useRef<HTMLDivElement>(null);
-  const imageCard2Ref = useRef<HTMLDivElement>(null);
-  const imageCard3Ref = useRef<HTMLDivElement>(null);
   const textCard1Ref = useRef<HTMLDivElement>(null);
   const textCard2Ref = useRef<HTMLDivElement>(null);
   const textCard3Ref = useRef<HTMLDivElement>(null);
@@ -57,6 +56,111 @@ export default function Home() {
       console.error('Error fetching locations:', error);
     } finally {
       setLocationsLoading(false);
+    }
+  };
+
+  // Fetch categories for dynamic links
+  const fetchCategoryIds = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        const categories = data.data as Array<{ _id: string; name?: string; nameEn?: string }>;
+
+        const normalize = (v?: string) => (v || '').toLowerCase().trim();
+        const toSlug = (v?: string) => normalize(v).replace(/\s+/g, '-');
+        const matchesAny = (cat: { name?: string; nameEn?: string }, names: string[], partial: boolean = false) => {
+          const n = normalize(cat.name);
+          const e = normalize(cat.nameEn);
+          const ns = toSlug(cat.name);
+          const es = toSlug(cat.nameEn);
+          if (partial) {
+            return names.some(x => n.includes(x) || e.includes(x) || ns.includes(x) || es.includes(x));
+          }
+          return names.some(x => n === x || e === x || ns === x || es === x);
+        };
+
+        const map: Record<string, string> = {};
+
+        // Cold Coffee
+        const cold = categories.find(c => matchesAny(c, [
+          'cold coffee',
+          'iced coffee',
+          'قهوة باردة'
+        ], true));
+        if (cold) map['coldCoffee'] = cold._id;
+
+        // Hot Coffee
+        const hot = categories.find(c => matchesAny(c, [
+          'hot coffee',
+          'قهوة ساخنة',
+          'hot drinks',
+          'مشروبات ساخنة'
+        ], true));
+        if (hot) map['hotCoffee'] = hot._id;
+
+        // Tea
+        const tea = categories.find(c => matchesAny(c, [
+          'tea',
+          'الشاي',
+          'شاي'
+        ], true));
+        if (tea) map['tea'] = tea._id;
+
+        // Natural Juices
+        const juices = categories.find(c => matchesAny(c, [
+          'natural juices',
+          'juices',
+          'عصائر طبيعية',
+          'عصائر'
+        ], true));
+        if (juices) map['naturalJuices'] = juices._id;
+
+        // Drinks (generic)
+        const drinks = categories.find(c => matchesAny(c, [
+          'drinks',
+          'beverages',
+          'مشروبات'
+        ], true));
+        if (drinks) map['drinks'] = drinks._id;
+
+        // Water
+        const water = categories.find(c => matchesAny(c, [
+          'water',
+          'waters',
+          'ماء',
+          'مياه'
+        ], true));
+        if (water) map['water'] = water._id;
+
+        // Special Drinks / Signature
+        const special = categories.find(c => matchesAny(c, [
+          'special drinks',
+          'special beverages',
+          'signature drinks',
+          'signature',
+          'special',
+          'مشروبات خاصة'
+        ], true));
+        if (special) map['special'] = special._id;
+
+        setCategoryIds(map);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  // Fetch featured categories for homepage grid
+  const fetchFeaturedCategories = async () => {
+    try {
+      const response = await fetch('/api/categories?featured=true&limit=8');
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        setFeaturedCategories(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching featured categories:', error);
     }
   };
 
@@ -251,14 +355,13 @@ export default function Home() {
 
     // Fetch locations
     fetchLocations();
+    // Fetch categories for dynamic links
+    fetchCategoryIds();
+    // Fetch featured categories for homepage grid
+    fetchFeaturedCategories();
 
     // Set initial states for inner cards with staggered entrance
-    gsap.set([imageCard1Ref.current, imageCard2Ref.current, imageCard3Ref.current], {
-      opacity: 0,
-      scale: 0.8,
-      y: 20
-    });
-    gsap.set([textCard1Ref.current, textCard2Ref.current, textCard3Ref.current], {
+    gsap.set([textCard1Ref.current, textCard2Ref.current, textCard3Ref.current].filter(Boolean), {
       opacity: 0,
       scale: 0.8,
       y: 20
@@ -299,21 +402,21 @@ export default function Home() {
       ease: "power2.out"
     }, "-=0.1")
     // Animate inner cards with staggered entrance
-    .to([imageCard1Ref.current, textCard1Ref.current], {
+    .to([textCard1Ref.current].filter(Boolean), {
       opacity: 1,
       scale: 1,
       y: 0,
       duration: 0.6,
       ease: "back.out(1.7)"
     }, "-=0.2")
-    .to([imageCard2Ref.current, textCard2Ref.current], {
+    .to([textCard2Ref.current].filter(Boolean), {
       opacity: 1,
       scale: 1,
       y: 0,
       duration: 0.6,
       ease: "back.out(1.7)"
     }, "-=0.1")
-    .to([imageCard3Ref.current, textCard3Ref.current], {
+    .to([textCard3Ref.current].filter(Boolean), {
       opacity: 1,
       scale: 1,
       y: 0,
@@ -377,9 +480,8 @@ export default function Home() {
 
     // Add hover effects for inner cards
     const innerCards = [
-      imageCard1Ref.current, imageCard2Ref.current, imageCard3Ref.current,
       textCard1Ref.current, textCard2Ref.current, textCard3Ref.current
-    ];
+    ].filter(Boolean);
 
     innerCards.forEach(card => {
       if (card) {
@@ -482,12 +584,12 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-coffee-primary relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: '#4F3500' }}>
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
-      <div className="relative z-10 responsive-container bg-coffee-primary coffee-shadow min-h-screen">
+      <div className="relative z-10 responsive-container coffee-shadow min-h-screen" style={{ backgroundColor: '#4F3500' }}>
 
         {/* Header with Brand */}
         <div ref={headerRef} className="relative px-6 pt-8 pb-4 md:px-8 lg:px-12">
@@ -510,13 +612,24 @@ export default function Home() {
             className="w-full h-96 md:h-[400px] lg:h-[500px] object-cover rounded-2xl mx-auto"
           />
 
-          {/* Brand Logo */}
-          <img
-            ref={brandLogoRef}
-            src="/موال مراكش طواجن .png"
-            alt="موال مراكش طواجن"
-            className="w-28 h-20 md:w-32 md:h-24 lg:w-36 lg:h-28 object-contain absolute top-8 right-6 md:right-8 lg:right-12"
-          />
+          {/* Overlay Logo and Title/Text on Header Image */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center px-4">
+              <img
+                src="/موال مراكش طواجن  1 (1).png"
+                alt="موال مراكش طواجن"
+                className="mx-auto mb-3 md:mb-4 w-60 h-40 md:w-64 md:h-44 lg:w-72 lg:h-52 object-contain drop-shadow-lg"
+              />
+              <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold drop-shadow-lg">
+                تجربة قهوة استثنائية
+              </h1>
+              <p className="text-white/90 mt-2 md:mt-3 text-sm md:text-base lg:text-lg drop-shadow">
+                في قلب المدينة المنورة
+              </p>
+            </div>
+          </div>
+
+          {/* Removed separate top-right logo to keep center logo only */}
 
           {/* Brand Text */}
           <div ref={brandTextRef} className="text-center mt-4">
@@ -526,225 +639,254 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Browse Menu Button */}
+        {/* Primary CTA Buttons (below first section) */}
         <div ref={menuButtonRef} className="px-6 mb-6 md:px-8 lg:px-12">
-          <Link href="/menu">
-            <button className="glass-green-button rounded-3xl px-6 py-4 md:px-8 md:py-5 lg:px-10 lg:py-6 mx-auto block">
-              <span className="text-white arabic-body text-base md:text-lg lg:text-xl">تصفح المنيو</span>
-            </button>
-          </Link>
+          <div className="flex items-center justify-center gap-3 md:gap-5">
+            {/* Order Now */}
+            <a
+              href="https://wa.me/966567833138"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-3xl px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 shadow-lg transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/40"
+              style={{
+                background: 'linear-gradient(180deg, #3FA25B 0%, #2C8747 100%)',
+                boxShadow: '0 6px 18px rgba(27, 99, 55, 0.35)'
+              }}
+              aria-label="اطلب الآن"
+            >
+              <span className="text-white arabic-body text-base md:text-lg lg:text-xl">اطلب الآن</span>
+            </a>
+
+            {/* Browse Menu */}
+            <Link href="/menu" className="inline-block">
+              <button
+                className="rounded-3xl px-6 py-3 md:px-8 md:py-4 lg:px-10 lg:py-5 shadow-lg transition-transform duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white/40"
+                style={{
+                  background: 'linear-gradient(180deg, #CC6B2C 0%, #B9541A 100%)',
+                  boxShadow: '0 6px 18px rgba(180, 73, 18, 0.35)'
+                }}
+                aria-label="تصفح المنيو"
+              >
+                <span className="text-white arabic-body text-base md:text-lg lg:text-xl">تصفح المنيو</span>
+              </button>
+            </Link>
+          </div>
         </div>
 
         {/* Main Content Area with Notifications */}
-        <div ref={contentCardsRef} className="px-6 space-y-4 mb-6 md:px-8 lg:px-12">
+        <div ref={contentCardsRef} className="px-6 space-y-4 mb-6 md:px-8 lg:px-12 flex justify-center">
 
-          {/* Large Content Card */}
-          <div className="glass-notification rounded-3xl p-6 h-64 md:h-80 lg:h-96 relative inset-shadow" style={{ backgroundImage: 'url(/second-section-background-image.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-            <div className="absolute inset-0 bg-black bg-opacity-20 rounded-3xl"></div>
-            <div className="relative z-10 flex h-full">
-              {/* Left Side - 3 Small Cards */}
-              <div className="flex flex-col justify-center space-y-3 md:space-y-4 lg:space-y-5 w-20 md:w-24 lg:w-28">
-                <div ref={imageCard1Ref}>
-                  <NotificationCard 
-                    className="h-16 md:h-20 lg:h-24 cursor-pointer" 
-                    customStyle={{ 
-                      width: '66px', 
-                      height: '76px', 
-                      borderRadius: '18px',
-                      backgroundImage: 'url(/second-section-first-image.jpeg)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
-                    }}
-                  />
-                </div>
-                <div ref={imageCard2Ref}>
-                  <NotificationCard 
-                    className="h-16 md:h-20 lg:h-24 cursor-pointer" 
-                    customStyle={{ 
-                      width: '66px', 
-                      height: '76px', 
-                      borderRadius: '18px',
-                      backgroundImage: 'url(/second-section-second-image.jpeg)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
-                    }}
-                  />
-                </div>
-                <div ref={imageCard3Ref}>
-                  <NotificationCard 
-                    className="h-16 md:h-20 lg:h-24 cursor-pointer" 
-                    customStyle={{ 
-                      width: '66px', 
-                      height: '76px', 
-                      borderRadius: '18px',
-                      backgroundImage: 'url(/second-section-third-image-correct.png)',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
-                    }}
-                  />
+          {/* Large Content Card (Glass container with header + 3 glass notification cards) */}
+          <div
+            className="glass-notification relative inset-shadow w-full max-w-[395px]"
+            style={{
+              backgroundImage: 'url(/second-section-background-image.jpeg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              borderRadius: '24px',
+              height: '400px',
+              padding: '16px'
+            }}
+          >
+            <div className="relative z-10 flex flex-col h-full" style={{ gap: '12px' }}>
+              {/* Header text directly inside big container */}
+              <div
+                className="flex items-center justify-center"
+                style={{
+                  borderRadius: '18px',
+                  background: 'rgba(255,255,255,0.36)',
+                  height: '96px',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <div className="text-center px-3">
+                  <p className="text-[#3C2902] font-semibold" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif', fontSize: '18px', marginBottom: '4px' }}>تجربة القهوة المثالية</p>
+                  <p className="text-[#3C2902]" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif', fontSize: '12px', lineHeight: '16px' }}>كتشف فن تحضير القهوة في أجواء مراكشية أصيلة.</p>
+                  <p className="text-[#3C2902]" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif', fontSize: '12px', lineHeight: '16px' }}>كل كوب يحكي قصة من العاطفة والجودة</p>
                 </div>
               </div>
-              
-              {/* Right Side - Arabic Text Cards */}
-              <div className="flex-1 flex flex-col justify-center space-y-3 md:space-y-4 lg:space-y-5 pr-4 md:pr-6 lg:pr-8">
-                <div ref={textCard1Ref}>
-                  <NotificationCard className="h-16 md:h-20 lg:h-24 cursor-pointer">
-                    <p className="text-white arabic-body text-xs md:text-sm lg:text-base opacity-90 text-center">
-                      تحضير القهوة في أجواء مراكش ليلة من العاقة العودة
+              {/* Card 1 */}
+              <div ref={textCard1Ref}>
+                <NotificationCard
+                  className="cursor-pointer"
+                  customStyle={{
+                    borderRadius: '18px',
+                    background: 'rgba(255,255,255,0.28)',
+                    height: '80px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
+                      <img src="/second-section-first-image.jpeg" alt="coffee" className="w-full h-full object-cover" />
+                    </div>
+                    <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
+                      تجربة القهوة المثالية
                     </p>
-                  </NotificationCard>
-                </div>
-                <div ref={textCard2Ref}>
-                  <NotificationCard className="h-16 md:h-20 lg:h-24 cursor-pointer">
-                    <p className="text-white arabic-body text-xs md:text-sm lg:text-base opacity-90 text-center">
+                  </div>
+                </NotificationCard>
+              </div>
+              {/* Card 2 */}
+              <div ref={textCard2Ref}>
+                <NotificationCard
+                  className="cursor-pointer"
+                  customStyle={{
+                    borderRadius: '18px',
+                    background: 'rgba(255,255,255,0.28)',
+                    height: '80px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
+                      <img src="/second-section-second-image.jpeg" alt="beans" className="w-full h-full object-cover" />
+                    </div>
+                    <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
                       أجود أنواع القهوة المحضرة بعناية
                     </p>
-                  </NotificationCard>
-                </div>
-                <div ref={textCard3Ref}>
-                  <NotificationCard className="h-16 md:h-20 lg:h-24 cursor-pointer">
-                    <p className="text-white arabic-body text-xs md:text-sm lg:text-base opacity-90 text-center">
+                  </div>
+                </NotificationCard>
+              </div>
+              {/* Card 3 */}
+              <div ref={textCard3Ref}>
+                <NotificationCard
+                  className="cursor-pointer"
+                  customStyle={{
+                    borderRadius: '18px',
+                    background: 'rgba(255,255,255,0.28)',
+                    height: '80px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-start',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
+                      <img src="/second-section-third-image-correct.png" alt="cup" className="w-full h-full object-cover" />
+                    </div>
+                    <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
                       أجواء مراكش في كل كوب
                     </p>
-                  </NotificationCard>
-                </div>
+                  </div>
+                </NotificationCard>
               </div>
             </div>
           </div>
         </div>
 
         {/* Detail Section with Colored Buttons */}
-        <div className="px-6 mb-6 md:px-8 lg:px-12">
-          <div className="flex items-center justify-between">
-            {/* Three Circular Icons - Now on the left */}
-            <div className="flex space-x-3 md:space-x-4 lg:space-x-6">
-              <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full overflow-hidden shadow-lg bg-purple-800">
-                <img src="/location.png" alt="Location" className="w-full h-full object-cover" />
-              </div>
-              <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full overflow-hidden shadow-lg bg-gradient-to-br from-purple-500 to-pink-500">
+        <div className="px-6 mb-6 md:px-8 lg:px-12 flex justify-center">
+          <div className="flex items-center justify-between w-full max-w-[395px] sm:max-w-[480px] md:max-w-[700px] lg:max-w-[1000px] xl:max-w-[1200px]" style={{ gap: '16px' }}>
+            {/* White Detail Button */}
+            <div
+              className="bg-white rounded-full flex items-center shadow-lg flex-1"
+              style={{
+                height: '52px',
+                paddingLeft: '20px',
+                paddingRight: '20px',
+                justifyContent: 'space-between',
+                maxWidth: '220px'
+              }}
+            >
+              <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-gray-700 text-base font-medium">Detail</span>
+            </div>
+
+            {/* Three Circular Icons */}
+            <div className="flex gap-3 md:gap-4 lg:gap-5">
+              <a href="https://www.google.com/maps/place/%D9%85%D9%82%D9%87%D9%89+%D9%85%D9%88%D8%A7%D9%84+%D9%85%D8%B1%D8%A7%D9%83%D8%B4+2%E2%80%AD/@24.4901875,39.5808125,17z/data=!3m1!4b1!4m6!3m5!1s0x15bdbf5153b09cbd:0x7b7ff6dd63554a76!8m2!3d24.4901875!4d39.5808125!16s%2Fg%2F11zj89ysxh?entry=ttu&g_ep=EgoyMDI1MDkyOC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noreferrer" title="الموقع على الخرائط">
+                <div className="rounded-full overflow-hidden shadow-lg bg-purple-600" style={{ width: '48px', height: '48px' }}>
+                  <img src="/location.png" alt="Location" className="w-full h-full object-cover" />
+                </div>
+              </a>
+              <div className="rounded-full overflow-hidden shadow-lg bg-gradient-to-br from-blue-500 to-purple-600" style={{ width: '48px', height: '48px' }}>
                 <img src="/clock.png" alt="Clock" className="w-full h-full object-cover" />
               </div>
-              <div className="w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full overflow-hidden shadow-lg bg-green-500">
-                <img src="/whats.png" alt="WhatsApp" className="w-full h-full object-cover" />
-              </div>
-            </div>
-            
-            {/* White Detail Button - Now on the right */}
-            <div className="bg-white rounded-full flex items-center gap-2.5 shadow-lg" style={{ width: '402px', height: '52px', paddingRight: '16px' }}>
-              <span className="text-gray-700 text-base font-medium ml-4">Detail</span>
-              <div className="w-5 h-5 flex items-center justify-center">
-                <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
+              <a href="https://wa.me/966567833138" target="_blank" rel="noreferrer" title="WhatsApp" aria-label="WhatsApp">
+                <div className="rounded-full shadow-lg bg-[#25D366] hover:brightness-110 transition flex items-center justify-center" style={{ width: '48px', height: '48px' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="text-white" fill="currentColor" aria-hidden style={{ width: '28px', height: '28px' }}>
+                    <path d="M19.11 17.34c-.27-.14-1.62-.93-1.87-1.03-.25-.09-.43-.14-.6.14-.18.27-.69.93-.84 1.12-.15.18-.3.2-.56.07-.27-.14-1.12-.41-2.14-1.32-.79-.71-1.33-1.58-1.49-1.85-.16-.27-.02-.41.12-.55.13-.13.28-.3.4-.45.14-.15.18-.26.27-.43.09-.17.05-.32-.02-.45-.07-.13-.6-1.45-.82-1.99-.22-.52-.44-.45-.6-.46-.16-.01-.33-.01-.5-.01-.17 0-.45.07-.68.34-.23.27-.89.92-.89 2.24 0 1.32.91 2.6 1.04 2.78.13.18 1.8 2.9 4.36 4.06.61.28 1.08.44 1.45.56.61.2 1.17.18 1.61.11.49-.08 1.51-.65 1.73-1.28.21-.63.21-1.17.15-1.28-.06-.11-.23-.18-.48-.31z"/>
+                    <path d="M16 3C8.82 3 3 8.82 3 16c0 2.3.63 4.45 1.74 6.29L3 29l6.89-1.81C11.77 28.27 13.82 29 16 29c7.18 0 13-5.82 13-13S23.18 3 16 3zm0 23.4c-1.94 0-3.75-.6-5.24-1.62l-.38-.25-4.06 1.07 1.09-3.96-.26-.41A9.4 9.4 0 016.6 16c0-5.2 4.21-9.4 9.4-9.4s9.4 4.21 9.4 9.4-4.21 9.4-9.4 9.4z"/>
+                  </svg>
+                </div>
+              </a>
             </div>
           </div>
         </div>
 
         {/* New Big Card Section */}
         <div className="px-6 mb-6 md:px-8 lg:px-12 flex justify-center">
-          <div 
-            className="relative overflow-hidden shadow-lg w-full max-w-[395px] md:max-w-[450px] lg:max-w-[500px]"
-            style={{ 
-              height: '310px', 
-              borderRadius: '21px',
-              background: 'linear-gradient(to bottom, #FFFFFF, #754F37)'
+          <div
+            className="relative overflow-hidden shadow-lg w-full max-w-[395px] sm:max-w-[480px] md:max-w-[700px] lg:max-w-[1000px] xl:max-w-[1200px]"
+            style={{
+              height: 'auto',
+              borderRadius: '24px',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #754F37 100%)'
             }}
           >
-            {/* Loose Padding Guide */}
-            <div 
-              className="absolute border border-dashed border-black opacity-30 flex flex-col items-center justify-center py-8 space-y-8"
-              style={{
-                top: '18px',
-                left: '18px',
-                width: 'calc(100% - 36px)',
-                height: 'calc(100% - 36px)',
-                borderRadius: '11px'
-              }}
-            >
+            <div className="flex flex-col items-center justify-center h-full md:h-auto" style={{ padding: '20px' }}>
               {/* Arabic Text */}
-              <h3 
+              <h3
                 className="text-center text-black"
                 style={{
                   fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif',
                   fontWeight: '700',
-                  fontSize: '17px',
-                  lineHeight: '22px',
-                  letterSpacing: '0px',
-                  textAlign: 'center'
+                  fontSize: '20px',
+                  lineHeight: '24px',
+                  marginBottom: '20px'
                 }}
               >
                 إكتشف قائمة مشروباتنا
               </h3>
-              
-              {/* Drink Categories Grid */}
-              <div className="grid grid-cols-4 gap-2 w-full px-4">
-                {/* Hot Coffee */}
-                <Link href="/hot-coffee" className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Fire.png" alt="Hot Coffee" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">قهوة ساخنة</span>
-                </Link>
-                
-                {/* Cold Coffee */}
-                <Link href="/cold-coffee" className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Ice.png" alt="Cold Coffee" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">قهوة باردة</span>
-                </Link>
-                
-                {/* Tea */}
-                <Link href="/tea" className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Leaf Fluttering In Wind.png" alt="Tea" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">الشاي</span>
-                </Link>
-                
-                {/* Natural Juices */}
-                <Link href="/natural-juices" className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Tropical Drink.png" alt="Natural Juices" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">عصائر طبيعية</span>
-                </Link>
-                
-                {/* Cocktails */}
-                <Link href="/cocktails" className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Cup With Straw.png" alt="Cocktails" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">كوكتيل</span>
-                </Link>
-                
-                {/* Energy Drinks */}
-                <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/High Voltage.png" alt="Energy Drinks" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">مشروبات الطاقة</span>
-                </div>
-                
-                {/* Special Drinks */}
-                <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Glowing Star.png" alt="Special Drinks" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">مشروبات خاصة</span>
-                </div>
-                
-                {/* Water */}
-                <div className="w-16 h-16 bg-white rounded-2xl flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-gray-50 transition-colors">
-                  <img src="/Droplet.png" alt="Water" className="w-8 h-8 object-contain" style={{ filter: 'none !important', opacity: '1 !important', mixBlendMode: 'normal !important' }} />
-                  <span className="text-xs text-black text-center mt-1 leading-tight">ماء</span>
-                </div>
+
+              {/* Drink Categories Grid (dynamic by featured categories) */}
+              <div className="grid grid-cols-4 gap-3 md:gap-4 lg:gap-6 w-full mb-5 px-2 md:px-4 lg:px-6" style={{ maxWidth: '1200px' }}>
+                {featuredCategories.map((cat) => (
+                  <Link key={cat._id} href={`/category/${cat._id}`} className="flex flex-col items-center">
+                    <div className="bg-white rounded-xl shadow-md flex items-center justify-center md:w-20 md:h-20 lg:w-24 lg:h-24" style={{ width: '64px', height: '64px' }}>
+                      {cat.image ? (
+                        <img src={cat.image} alt={cat.name} className="object-contain" style={{ width: '40px', height: '40px' }} />
+                      ) : cat.icon ? (
+                        <img src={cat.icon} alt={cat.name} className="object-contain" style={{ width: '40px', height: '40px' }} />
+                      ) : (
+                        <div className="w-10 h-10 rounded" style={{ backgroundColor: cat.color || '#fff' }} />
+                      )}
+                    </div>
+                    <div className="text-center mt-1">
+                      <span className="text-[10px] md:text-xs lg:text-sm text-black block leading-tight">{cat.name}</span>
+                    </div>
+                  </Link>
+                ))}
               </div>
-              
+
               {/* Custom Menu Button */}
               <Link href="/menu" className="inline-block">
-                <div 
-                  className="px-8 py-3 rounded-full text-center cursor-pointer transition-all duration-200 hover:scale-105"
+                <div
+                  className="rounded-full text-center cursor-pointer transition-all duration-200 hover:scale-105"
                   style={{
                     background: 'linear-gradient(135deg, #D4C4A8 0%, #C4B49A 50%, #B8A68A 100%)',
-                    boxShadow: '0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -1px 0 rgba(0,0,0,0.1)',
-                    border: 'none',
-                    minWidth: '120px'
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                    paddingLeft: '40px',
+                    paddingRight: '40px',
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
+                    minWidth: '140px'
                   }}
                 >
-                  <span 
-                    className="text-lg font-semibold"
+                  <span
+                    className="text-lg md:text-xl lg:text-2xl font-semibold"
                     style={{
                       color: '#8B4513',
-                      fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif',
-                      textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                      fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif'
                     }}
                   >
                     القائمة
@@ -752,23 +894,15 @@ export default function Home() {
                 </div>
               </Link>
             </div>
-            
-            {/* Content - Removed */}
           </div>
         </div>
 
         {/* Our Location Section */}
-        <div className="px-6 py-8 md:px-8 lg:px-12">
-          {/* Section Title */}
-          <h2 className="text-white text-center text-2xl md:text-3xl lg:text-4xl mb-6" style={{ fontFamily: 'Seymour One, serif' }}>
-            موقعنا
-          </h2>
+        <div className="px-6 py-8 md:px-8 lg:px-12 flex justify-center">
           
           <div 
-            className="relative mx-auto rounded-3xl p-4 md:p-6 lg:p-8"
+            className="relative mx-auto rounded-3xl p-4 md:p-6 lg:p-8 w-full max-w-[395px] sm:max-w-[480px] md:max-w-[700px] lg:max-w-[1000px] xl:max-w-[1200px]"
             style={{
-              width: '100%',
-              maxWidth: '395px',
               height: 'auto',
               minHeight: '400px',
               backgroundImage: 'url(/location-travel-road.jpeg)',
@@ -777,20 +911,34 @@ export default function Home() {
               backgroundRepeat: 'no-repeat'
             }}
           >
-            {/* Search Bar */}
+            {/* Search Bar with title inside */}
             <div 
-              className="absolute mx-auto"
+              className="absolute mx-auto flex items-center justify-center"
               style={{
-                width: 'calc(100% - 32px)',
-                maxWidth: '268px',
-                height: '44px',
+                width: '184px',
+                height: '54px',
                 top: '16px',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 borderRadius: '100px',
-                backgroundColor: '#CCCCCC'
+                backgroundColor: '#CCCCCC',
+                opacity: 1
               }}
             >
+              <span
+                style={{
+                  color: '#FFFFFF',
+                  fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '24px',
+                  lineHeight: '100%',
+                  letterSpacing: '0px',
+                  textAlign: 'center',
+                  verticalAlign: 'middle'
+                }}
+              >
+                مواقعنا
+              </span>
             </div>
             
             {/* Dynamic Location Images */}
@@ -812,6 +960,33 @@ export default function Home() {
             special OFFERS
           </h2>
           <OffersSlider />
+        </div>
+
+        {/* Story Banner with overlaid title before journey animations */}
+        <div className="px-6 md:px-8 lg:px-12 flex justify-center mb-6">
+          <div className="relative w-full max-w-[395px] md:max-w-[700px] lg:max-w-[900px]">
+            <img
+              src="/Notification - Collapsed (1).png"
+              alt="قصتنا"
+              className="w-full object-contain"
+            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span
+                style={{
+                  fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif',
+                  fontWeight: 590,
+                  fontSize: '32px',
+                  lineHeight: '22px',
+                  letterSpacing: '0px',
+                  textAlign: 'center',
+                  verticalAlign: 'middle',
+                  color: '#3C2902'
+                }}
+              >
+                قصتنا
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Scroll Edge Effect */}
@@ -882,9 +1057,9 @@ export default function Home() {
           {/* Logo */}
           <div className="flex justify-end mb-4">
             <img
-              src="/موال مراكش طواجن .png"
+              src="/موال مراكش طواجن  1 (1).png"
               alt="موال مراكش طواجن"
-              className="w-24 h-16 md:w-28 md:h-20 lg:w-32 lg:h-24 object-contain"
+              className="w-28 h-20 md:w-32 md:h-24 lg:w-40 lg:h-28 object-contain"
             />
           </div>
 
@@ -907,12 +1082,58 @@ export default function Home() {
           </div>
 
           {/* Social Media Icons */}
-          <div className="flex justify-center space-x-2 md:space-x-4 lg:space-x-6 mt-6">
-            <img src="https://api.builder.io/api/v1/image/assets/TEMP/9847c593bb964595b310f34f1252e74193f86dea?width=42" alt="Social" className="w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6" />
-            <img src="https://api.builder.io/api/v1/image/assets/TEMP/35eaab4fef42eda826b4de533ea775b9ad0b81a9?width=42" alt="Social" className="w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6" />
-            <img src="https://api.builder.io/api/v1/image/assets/TEMP/43925dc1b52691edf4fa6ca8dd91ee42ede94a59?width=42" alt="Social" className="w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6" />
-            <img src="https://api.builder.io/api/v1/image/assets/TEMP/d077d93db1664d870170713a6cc1ab80f1c71ac6?width=40" alt="Social" className="w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6" />
-            <img src="https://api.builder.io/api/v1/image/assets/TEMP/631a75b08fec0a65d55bb799e45eab6d7995350d?width=42" alt="Social" className="w-5 h-4 md:w-6 md:h-5 lg:w-7 lg:h-6" />
+          <div className="flex justify-center gap-6 mt-6 text-white/80">
+            {/* Facebook */}
+            <a 
+              href="https://www.facebook.com/cafemwalmarakish" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="hover:text-white transition-colors duration-200"
+              title="Facebook"
+            >
+              <svg className="w-7 h-7 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            
+            {/* TikTok */}
+            <a 
+              href="https://www.tiktok.com/@mwal_marakish/video/7508959966254927122" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="hover:text-white transition-colors duration-200"
+              title="TikTok"
+            >
+              <svg className="w-7 h-7 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+              </svg>
+            </a>
+            
+            {/* X (Twitter) */}
+            <a 
+              href="https://x.com/mwal_marakish" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="hover:text-white transition-colors duration-200"
+              title="X"
+            >
+              <svg className="w-7 h-7 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            
+            {/* WhatsApp */}
+            <a 
+              href="https://wa.me/966567833138" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="hover:text-white transition-colors duration-200"
+              title="WhatsApp"
+            >
+              <svg className="w-7 h-7 md:w-8 md:h-8" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17.472 14.382c-.297-.149-1.758-1.012-2.03-1.123-.273-.112-.472-.149-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
+              </svg>
+            </a>
           </div>
         </div>
 
