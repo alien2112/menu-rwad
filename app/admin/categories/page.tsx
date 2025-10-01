@@ -12,6 +12,7 @@ export default function CategoriesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ICategory | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState<'basic' | 'colors'>('basic');
   const [formData, setFormData] = useState<Partial<ICategory>>({
     name: '',
     nameEn: '',
@@ -257,6 +258,19 @@ export default function CategoriesPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Tabs */}
+              <div className="flex gap-2 mb-2">
+                {['basic','colors'].map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveTab(key as 'basic' | 'colors')}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === key ? 'bg-coffee-green text-white' : 'glass-effect text-white/80 hover:bg-white/10'}`}
+                  >
+                    {key === 'basic' ? 'الأساسي' : 'الألوان'}
+                  </button>
+                ))}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">
@@ -310,6 +324,7 @@ export default function CategoriesPage() {
                 onChange={(image) => setFormData({ ...formData, image })}
               />
 
+              {activeTab === 'basic' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">
@@ -337,8 +352,9 @@ export default function CategoriesPage() {
                   </select>
                 </div>
               </div>
+              )}
 
-              {/* Featured toggle */}
+              {activeTab === 'basic' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">عرض في الرئيسية (مميزة)</label>
@@ -375,6 +391,17 @@ export default function CategoriesPage() {
                   </div>
                 )}
               </div>
+              )}
+
+              {activeTab === 'colors' && (
+                <div>
+                  <ColorPicker
+                    label="لون الفئة في صفحة القائمة"
+                    value={formData.color || '#4F3500'}
+                    onChange={(color) => setFormData({ ...formData, color })}
+                  />
+                </div>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <button

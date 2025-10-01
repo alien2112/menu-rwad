@@ -37,14 +37,47 @@ export default function HomepagePage() {
 
   const fetchImages = async () => {
     try {
-      const url = selectedSection
-        ? `/api/homepage?section=${selectedSection}`
-        : '/api/homepage';
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.success) {
-        setImages(data.data);
+      // Use dedicated API endpoint for signature-drinks
+      let allImages: IHomepageImage[] = [];
+
+      if (selectedSection === 'signature-drinks') {
+        // Fetch only signature drinks
+        const res = await fetch('/api/signature-drinks');
+        const data = await res.json();
+        if (data.success) {
+          allImages = data.data;
+        }
+      } else if (selectedSection) {
+        // Fetch specific section from homepage API
+        const res = await fetch(`/api/homepage?section=${selectedSection}`);
+        const data = await res.json();
+        if (data.success) {
+          allImages = data.data;
+        }
+      } else {
+        // Fetch all sections (signature-drinks + offers + journey)
+        const [sigDrinksRes, homepageRes] = await Promise.all([
+          fetch('/api/signature-drinks'),
+          fetch('/api/homepage')
+        ]);
+
+        const sigDrinksData = await sigDrinksRes.json();
+        const homepageData = await homepageRes.json();
+
+        const signatureDrinks = sigDrinksData.success ? sigDrinksData.data : [];
+        const otherSections = homepageData.success ? homepageData.data : [];
+
+        // Combine and sort by section and order
+        allImages = [...signatureDrinks, ...otherSections].sort((a, b) => {
+          if (a.section !== b.section) {
+            return a.section.localeCompare(b.section);
+          }
+          return a.order - b.order;
+        });
       }
+
+      console.log('[Admin Homepage] Set images:', allImages.length);
+      setImages(allImages);
     } catch (error) {
       console.error('Error fetching images:', error);
     } finally {
@@ -70,7 +103,12 @@ export default function HomepagePage() {
     if (editingImage) {
       // Update existing image (metadata only)
       try {
-        const res = await fetch(`/api/homepage/${editingImage._id}`, {
+        // Use dedicated API for signature-drinks
+        const endpoint = formData.section === 'signature-drinks'
+          ? `/api/signature-drinks/${editingImage._id}`
+          : `/api/homepage/${editingImage._id}`;
+
+        const res = await fetch(endpoint, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData),
@@ -126,11 +164,16 @@ export default function HomepagePage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, section?: string) => {
     if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return;
 
     try {
-      const res = await fetch(`/api/homepage/${id}`, { method: 'DELETE' });
+      // Use dedicated API for signature-drinks
+      const endpoint = section === 'signature-drinks'
+        ? `/api/signature-drinks/${id}`
+        : `/api/homepage/${id}`;
+
+      const res = await fetch(endpoint, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
         fetchImages();
@@ -243,6 +286,10 @@ export default function HomepagePage() {
                 alt={image.title}
                 fill
                 className="object-cover"
+                onError={(e) => {
+                  console.error('Admin image failed to load:', image.imageId);
+                  (e.currentTarget as HTMLImageElement).src = '/placeholder.jpg';
+                }}
               />
             </div>
 
@@ -262,7 +309,7 @@ export default function HomepagePage() {
                     <Edit2 size={16} />
                   </button>
                   <button
-                    onClick={() => handleDelete(image._id!)}
+                    onClick={() => handleDelete(image._id!, image.section)}
                     className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
                   >
                     <Trash2 size={16} />

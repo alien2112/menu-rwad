@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface Offer {
@@ -53,15 +54,11 @@ export default function OffersSlider() {
   }, [currentIndex]);
 
   const goToPrevious = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : offers.length - 1));
   };
 
   const goToNext = () => {
-    if (currentIndex < offers.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
+    setCurrentIndex((prev) => (prev < offers.length - 1 ? prev + 1 : 0));
   };
 
   if (loading) {
@@ -74,18 +71,16 @@ export default function OffersSlider() {
 
   return (
     <div className="space-y-4 relative">
-      {/* Up Navigation Button - Only show if can go up */}
-      {canGoUp && (
-        <div className="flex justify-center mb-4 animate-bounce">
-          <button
-            onClick={goToPrevious}
-            className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hover:scale-110"
-            aria-label="Previous offer"
-          >
-            <ChevronUp className="text-white" size={24} />
-          </button>
-        </div>
-      )}
+      {/* Up Navigation Button - Always visible and clickable */}
+      <div className="flex justify-center mb-4 animate-bounce">
+        <button
+          onClick={goToPrevious}
+          className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+          aria-label="Previous offer"
+        >
+          <ChevronUp className="text-white" size={24} />
+        </button>
+      </div>
 
       {/* Vertical Slider Container */}
       <div className="relative overflow-hidden" style={{ height: '280px' }}>
@@ -158,24 +153,24 @@ export default function OffersSlider() {
           <p className="text-sm md:text-base text-center px-4 opacity-90">
             اكتشف عروضنا الحصرية اليومية
           </p>
-          <button className="mt-4 px-6 py-2 glass-green-button rounded-full text-sm md:text-base font-semibold hover:bg-coffee-green transition-colors">
-            عرض المزيد
-          </button>
+          <Link href="/offers" className="mt-4">
+            <span className="inline-block px-6 py-2 glass-green-button rounded-full text-sm md:text-base font-semibold hover:bg-coffee-green transition-colors">
+              عرض المزيد
+            </span>
+          </Link>
         </div>
       </div>
 
-      {/* Down Navigation Button - Only show if can go down */}
-      {canGoDown && (
-        <div className="flex justify-center mt-4 animate-bounce">
-          <button
-            onClick={goToNext}
-            className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hover:scale-110"
-            aria-label="Next offer"
-          >
-            <ChevronDown className="text-white" size={24} />
-          </button>
-        </div>
-      )}
+      {/* Down Navigation Button - Always visible and clickable */}
+      <div className="flex justify-center mt-4 animate-bounce">
+        <button
+          onClick={goToNext}
+          className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hover:scale-110 cursor-pointer"
+          aria-label="Next offer"
+        >
+          <ChevronDown className="text-white" size={24} />
+        </button>
+      </div>
     </div>
   );
 }

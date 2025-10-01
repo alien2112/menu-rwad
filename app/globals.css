@@ -13,62 +13,57 @@
    * Combined theme variables for both coffee shop and menu designs
    */
   :root {
-    /* Coffee Brown Theme */
-    --coffee-primary: 28 100% 15%; /* #4F3500 - Dark coffee brown */
-    --coffee-secondary: 31 100% 12%; /* #3E2901 - Even darker brown */
-    --coffee-light: 40 85% 85%; /* Light cream color */
-    --coffee-green: 157 73% 49%; /* #00BF89 - Green button color */
-    --coffee-gold: 45 80% 60%; /* Gold/amber color */
+    /* Restaurant theme - warm, inviting colors */
+    --background: 18 15% 6%;
+    --foreground: 0 0% 100%;
 
-    /* Glass Morphism */
-    --glass-bg: 0 0% 100%; /* White base for glass */
-    --glass-opacity: 0.07; /* Glass transparency */
-    --glass-border: 0 0% 100%; /* White border */
+    --card: 0 0% 100% / 0.08;
+    --card-foreground: 0 0% 100%;
+    --card-border: 0 0% 100% / 0.15;
 
-    /* Text Colors */
-    --text-primary: 0 0% 100%; /* White text */
-    --text-secondary: 0 0% 80%; /* Light gray text */
-    --text-accent: 157 73% 49%; /* Green accent text */
+    --popover: 18 15% 8%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Base Tailwind Variables */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Coffee brown primary */
+    --primary: 32 72% 35%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 32 100% 50%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* Warm gold secondary */
+    --secondary: 38 65% 52%;
+    --secondary-foreground: 20 40% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* Muted glass effect */
+    --muted: 0 0% 100% / 0.12;
+    --muted-foreground: 0 0% 100% / 0.7;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Fresh green accent */
+    --accent: 142 50% 42%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 142 50% 42% / 0.2;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 0 0% 100% / 0.12;
+    --input: 0 0% 100% / 0.15;
+    --ring: 38 65% 52%;
 
     --radius: 1.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Status colors */
+    --status-active: 142 71% 45%;
+    --status-active-bg: 142 71% 45% / 0.18;
+    --status-inactive: 43 96% 56%;
+    --status-inactive-bg: 43 96% 56% / 0.18;
+
+    /* Category colors */
+    --category-offers: 32 72% 48%;
+    --category-tea: 142 45% 42%;
+    --category-cold-coffee: 217 91% 60%;
+    --category-hot-coffee: 36 81% 51%;
+    --category-juice: 142 76% 36%;
+    --category-cocktail: 330 81% 60%;
   }
 
   .dark {
@@ -327,4 +322,20 @@
   select {
     color-scheme: dark;
   }
+}
+
+/* Menu page animations */
+@keyframes fade-up-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.stagger-fade {
+  animation: fade-up-enter 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }

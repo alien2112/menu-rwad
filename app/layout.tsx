@@ -22,6 +22,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
+      <head>
+        {/* Preconnect to external domains */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* DNS prefetch for faster API calls */}
+        <link rel="dns-prefetch" href="https://api.builder.io" />
+      </head>
       <body className="antialiased">
         <CartProvider>
           {children}

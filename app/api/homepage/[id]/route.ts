@@ -6,10 +6,10 @@ import { deleteFromGridFS } from '@/lib/gridfs';
 // GET single homepage image
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     await dbConnect();
     const image = await HomepageImage.findById(id);
     if (!image) {
@@ -30,11 +30,12 @@ export async function GET(
 // PUT update homepage image
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
+    const { id } = params;
     const image = await HomepageImage.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -57,10 +58,11 @@ export async function PUT(
 // DELETE homepage image
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     await dbConnect();
+    const { id } = params;
     const image = await HomepageImage.findById(id);
 
     if (!image) {

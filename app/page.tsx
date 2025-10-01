@@ -6,6 +6,7 @@ import { NotificationCard } from "@/components/NotificationCard";
 import { Sidebar } from "@/components/Sidebar";
 import SignatureDrinksSlider from "@/components/SignatureDrinksSlider";
 import OffersSlider from "@/components/OffersSlider";
+import JourneySection from "@/components/JourneySection";
 import { CartIcon, CartModal } from "@/components/CartComponents";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
@@ -22,6 +23,8 @@ export default function Home() {
   const [selectedLocation, setSelectedLocation] = useState<any>(null);
   const [categoryIds, setCategoryIds] = useState<Record<string, string>>({});
   const [featuredCategories, setFeaturedCategories] = useState<Array<{ _id: string; name: string; nameEn?: string; image?: string; icon?: string; color?: string }>>([]);
+  const FEATURED_CACHE_KEY = 'home_featured_categories_cache_v1';
+  const FEATURED_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
   
   // Refs for GSAP animations
   const headerRef = useRef<HTMLDivElement>(null);
@@ -31,13 +34,7 @@ export default function Home() {
   const contentCardsRef = useRef<HTMLDivElement>(null);
   const signatureSectionRef = useRef<HTMLDivElement>(null);
   const offersSectionRef = useRef<HTMLDivElement>(null);
-  const journeySectionRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
-  
-  // Refs for individual journey sections
-  const journeyPart1Ref = useRef<HTMLDivElement>(null);
-  const journeyPart2Ref = useRef<HTMLDivElement>(null);
-  const journeyPart3Ref = useRef<HTMLDivElement>(null);
   
   // Refs for inner cards in the second section
   const textCard1Ref = useRef<HTMLDivElement>(null);
@@ -154,10 +151,25 @@ export default function Home() {
   // Fetch featured categories for homepage grid
   const fetchFeaturedCategories = async () => {
     try {
-      const response = await fetch('/api/categories?featured=true&limit=8');
+      const now = Date.now();
+      const cachedRaw = typeof window !== 'undefined' ? localStorage.getItem(FEATURED_CACHE_KEY) : null;
+      if (cachedRaw) {
+        try {
+          const cached = JSON.parse(cachedRaw) as { ts: number; items: any[] };
+          if (cached && Array.isArray(cached.items) && now - cached.ts < FEATURED_CACHE_TTL_MS) {
+            setFeaturedCategories(cached.items);
+            return;
+          }
+        } catch {}
+      }
+
+      const response = await fetch('/api/categories?featured=true&limit=8', { cache: 'no-store' });
       const data = await response.json();
       if (data.success && Array.isArray(data.data)) {
         setFeaturedCategories(data.data);
+        try {
+          localStorage.setItem(FEATURED_CACHE_KEY, JSON.stringify({ ts: now, items: data.data }));
+        } catch {}
       }
     } catch (error) {
       console.error('Error fetching featured categories:', error);
@@ -334,23 +346,9 @@ export default function Home() {
 
   useEffect(() => {
     // Set initial states
-    gsap.set([headerRef.current, brandLogoRef.current, brandTextRef.current, menuButtonRef.current, contentCardsRef.current, signatureSectionRef.current, offersSectionRef.current, journeySectionRef.current, footerRef.current], {
+    gsap.set([headerRef.current, brandLogoRef.current, brandTextRef.current, menuButtonRef.current, contentCardsRef.current, signatureSectionRef.current, offersSectionRef.current, footerRef.current].filter(Boolean), {
       opacity: 0,
       y: 50
-    });
-
-    // Set initial states for journey sections with specific directions
-    gsap.set(journeyPart1Ref.current, {
-      opacity: 0,
-      x: 100 // Start from right
-    });
-    gsap.set(journeyPart2Ref.current, {
-      opacity: 0,
-      x: -100 // Start from left
-    });
-    gsap.set(journeyPart3Ref.current, {
-      opacity: 0,
-      x: 100 // Start from right
     });
 
     // Fetch locations
@@ -371,76 +369,98 @@ export default function Home() {
     const tl = gsap.timeline();
 
     // Animate elements in sequence
-    tl.to(headerRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    })
-    .to(brandLogoRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "back.out(1.7)"
-    }, "-=0.4")
-    .to(brandTextRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out"
-    }, "-=0.3")
-    .to(menuButtonRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out"
-    }, "-=0.2")
-    .to(contentCardsRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "-=0.1")
+    if (headerRef.current) {
+      tl.to(headerRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      });
+    }
+    
+    if (brandLogoRef.current) {
+      tl.to(brandLogoRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      }, "-=0.4");
+    }
+    
+    if (brandTextRef.current) {
+      tl.to(brandTextRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.3");
+    }
+    
+    if (menuButtonRef.current) {
+      tl.to(menuButtonRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.2");
+    }
+    
+    if (contentCardsRef.current) {
+      tl.to(contentCardsRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.1");
+    }
     // Animate inner cards with staggered entrance
-    .to([textCard1Ref.current].filter(Boolean), {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "back.out(1.7)"
-    }, "-=0.2")
-    .to([textCard2Ref.current].filter(Boolean), {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "back.out(1.7)"
-    }, "-=0.1")
-    .to([textCard3Ref.current].filter(Boolean), {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "back.out(1.7)"
-    }, "-=0.1")
-    .to(signatureSectionRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "-=0.1")
-    .to(offersSectionRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "-=0.1")
-    .to(journeySectionRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: "power2.out"
-    }, "-=0.1");
+    if (textCard1Ref.current) {
+      tl.to(textCard1Ref.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      }, "-=0.2");
+    }
+    
+    if (textCard2Ref.current) {
+      tl.to(textCard2Ref.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      }, "-=0.1");
+    }
+    
+    if (textCard3Ref.current) {
+      tl.to(textCard3Ref.current, {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      }, "-=0.1");
+    }
+    
+    if (signatureSectionRef.current) {
+      tl.to(signatureSectionRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.1");
+    }
+    
+    if (offersSectionRef.current) {
+      tl.to(offersSectionRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power2.out"
+      }, "-=0.1");
+    }
 
     // Footer scroll-triggered animation
     const footerObserver = new IntersectionObserver((entries) => {
@@ -518,49 +538,13 @@ export default function Home() {
       });
     }, { threshold: 0.1 });
 
-    // Special observer for journey sections with directional animations
-    const journeyObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          if (entry.target === journeyPart1Ref.current) {
-            gsap.to(journeyPart1Ref.current, {
-              opacity: 1,
-              x: 0,
-              duration: 0.8,
-              ease: "power2.out"
-            });
-          } else if (entry.target === journeyPart2Ref.current) {
-            gsap.to(journeyPart2Ref.current, {
-              opacity: 1,
-              x: 0,
-              duration: 0.8,
-              ease: "power2.out"
-            });
-          } else if (entry.target === journeyPart3Ref.current) {
-            gsap.to(journeyPart3Ref.current, {
-              opacity: 1,
-              x: 0,
-              duration: 0.8,
-              ease: "power2.out"
-            });
-          }
-        }
-      });
-    }, { threshold: 0.1 });
-
     // Observe sections for scroll animations
-    [signatureSectionRef.current, offersSectionRef.current, journeySectionRef.current].forEach(ref => {
+    [signatureSectionRef.current, offersSectionRef.current].forEach(ref => {
       if (ref) observer.observe(ref);
-    });
-
-    // Observe individual journey sections
-    [journeyPart1Ref.current, journeyPart2Ref.current, journeyPart3Ref.current].forEach(ref => {
-      if (ref) journeyObserver.observe(ref);
     });
 
     return () => {
       observer.disconnect();
-      journeyObserver.disconnect();
     };
   }, []);
 
@@ -995,59 +979,7 @@ export default function Home() {
         </div>
 
         {/* Coffee Journey Content */}
-        <div ref={journeySectionRef} className="px-6 space-y-8 md:px-8 lg:px-12">
-
-          {/* Coffee Journey Section */}
-          <div ref={journeyPart1Ref} className="glass-notification rounded-3xl p-6 h-48 md:h-56 lg:h-64">
-            <div className="grid grid-cols-3 gap-4 h-full">
-              <img
-                src="/Cafea boabe.jpeg"
-                alt="Coffee Beans"
-                className="w-full h-36 md:h-44 lg:h-52 object-cover rounded-3xl shadow-lg"
-              />
-              <div className="col-span-2 flex flex-col justify-center text-white text-xs md:text-sm lg:text-base leading-5">
-                <h3 className="font-bold mb-2 text-sm md:text-base lg:text-lg">رحلتنا مع القهوة</h3>
-                <p className="text-right">
-                  من الحبة إلى الكوب، نصنع كل قهوة بشغف ودقة، لنقدم لك أرقى النكهات من جميع أنحاء العالم. بدأت رحلتنا بحلم بسيط: مشاركة الطعم الأصيل لثقافة القهوة المغربية.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Authentic Atmosphere Section */}
-          <div ref={journeyPart2Ref} className="glass-notification rounded-3xl p-6 h-48 md:h-56 lg:h-64">
-            <div className="grid grid-cols-3 gap-4 h-full">
-              <div className="col-span-2 flex flex-col justify-center text-white text-xs md:text-sm lg:text-base leading-5">
-                <h3 className="font-bold mb-2 text-sm md:text-base lg:text-lg text-right">أجواء أصيلة</h3>
-                <p className="text-right">
-                  ادخل إلى عالمنا حيث تلتقي الضيافة المغربية التقليدية بالراحة العصرية، لخلق تجربة لا تُنسى. كل زاوية تحكي قصة من التراث والدفء.
-                </p>
-              </div>
-              <img
-                src="/download (4).jpeg"
-                alt="Coffee Shop Atmosphere"
-                className="w-full h-36 md:h-44 lg:h-52 object-cover rounded-3xl shadow-lg"
-              />
-            </div>
-          </div>
-
-          {/* Premium Ingredients Section */}
-          <div ref={journeyPart3Ref} className="glass-notification rounded-3xl p-6 h-48 md:h-56 lg:h-64 mb-16">
-            <div className="grid grid-cols-3 gap-4 h-full">
-              <img
-                src="/Close up of coffee beans roast _ Premium Photo.jpeg"
-                alt="Premium Coffee Beans"
-                className="w-full h-36 md:h-44 lg:h-52 object-cover rounded-3xl"
-              />
-              <div className="col-span-2 flex flex-col justify-center text-white text-xs md:text-sm lg:text-base leading-5">
-                <h3 className="font-bold mb-2 text-sm md:text-base lg:text-lg">مكونات فاخرة</h3>
-                <p className="text-right">
-                  نختار فقط أرقى المكونات، من حبوب القهوة الفاخرة إلى الأعشاب الطازجة، لضمان أن كل رشفة استثنائية. الجودة هي وعدنا لك
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <JourneySection />
 
         {/* Spacing between last section and footer */}
         <div className="h-16 md:h-20 lg:h-24"></div>

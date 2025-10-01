@@ -16,6 +16,7 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<IMenuItem | null>(null);
+  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'colors' | 'ingredients' | 'more' | 'settings'>('basic');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [formData, setFormData] = useState<Partial<IMenuItem>>({
@@ -339,7 +340,28 @@ export default function ItemsPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Tabs */}
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: 'basic', label: 'الأساسي' },
+                  { key: 'images', label: 'الصور' },
+                  { key: 'colors', label: 'الألوان' },
+                  { key: 'ingredients', label: 'المكونات' },
+                  { key: 'more', label: 'معلومات إضافية' },
+                  { key: 'settings', label: 'الإعدادات' },
+                ].map(tab => (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => setActiveTab(tab.key as any)}
+                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === tab.key ? 'bg-coffee-green text-white' : 'glass-effect text-white/80 hover:bg-white/10'}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
               {/* Basic Info */}
+              {activeTab === 'basic' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">المعلومات الأساسية</h3>
 
@@ -442,8 +464,10 @@ export default function ItemsPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Images */}
+              {activeTab === 'images' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">الصور</h3>
                 <ImageUpload
@@ -452,15 +476,19 @@ export default function ItemsPage() {
                   onChange={(image) => setFormData({ ...formData, image })}
                 />
               </div>
+              )}
 
               {/* Color */}
-              <ColorPicker
-                label="اللون"
-                value={formData.color || '#4F3500'}
-                onChange={(color) => setFormData({ ...formData, color })}
-              />
+              {activeTab === 'colors' && (
+                <ColorPicker
+                  label="لون بطاقة المنتج في صفحة القائمة"
+                  value={formData.color || '#4F3500'}
+                  onChange={(color) => setFormData({ ...formData, color })}
+                />
+              )}
 
               {/* Ingredients */}
+              {activeTab === 'ingredients' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">المكونات</h3>
@@ -527,8 +555,10 @@ export default function ItemsPage() {
                   ))}
                 </div>
               </div>
+              )}
 
               {/* Additional Info */}
+              {activeTab === 'more' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">معلومات إضافية</h3>
 
@@ -570,8 +600,10 @@ export default function ItemsPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Settings */}
+              {activeTab === 'settings' && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">الإعدادات</h3>
 
@@ -616,6 +648,7 @@ export default function ItemsPage() {
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-3 pt-4 border-t border-white/10">

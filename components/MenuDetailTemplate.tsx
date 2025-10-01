@@ -103,7 +103,7 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-900 via-orange-800 to-red-900">
       {/* Background Image */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
+        className="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-90"
         style={{
           backgroundImage: `url('${getBackgroundImage()}')`
         }}
@@ -167,7 +167,6 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
                     </p>
                     {item.tags && item.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
-                        {console.log('Rendering tags for', item.title, ':', item.tags)}
                         {item.tags.map((tag, idx) => (
                           <span
                             key={idx}

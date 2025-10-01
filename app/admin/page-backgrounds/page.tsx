@@ -5,18 +5,7 @@ import { AdminAuth } from '@/components/AdminAuth';
 import { Plus, Edit, Trash2, Upload, Eye, EyeOff } from 'lucide-react';
 import { IPageBackground } from '@/lib/models/PageBackground';
 
-const STATIC_MENU_PAGES = [
-  { route: '/natural-juices', name: 'العصائر الطبيعية' },
-  { route: '/tea', name: 'الشاي' },
-  { route: '/hot-coffee', name: 'القهوة الساخنة' },
-  { route: '/cold-coffee', name: 'القهوة الباردة' },
-  { route: '/cocktails', name: 'الكوكتيل و الموهيتو' },
-  { route: '/manakish', name: 'المناقيش و الفطائر' },
-  { route: '/pizza', name: 'البيتزا' },
-  { route: '/sandwiches', name: 'السندوتش و البرجر' },
-  { route: '/desserts', name: 'الحلويات' },
-  { route: '/shisha', name: 'الشيشة' },
-];
+const MENU_PAGE_OPTION = { route: '/menu', name: 'قائمة الطعام (المنيو)' };
 
 export default function PageBackgroundsPage() {
   const [backgrounds, setBackgrounds] = useState<IPageBackground[]>([]);
@@ -268,38 +257,44 @@ export default function PageBackgroundsPage() {
                   <select
                     value={formData.pageRoute}
                     onChange={(e) => {
-                      const allPages = [...STATIC_MENU_PAGES, ...dynamicPages];
-                      const selectedPage = allPages.find(p => p.route === e.target.value);
+                      const selectedRoute = e.target.value;
+                      const allPages = [MENU_PAGE_OPTION, ...dynamicPages];
+                      const selectedPage = allPages.find(p => p.route === selectedRoute);
+
+                      console.log('Selected route:', selectedRoute);
+                      console.log('Selected page:', selectedPage);
+
                       setFormData(prev => ({
                         ...prev,
-                        pageRoute: e.target.value,
-                        pageName: selectedPage?.name || '',
+                        pageRoute: selectedRoute,
+                        pageName: selectedPage?.name || selectedRoute,
                       }));
                     }}
                     className="w-full px-4 py-3 bg-white/10 rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
                     style={{ colorScheme: 'dark' }}
                     required
+                    disabled={!!editingBackground}
                   >
                     <option value="" style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>اختر الصفحة</option>
-                    
-                    {/* Static Pages */}
-                    <optgroup label="الصفحات الثابتة" style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
-                      {STATIC_MENU_PAGES.map((page) => (
-                        <option key={page.route} value={page.route} style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
-                          {page.name}
-                        </option>
-                      ))}
-                    </optgroup>
-                    
+                    {/* Menu page */}
+                    <option value={MENU_PAGE_OPTION.route} style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
+                      {MENU_PAGE_OPTION.name}
+                    </option>
+
                     {/* Dynamic Pages */}
-                    <optgroup label="الصفحات الديناميكية" style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
-                      {dynamicPages.map((page) => (
-                        <option key={page.route} value={page.route} style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
-                          {page.name}
-                        </option>
-                      ))}
-                    </optgroup>
+                    {dynamicPages.length > 0 && (
+                      <optgroup label="الصفحات الديناميكية" style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
+                        {dynamicPages.map((page) => (
+                          <option key={page.route} value={page.route} style={{ backgroundColor: '#1a1a1a', color: '#ffffff' }}>
+                            {page.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
+                  {editingBackground && (
+                    <p className="text-white/50 text-xs mt-1">لا يمكن تعديل الصفحة للخلفية الموجودة</p>
+                  )}
                 </div>
 
                 <div>
@@ -310,7 +305,9 @@ export default function PageBackgroundsPage() {
                     onChange={(e) => setFormData(prev => ({ ...prev, pageName: e.target.value }))}
                     className="w-full px-4 py-3 bg-white/10 rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
                     required
+                    readOnly
                   />
+                  <p className="text-white/50 text-xs mt-1">يتم تحديد الاسم تلقائياً من القائمة</p>
                 </div>
 
                 <div>

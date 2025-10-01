@@ -9,11 +9,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const section = searchParams.get('section');
 
-    const query = section ? { section } : {};
-    const images = await HomepageImage.find(query).sort({ order: 1, createdAt: -1 });
+    const query = section ? { section, status: 'active' } : { status: 'active' };
+    const images = await HomepageImage.find(query).sort({ order: 1, createdAt: 1 });
 
     return NextResponse.json({ success: true, data: images });
   } catch (error: any) {
+    console.error('[Homepage API] Error:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 400 }
