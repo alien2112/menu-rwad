@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { JourneySkeleton } from './SkeletonLoader';
 
 // Register ScrollTrigger plugin
 if (typeof window !== 'undefined') {
@@ -129,15 +130,7 @@ export default function JourneySection() {
   };
 
   if (loading) {
-    return (
-      <div className="px-6 space-y-8 md:px-8 lg:px-12">
-        <div className="glass-notification rounded-3xl p-6 h-48 md:h-56 lg:h-64">
-          <div className="flex items-center justify-center h-full">
-            <p className="text-white">جاري التحميل...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <JourneySkeleton />;
   }
 
   if (journeyImages.length === 0) {

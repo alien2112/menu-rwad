@@ -8,6 +8,7 @@ import SignatureDrinksSlider from "@/components/SignatureDrinksSlider";
 import OffersSlider from "@/components/OffersSlider";
 import JourneySection from "@/components/JourneySection";
 import { CartIcon, CartModal } from "@/components/CartComponents";
+import ErrorBoundary, { SignatureDrinksErrorFallback, OffersErrorFallback, JourneyErrorFallback } from "@/components/ErrorBoundary";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
@@ -18,6 +19,20 @@ if (typeof window !== 'undefined') {
 
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Preload critical images
+  useEffect(() => {
+    const criticalImages = [
+      '/second-section-first-image.jpeg',
+      '/Cafea boabe.jpeg',
+      // Add other critical images here
+    ];
+    
+    criticalImages.forEach(src => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
@@ -940,7 +955,9 @@ export default function Home() {
           <h2 className="text-white text-center text-2xl md:text-3xl lg:text-4xl mb-6" style={{ fontFamily: 'Seymour One, serif' }}>
             Our Signature Drinks
           </h2>
-          <SignatureDrinksSlider />
+          <ErrorBoundary fallback={SignatureDrinksErrorFallback}>
+            <SignatureDrinksSlider />
+          </ErrorBoundary>
         </div>
 
         {/* Special Offers Section */}
@@ -948,7 +965,9 @@ export default function Home() {
           <h2 className="text-white text-center text-2xl md:text-3xl lg:text-4xl mb-6" style={{ fontFamily: 'Seymour One, serif' }}>
             special OFFERS
           </h2>
-          <OffersSlider />
+          <ErrorBoundary fallback={OffersErrorFallback}>
+            <OffersSlider />
+          </ErrorBoundary>
         </div>
 
         {/* Story Banner with overlaid title before journey animations */}
@@ -984,7 +1003,9 @@ export default function Home() {
         </div>
 
         {/* Coffee Journey Content */}
-        <JourneySection />
+        <ErrorBoundary fallback={JourneyErrorFallback}>
+          <JourneySection />
+        </ErrorBoundary>
 
         {/* Spacing between last section and footer */}
         <div className="h-16 md:h-20 lg:h-24"></div>

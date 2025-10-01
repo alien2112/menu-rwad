@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { OffersSkeleton } from './SkeletonLoader';
 
 interface Offer {
   _id: string;
@@ -62,11 +63,7 @@ export default function OffersSlider() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-72 glass-effect rounded-3xl">
-        <p className="text-white">جاري التحميل...</p>
-      </div>
-    );
+    return <OffersSkeleton />;
   }
 
   return (

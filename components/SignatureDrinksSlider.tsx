@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { SignatureDrinksSkeleton } from './SkeletonLoader';
 
 interface Drink {
   _id: string;
@@ -85,14 +86,7 @@ export default function SignatureDrinksSlider() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96 glass-effect rounded-3xl">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-coffee-green mx-auto mb-4"></div>
-          <p className="text-white text-lg">جاري التحميل...</p>
-        </div>
-      </div>
-    );
+    return <SignatureDrinksSkeleton />;
   }
 
   if (drinks.length === 0) {
@@ -118,19 +112,21 @@ export default function SignatureDrinksSlider() {
               className="glass-effect rounded-3xl overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300 group"
             >
               <div className="relative h-64">
-                <img
-                  src={drink.imageId ? `/api/images/${drink.imageId}` : '/second-section-first-image.jpeg'}
-                  alt={drink.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="eager"
-                  onError={(e) => {
-                    const target = e.currentTarget as HTMLImageElement;
-                    if (!target.dataset.fallbackAttempted) {
-                      target.dataset.fallbackAttempted = 'true';
-                      target.src = '/second-section-first-image.jpeg';
-                    }
-                  }}
-                />
+                 <img
+                   src={drink.imageId ? `/api/images/${drink.imageId}` : '/second-section-first-image.jpeg'}
+                   alt={drink.title}
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                   loading="eager"
+                   fetchPriority="high"
+                   decoding="async"
+                   onError={(e) => {
+                     const target = e.currentTarget as HTMLImageElement;
+                     if (!target.dataset.fallbackAttempted) {
+                       target.dataset.fallbackAttempted = 'true';
+                       target.src = '/second-section-first-image.jpeg';
+                     }
+                   }}
+                 />
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                   <span className="text-white font-semibold text-sm">انقر للمزيد</span>
@@ -175,18 +171,21 @@ export default function SignatureDrinksSlider() {
               {/* Image */}
               <div className="flex-shrink-0">
                 <div className="w-full md:w-80 h-80 rounded-2xl overflow-hidden shadow-2xl">
-                  <img
-                    src={selectedDrink.imageId ? `/api/images/${selectedDrink.imageId}` : '/second-section-first-image.jpeg'}
-                    alt={selectedDrink.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.currentTarget as HTMLImageElement;
-                      if (!target.dataset.fallbackAttempted) {
-                        target.dataset.fallbackAttempted = 'true';
-                        target.src = '/second-section-first-image.jpeg';
-                      }
-                    }}
-                  />
+                   <img
+                     src={selectedDrink.imageId ? `/api/images/${selectedDrink.imageId}` : '/second-section-first-image.jpeg'}
+                     alt={selectedDrink.title}
+                     className="w-full h-full object-cover"
+                     loading="eager"
+                     fetchPriority="high"
+                     decoding="async"
+                     onError={(e) => {
+                       const target = e.currentTarget as HTMLImageElement;
+                       if (!target.dataset.fallbackAttempted) {
+                         target.dataset.fallbackAttempted = 'true';
+                         target.src = '/second-section-first-image.jpeg';
+                       }
+                     }}
+                   />
                 </div>
               </div>
 
