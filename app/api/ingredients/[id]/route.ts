@@ -5,10 +5,10 @@ import Ingredient from '@/lib/models/Ingredient';
 // GET single ingredient
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
     const ingredient = await Ingredient.findById(id);
     if (!ingredient) {
@@ -29,12 +29,12 @@ export async function GET(
 // PUT update ingredient
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
     const ingredient = await Ingredient.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -57,11 +57,11 @@ export async function PUT(
 // DELETE ingredient
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const ingredient = await Ingredient.findByIdAndDelete(id);
     if (!ingredient) {
       return NextResponse.json(

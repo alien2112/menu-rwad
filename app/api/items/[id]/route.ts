@@ -5,10 +5,10 @@ import MenuItem from '@/lib/models/MenuItem';
 // GET single item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
     const item = await MenuItem.findById(id);
     if (!item) {
@@ -29,12 +29,12 @@ export async function GET(
 // PUT update item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
     const item = await MenuItem.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -57,11 +57,11 @@ export async function PUT(
 // DELETE item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const item = await MenuItem.findByIdAndDelete(id);
     if (!item) {
       return NextResponse.json(

@@ -82,26 +82,29 @@ const nextConfig = {
       };
     }
 
-    // Production optimizations
+    // Minimal production optimizations to avoid self is not defined error
     if (!dev) {
       config.optimization = {
         ...config.optimization,
         moduleIds: 'deterministic',
-        runtimeChunk: 'single',
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module) {
-                const packageName = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                )?.[1];
-                return `npm.${packageName?.replace('@', '')}`;
-              },
-            },
-          },
-        },
+        // Remove runtimeChunk and splitChunks to avoid issues
+        // runtimeChunk: 'single',
+        // splitChunks: {
+        //   chunks: 'all',
+        //   cacheGroups: {
+        //     default: {
+        //       minChunks: 2,
+        //       priority: -20,
+        //       reuseExistingChunk: true,
+        //     },
+        //     vendor: {
+        //       test: /[\\/]node_modules[\\/]/,
+        //       name: 'vendors',
+        //       priority: -10,
+        //       chunks: 'all',
+        //     },
+        //   },
+        // },
       };
     }
 
@@ -110,11 +113,11 @@ const nextConfig = {
 
   // Enable SWC minification (faster than Terser) - removed deprecated swcMinify
 
-  // Experimental features for better performance
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', 'gsap'],
-  },
+  // Experimental features disabled to avoid build issues
+  // experimental: {
+  //   // optimizeCss: true, // Disabled due to self is not defined error
+  //   optimizePackageImports: ['lucide-react', 'gsap'],
+  // },
 }
 
 module.exports = nextConfig

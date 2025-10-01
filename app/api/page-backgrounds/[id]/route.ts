@@ -5,10 +5,10 @@ import PageBackground from '@/lib/models/PageBackground';
 // GET single page background
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
     const background = await PageBackground.findById(id);
     if (!background) {
@@ -29,12 +29,12 @@ export async function GET(
 // PUT update page background
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
     const background = await PageBackground.findByIdAndUpdate(id, body, {
       new: true,
       runValidators: true,
@@ -57,11 +57,11 @@ export async function PUT(
 // DELETE page background
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const background = await PageBackground.findByIdAndDelete(id);
     if (!background) {
       return NextResponse.json(

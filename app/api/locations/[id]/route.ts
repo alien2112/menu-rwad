@@ -5,10 +5,10 @@ import Location from '@/lib/models/Location';
 // GET single location by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
     const location = await Location.findById(id);
     
@@ -31,12 +31,12 @@ export async function GET(
 // PUT update location
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
     const location = await Location.findByIdAndUpdate(
       id,
       body,
@@ -62,11 +62,11 @@ export async function PUT(
 // DELETE location
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const location = await Location.findByIdAndDelete(id);
     
     if (!location) {

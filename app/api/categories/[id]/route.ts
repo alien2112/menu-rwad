@@ -5,10 +5,10 @@ import Category from '@/lib/models/Category';
 // GET single category
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await dbConnect();
     const category = await Category.findById(id);
     if (!category) {
@@ -29,12 +29,12 @@ export async function GET(
 // PUT update category
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
     const body = await request.json();
-    const { id } = params;
+    const { id } = await params;
     console.log('Updating category', id, 'with data:', body);
     const category = await Category.findByIdAndUpdate(id, body, {
       new: true,
@@ -60,11 +60,11 @@ export async function PUT(
 // DELETE category
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
     const category = await Category.findByIdAndDelete(id);
     if (!category) {
       return NextResponse.json(
