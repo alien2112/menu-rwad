@@ -712,7 +712,7 @@ export default function Home() {
               {/* Card 1 */}
               <div ref={textCard1Ref}>
                 <NotificationCard
-                  className="cursor-pointer"
+                  className="cursor-default"
                   customStyle={{
                     borderRadius: '18px',
                     background: 'rgba(255,255,255,0.28)',
@@ -736,7 +736,7 @@ export default function Home() {
               {/* Card 2 */}
               <div ref={textCard2Ref}>
                 <NotificationCard
-                  className="cursor-pointer"
+                  className="cursor-default"
                   customStyle={{
                     borderRadius: '18px',
                     background: 'rgba(255,255,255,0.28)',
@@ -760,7 +760,7 @@ export default function Home() {
               {/* Card 3 */}
               <div ref={textCard3Ref}>
                 <NotificationCard
-                  className="cursor-pointer"
+                  className="cursor-default"
                   customStyle={{
                     borderRadius: '18px',
                     background: 'rgba(255,255,255,0.28)',

@@ -168,6 +168,7 @@ export default function Menu() {
                   <CategoryTile
                     title={item.title}
                     icon={item.iconSrc}
+                    fallbackSrc={item.iconAlt}
                     color={item.color || '#ffffff'}
                     href={item.route}
                   />

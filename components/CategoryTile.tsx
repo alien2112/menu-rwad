@@ -4,12 +4,13 @@ import { cn } from "@/lib/utils";
 
 interface CategoryTileProps {
   title: string;
-  icon: string;
+  icon: string; // primary image/icon src
+  fallbackSrc?: string; // optional fallback icon if primary fails
   color: string;
   href: string;
 }
 
-export const CategoryTile = ({ title, icon, color, href }: CategoryTileProps) => {
+export const CategoryTile = ({ title, icon, fallbackSrc, color, href }: CategoryTileProps) => {
   return (
     <a
       href={href}
@@ -27,7 +28,19 @@ export const CategoryTile = ({ title, icon, color, href }: CategoryTileProps) =>
         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl transition-transform group-hover:scale-110"
         style={{ backgroundColor: `${color}29` }}
       >
-        <img src={icon} alt={title} className="h-8 w-8 object-contain" />
+        <img
+          src={icon}
+          alt={title}
+          className="h-8 w-8 object-contain"
+          onError={(e) => {
+            const img = e.currentTarget as HTMLImageElement;
+            const attempted = img.getAttribute('data-fallback-attempted') === 'true';
+            if (!attempted && fallbackSrc) {
+              img.setAttribute('data-fallback-attempted', 'true');
+              img.src = fallbackSrc;
+            }
+          }}
+        />
       </div>
       <h3 className="text-lg font-bold text-foreground leading-tight">{title}</h3>
     </a>

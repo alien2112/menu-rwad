@@ -162,7 +162,7 @@ export default function JourneySection() {
             }}
             className="glass-notification rounded-3xl p-6 h-48 md:h-56 lg:h-64"
           >
-            <div className="grid grid-cols-3 gap-4 h-full">
+          <div className="grid grid-cols-3 gap-4 h-full">
               {isLeft ? (
                 <>
                   {/* Image on left */}
@@ -190,23 +190,23 @@ export default function JourneySection() {
                       delete target.dataset.fallbackAttempted;
                     }}
                   />
-                  {/* Text on right */}
-                  <div className="col-span-2 flex flex-col justify-center text-white text-xs md:text-sm lg:text-base leading-5">
-                    <h3 className="font-bold mb-2 text-sm md:text-base lg:text-lg">{image.title}</h3>
-                    <p className="text-right">
-                      {image.description || 'وصف القصة...'}
-                    </p>
-                  </div>
+                {/* Text on right */}
+                <div className="col-span-2 flex flex-col justify-center text-white leading-6">
+                  <h3 className="font-bold text-white mb-2 text-lg md:text-xl lg:text-2xl translate-y-1 md:translate-y-1.5 lg:translate-y-2">{image.title}</h3>
+                  <p className="text-right text-white/90 text-sm md:text-base lg:text-lg">
+                    {image.description || 'وصف القصة...'}
+                  </p>
+                </div>
                 </>
               ) : (
                 <>
                   {/* Text on left */}
-                  <div className="col-span-2 flex flex-col justify-center text-white text-xs md:text-sm lg:text-base leading-5">
-                    <h3 className="font-bold mb-2 text-sm md:text-base lg:text-lg text-right">{image.title}</h3>
-                    <p className="text-right">
-                      {image.description || 'وصف القصة...'}
-                    </p>
-                  </div>
+                <div className="col-span-2 flex flex-col justify-center text-white leading-6">
+                  <h3 className="font-bold text-white mb-2 text-lg md:text-xl lg:text-2xl text-right translate-y-1 md:translate-y-1.5 lg:translate-y-2">{image.title}</h3>
+                  <p className="text-right text-white/90 text-sm md:text-base lg:text-lg">
+                    {image.description || 'وصف القصة...'}
+                  </p>
+                </div>
                   {/* Image on right */}
                   <img
                     src={imgUrl}
