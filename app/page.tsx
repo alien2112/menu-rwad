@@ -36,8 +36,7 @@ export default function Home() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [locations, setLocations] = useState<any[]>([]);
   const [locationsLoading, setLocationsLoading] = useState(true);
-  const [showLocationModal, setShowLocationModal] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  // Removed location modal
   const [categoryIds, setCategoryIds] = useState<Record<string, string>>({});
   const [featuredCategories, setFeaturedCategories] = useState<Array<{ _id: string; name: string; nameEn?: string; image?: string; icon?: string; color?: string }>>([]);
   const FEATURED_CACHE_KEY = 'home_featured_categories_cache_v1';
@@ -193,24 +192,10 @@ export default function Home() {
     }
   };
 
-  // Handle location modal interactions
-  const handleLocationClick = (location: any) => {
-    setSelectedLocation(location);
-    setShowLocationModal(true);
-  };
-
-  const handleLocationTouchStart = (location: any) => {
-    setSelectedLocation(location);
-    setShowLocationModal(true);
-  };
-
-  const handleLocationTouchEnd = () => {
-    // Delay hiding to allow user to see the modal
-    setTimeout(() => {
-      setShowLocationModal(false);
-      setSelectedLocation(null);
-    }, 2000);
-  };
+  // Removed location modal interactions
+  const handleLocationClick = (_location: any) => {};
+  const handleLocationTouchStart = (_location: any) => {};
+  const handleLocationTouchEnd = () => {};
 
   // Render location images based on count
   const renderLocationImages = () => {
@@ -1129,88 +1114,7 @@ export default function Home() {
         </button>
       )}
 
-      {/* Location Details Modal */}
-      {showLocationModal && selectedLocation && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="glass-effect rounded-2xl p-6 w-full max-w-md">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">{selectedLocation.title}</h3>
-              {selectedLocation.titleEn && (
-                <p className="text-white/70 text-lg">{selectedLocation.titleEn}</p>
-              )}
-            </div>
-
-            {selectedLocation.description && (
-              <div className="mb-4">
-                <p className="text-white/90 text-center">{selectedLocation.description}</p>
-                {selectedLocation.descriptionEn && (
-                  <p className="text-white/70 text-center text-sm mt-1">{selectedLocation.descriptionEn}</p>
-                )}
-              </div>
-            )}
-
-            <div className="space-y-3">
-              {selectedLocation.address && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-coffee-green/20 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-coffee-green" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">{selectedLocation.address}</p>
-                    {selectedLocation.addressEn && (
-                      <p className="text-white/70 text-sm">{selectedLocation.addressEn}</p>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {selectedLocation.phone && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-coffee-green/20 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-coffee-green" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                    </svg>
-                  </div>
-                  <a 
-                    href={`tel:${selectedLocation.phone}`}
-                    className="text-white hover:text-coffee-green transition-colors"
-                  >
-                    {selectedLocation.phone}
-                  </a>
-                </div>
-              )}
-
-              {selectedLocation.email && (
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-coffee-green/20 rounded-full flex items-center justify-center">
-                    <svg className="w-4 h-4 text-coffee-green" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                  </div>
-                  <a 
-                    href={`mailto:${selectedLocation.email}`}
-                    className="text-white hover:text-coffee-green transition-colors"
-                  >
-                    {selectedLocation.email}
-                  </a>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-6 pt-4 border-t border-white/20">
-              <button
-                onClick={() => setShowLocationModal(false)}
-                className="w-full glass-effect px-4 py-3 rounded-xl text-white hover:bg-white/20 transition-colors"
-              >
-                إغلاق
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Location modal removed */}
     </div>
   );
 }
