@@ -158,6 +158,7 @@ export default function CategoryPage() {
       };
     }) || [];
 
+
     return {
       image: item.image || "",
       nameAr: item.name,
@@ -171,6 +172,7 @@ export default function CategoryPage() {
       ingredientTags,
       calories: (item as any).calories,
       preparationTime: (item as any).preparationTime,
+      servingSize: (item as any).servingSize,
     };
   });
 

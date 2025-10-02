@@ -90,6 +90,7 @@ export const MenuItemCard = ({
 
     handleAddToCart();
   };
+
   const statusConfig = {
     active: {
       label: "نشط",
@@ -139,11 +140,11 @@ export const MenuItemCard = ({
             {ingredientTags.map((tag, idx) => (
               <span
                 key={idx}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/20 text-accent border border-accent/30"
+                className="text-[10px] font-medium px-2 py-0.5 rounded-full"
                 style={{
-                  color: tag.color || 'hsl(var(--accent))',
-                  borderColor: tag.color || 'hsl(var(--accent))',
-                  backgroundColor: tag.color ? `${tag.color}20` : 'hsl(var(--accent) / 0.2)',
+                  backgroundColor: '#c59a6c26',
+                  color: '#c59a6c',
+                  border: '1px solid #c59a6c4D'
                 }}
                 title={tag.label}
               >
