@@ -963,7 +963,7 @@ export default function Home() {
               alt="قصتنا"
               className="w-full object-contain"
             />
-            <div className="absolute inset-0 flex items-end justify-center pb-8 md:pb-10 lg:pb-12">
+            <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateY(8px)' }}>
               <span
                 className="text-white"
                 style={{
