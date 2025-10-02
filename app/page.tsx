@@ -978,17 +978,19 @@ export default function Home() {
               alt="قصتنا"
               className="w-full object-contain"
             />
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-end justify-center pb-2 md:pb-3 lg:pb-4">
               <span
+                className="text-white"
                 style={{
                   fontFamily: 'SF Pro, -apple-system, BlinkMacSystemFont, sans-serif',
-                  fontWeight: 590,
-                  fontSize: '32px',
-                  lineHeight: '22px',
-                  letterSpacing: '0px',
+                  fontWeight: 700,
+                  fontSize: '48px',
+                  lineHeight: '1',
+                  letterSpacing: '0',
                   textAlign: 'center',
                   verticalAlign: 'middle',
-                  color: '#3C2902'
+                  WebkitTextStroke: '1px rgba(255,255,255,0.15)',
+                  textShadow: '0 8px 28px rgba(0,0,0,0.45)'
                 }}
               >
                 قصتنا
