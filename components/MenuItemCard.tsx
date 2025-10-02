@@ -22,6 +22,7 @@ interface MenuItemCardProps {
   ingredientTags?: IngredientTag[];
   calories?: number;
   preparationTime?: number;
+  servingSize?: string;
 }
 
 export const MenuItemCard = ({
@@ -37,6 +38,7 @@ export const MenuItemCard = ({
   ingredientTags,
   calories,
   preparationTime,
+  servingSize,
 }: MenuItemCardProps) => {
   const { dispatch } = useCart();
   const handleAddToCart = () => {
@@ -152,19 +154,36 @@ export const MenuItemCard = ({
         )}
 
         <div className="mb-3 flex items-center gap-3">
-          <span className="text-2xl font-extrabold text-accent">{price} ريال سعودي</span>
+          <span className="text-2xl font-extrabold" style={{ color: '#c59a6c' }}>{price} ريال سعودي</span>
           {oldPrice && <span className="text-base text-muted-foreground line-through">{oldPrice} ريال سعودي</span>}
         </div>
 
-        {(calories || preparationTime) && (
+        {(calories || preparationTime || servingSize) && (
           <div className="mb-3 flex flex-wrap items-center gap-2">
+            {servingSize && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
+                backgroundColor: '#c59a6c26',
+                color: '#c59a6c',
+                border: '1px solid #c59a6c4D'
+              }}>
+                {servingSize}
+              </span>
+            )}
             {calories && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-400/30">
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
+                backgroundColor: '#c59a6c26',
+                color: '#c59a6c',
+                border: '1px solid #c59a6c4D'
+              }}>
                 {calories} kcal
               </span>
             )}
             {preparationTime && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-400/30">
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
+                backgroundColor: '#c59a6c26',
+                color: '#c59a6c',
+                border: '1px solid #c59a6c4D'
+              }}>
                 {preparationTime} min
               </span>
             )}
@@ -183,7 +202,11 @@ export const MenuItemCard = ({
               type="button"
               onClick={handleButtonClick}
               aria-label="أضف للسلة"
-              className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.35)] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(16,185,129,0.55)] hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
+              style={{
+                background: '#c59a6c',
+                boxShadow: '0 4px 12px rgba(197,154,108,0.35)'
+              }}
             >
               <span className="relative z-10">أضف للسلة</span>
               {/* Shine effect */}

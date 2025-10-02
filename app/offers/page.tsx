@@ -32,10 +32,31 @@ export default function Offers() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [specialCategoryId, setSpecialCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchOffers();
+    // Load special offers category id, then offers
+    Promise.all([fetchSpecialOffersCategoryId()])
+      .then(() => fetchOffers())
+      .catch(() => fetchOffers());
   }, []);
+
+  const fetchSpecialOffersCategoryId = async () => {
+    try {
+      const res = await fetch('/api/categories');
+      const data = await res.json();
+      if (data?.success && Array.isArray(data.data)) {
+        const specials = data.data.find((c: any) => {
+          const name: string = (c?.name || '').toLowerCase();
+          const nameEn: string = (c?.nameEn || '').toLowerCase();
+          return name.includes('العروض') || nameEn === 'offers' || nameEn.includes('offer');
+        });
+        if (specials?._id) setSpecialCategoryId(specials._id as string);
+      }
+    } catch (e) {
+      // non-fatal; we can still show generic active offers
+    }
+  };
 
   const fetchOffers = async () => {
     try {
@@ -43,12 +64,17 @@ export default function Offers() {
       const data = await response.json();
       
       if (data.success) {
-        // Filter only active offers
-        const activeOffers = data.data.filter((offer: Offer) => 
-          offer.status === 'active' && 
-          new Date(offer.endDate) > new Date()
+        // Filter only active and not expired
+        let result: Offer[] = data.data.filter((offer: Offer) => 
+          offer.status === 'active' && new Date(offer.endDate) > new Date()
         );
-        setOffers(activeOffers);
+
+        // If we have the special offers category, restrict to offers tagged for it
+        if (specialCategoryId) {
+          result = result.filter((offer: any) => Array.isArray(offer.applicableCategories) && offer.applicableCategories.includes(specialCategoryId));
+        }
+
+        setOffers(result);
       } else {
         setError('Failed to fetch offers');
       }

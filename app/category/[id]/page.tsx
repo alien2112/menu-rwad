@@ -169,6 +169,8 @@ export default function CategoryPage() {
       status: (item.status === 'out_of_stock' ? 'out' : item.status === 'inactive' ? 'inactive' : 'active') as 'active' | 'inactive' | 'out',
       isFeatured: false,
       ingredientTags,
+      calories: (item as any).calories,
+      preparationTime: (item as any).preparationTime,
     };
   });
 
