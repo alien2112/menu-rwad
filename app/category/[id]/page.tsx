@@ -241,11 +241,17 @@ export default function CategoryPage() {
               <p className="text-base text-white/80">{category.description}</p>
             )}
           </header>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {displayItems.map((it, idx) => (
-              <MenuItemCard key={idx} {...it} />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {displayItems.map((it, idx) => (
+            <div
+              key={idx}
+              className="stagger-fade"
+              style={{ animationDelay: `${idx * 100}ms` }}
+            >
+              <MenuItemCard {...it} />
+            </div>
+          ))}
+        </div>
         </ErrorBoundary>
       </div>
     </div>

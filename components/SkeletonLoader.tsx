@@ -55,6 +55,23 @@ export const SkeletonButton: React.FC<{ className?: string }> = ({ className = '
   <Skeleton height="h-12" width="w-32" className={`rounded-full ${className}`} />
 );
 
+// Journey skeleton (restored for JourneySection fallback)
+export const JourneySkeleton: React.FC = () => (
+  <div className="px-6 space-y-8 md:px-8 lg:px-12">
+    {Array.from({ length: 3 }).map((_, index) => (
+      <div key={index} className="glass-notification rounded-3xl p-6">
+        <div className="flex flex-col md:flex-row gap-6">
+          <SkeletonImage className="w-full md:w-80 h-64 md:h-80" />
+          <div className="flex-1 space-y-4">
+            <SkeletonText lines={3} />
+            <SkeletonButton />
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 // Loading states for specific components
 export const SignatureDrinksSkeleton: React.FC = () => (
   <div className="w-full">

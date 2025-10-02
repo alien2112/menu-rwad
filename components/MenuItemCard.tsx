@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
+import React from "react";
 
 interface IngredientTag {
   label: string;
@@ -32,6 +34,56 @@ export const MenuItemCard = ({
   isFeatured,
   ingredientTags,
 }: MenuItemCardProps) => {
+  const { dispatch } = useCart();
+  const handleAddToCart = () => {
+    dispatch({
+      type: 'ADD_ITEM',
+      payload: {
+        id: `${nameAr}-${nameEn}`,
+        name: nameAr,
+        nameEn,
+        price,
+        image,
+        category,
+      }
+    });
+  };
+
+  const handleButtonClick: React.MouseEventHandler<HTMLButtonElement> = (e) => {
+    // Create ripple effect
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+
+    const ripple = document.createElement('span');
+    ripple.style.position = 'absolute';
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    ripple.style.width = `${size}px`;
+    ripple.style.height = `${size}px`;
+    ripple.style.borderRadius = '9999px';
+    ripple.style.background = 'rgba(255,255,255,0.35)';
+    ripple.style.pointerEvents = 'none';
+    ripple.style.transform = 'scale(0)';
+    ripple.style.opacity = '0.8';
+    ripple.style.transition = 'transform 500ms ease-out, opacity 600ms ease-out';
+    ripple.className = 'ripple-effect';
+
+    button.appendChild(ripple);
+    // Force reflow to start transition
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    ripple.offsetHeight;
+    ripple.style.transform = 'scale(3)';
+    ripple.style.opacity = '0';
+
+    window.setTimeout(() => {
+      ripple.remove();
+    }, 650);
+
+    handleAddToCart();
+  };
   const statusConfig = {
     active: {
       label: "نشط",
@@ -100,11 +152,27 @@ export const MenuItemCard = ({
           {oldPrice && <span className="text-base text-muted-foreground line-through">{oldPrice} ريال سعودي</span>}
         </div>
 
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">{category}</span>
-          <span className={cn("rounded-full px-3 py-1 font-semibold", statusConfig[status].className)}>
-            {statusConfig[status].label}
-          </span>
+        <div className="flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">{category}</span>
+            <span className={cn("rounded-full px-3 py-1 font-semibold", statusConfig[status].className)}>
+              {statusConfig[status].label}
+            </span>
+          </div>
+          {status !== 'inactive' && (
+            <button
+              type="button"
+              onClick={handleButtonClick}
+              aria-label="أضف للسلة"
+              className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-[0_4px_12px_rgba(16,185,129,0.35)] transition-all duration-300 hover:shadow-[0_8px_20px_rgba(16,185,129,0.55)] hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
+            >
+              <span className="relative z-10">أضف للسلة</span>
+              {/* Shine effect */}
+              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute -left-8 top-0 h-full w-8 bg-white/30 transform rotate-12 translate-x-0 group-hover:translate-x-[160%] transition-transform duration-700" />
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </article>
