@@ -67,7 +67,7 @@ export default function Menu() {
             .map((category: Category) => ({
               id: category._id,
               title: category.name,
-              iconSrc: category.icon || category.image || '',
+              iconSrc: category.image || category.icon || '',
               iconAlt: category.nameEn || category.name,
               route: `/category/${category._id}`,
               color: category.color
