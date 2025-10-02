@@ -20,6 +20,8 @@ interface MenuItemCardProps {
   status: "active" | "out" | "inactive";
   isFeatured?: boolean;
   ingredientTags?: IngredientTag[];
+  calories?: number;
+  preparationTime?: number;
 }
 
 export const MenuItemCard = ({
@@ -33,6 +35,8 @@ export const MenuItemCard = ({
   status,
   isFeatured,
   ingredientTags,
+  calories,
+  preparationTime,
 }: MenuItemCardProps) => {
   const { dispatch } = useCart();
   const handleAddToCart = () => {
@@ -151,6 +155,21 @@ export const MenuItemCard = ({
           <span className="text-2xl font-extrabold text-accent">{price} ريال سعودي</span>
           {oldPrice && <span className="text-base text-muted-foreground line-through">{oldPrice} ريال سعودي</span>}
         </div>
+
+        {(calories || preparationTime) && (
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            {calories && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/15 text-rose-400 border border-rose-400/30">
+                {calories} kcal
+              </span>
+            )}
+            {preparationTime && (
+              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-400/30">
+                {preparationTime} min
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-2">
