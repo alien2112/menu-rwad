@@ -192,7 +192,7 @@ export default function JourneySection() {
                   />
                 {/* Text on right */}
                 <div className="col-span-2 flex flex-col justify-center text-white leading-6">
-                  <h3 className="font-bold text-white mb-2 text-lg md:text-xl lg:text-2xl translate-y-1 md:translate-y-1.5 lg:translate-y-2">{image.title}</h3>
+                  <h3 className="font-bold text-white mb-2 text-base md:text-lg lg:text-xl translate-y-0 md:translate-y-0.5 lg:translate-y-1">{image.title}</h3>
                   <p className="text-right text-white/90 text-sm md:text-base lg:text-lg">
                     {image.description || 'وصف القصة...'}
                   </p>
@@ -202,7 +202,7 @@ export default function JourneySection() {
                 <>
                   {/* Text on left */}
                 <div className="col-span-2 flex flex-col justify-center text-white leading-6">
-                  <h3 className="font-bold text-white mb-2 text-lg md:text-xl lg:text-2xl text-right translate-y-1 md:translate-y-1.5 lg:translate-y-2">{image.title}</h3>
+                  <h3 className="font-bold text-white mb-2 text-base md:text-lg lg:text-xl text-right translate-y-0 md:translate-y-0.5 lg:translate-y-1">{image.title}</h3>
                   <p className="text-right text-white/90 text-sm md:text-base lg:text-lg">
                     {image.description || 'وصف القصة...'}
                   </p>

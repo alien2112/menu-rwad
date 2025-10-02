@@ -243,7 +243,7 @@ export default function Home() {
       return (
         <div className="absolute" style={{ top: '80px', left: '16px', right: '16px' }}>
           <div 
-            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-pointer transition-transform hover:scale-105"
+            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-default"
             style={{
               width: '100%',
               height: '280px',
@@ -269,7 +269,7 @@ export default function Home() {
           {allImages.slice(0, 2).map((imageData, index) => (
             <div 
               key={index}
-              className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-pointer transition-transform hover:scale-105 flex-1"
+              className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-default flex-1"
               style={{
                 height: '280px',
                 borderRadius: '24px',
@@ -294,7 +294,7 @@ export default function Home() {
         <div className="absolute flex flex-col gap-2 md:gap-4" style={{ top: '80px', left: '16px', right: '16px' }}>
           {/* First image - big */}
           <div 
-            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-pointer transition-transform hover:scale-105"
+            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-default"
             style={{
               width: '100%',
               height: '180px',
@@ -315,7 +315,7 @@ export default function Home() {
             {allImages.slice(1, 3).map((imageData, index) => (
               <div 
                 key={index + 1}
-                className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-pointer transition-transform hover:scale-105 flex-1"
+                className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-default flex-1"
                 style={{
                   height: '100px',
                   borderRadius: '24px',
@@ -341,7 +341,7 @@ export default function Home() {
         {allImages.slice(0, 4).map((imageData, index) => (
           <div 
             key={index}
-            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-pointer transition-transform hover:scale-105"
+            className="bg-white rounded-2xl md:rounded-3xl shadow-lg cursor-default"
             style={{
               width: '100%',
               height: '100px',
