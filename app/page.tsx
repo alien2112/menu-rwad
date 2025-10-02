@@ -978,7 +978,7 @@ export default function Home() {
               alt="قصتنا"
               className="w-full object-contain"
             />
-            <div className="absolute inset-0 flex items-end justify-center pb-2 md:pb-3 lg:pb-4">
+            <div className="absolute inset-0 flex items-end justify-center pb-8 md:pb-10 lg:pb-12">
               <span
                 className="text-white"
                 style={{

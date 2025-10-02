@@ -161,7 +161,7 @@ export default function Menu() {
       ) : (
         <ErrorBoundary>
           <div className="relative z-10 px-6 pb-8 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-            <MenuHeader iconSrc={backgroundImageUrl} />
+            <MenuHeader />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {menuItems.map((item, index) => (
                 <div className="stagger-fade" style={{ animationDelay: `${index * 100}ms` }} key={item.id}>
