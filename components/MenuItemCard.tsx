@@ -167,7 +167,7 @@ export const MenuItemCard = ({
                 color: '#c59a6c',
                 border: '1px solid #c59a6c4D'
               }}>
-                {servingSize}
+                حجم الحصة: {servingSize}
               </span>
             )}
             {calories && (
