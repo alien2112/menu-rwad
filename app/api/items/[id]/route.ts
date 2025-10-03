@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItem from '@/lib/models/MenuItem';
+import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // GET single item
 export async function GET(
@@ -10,6 +11,9 @@ export async function GET(
   try {
     const { id } = await params;
     await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const admin = searchParams.get('admin');
+
     const item = await MenuItem.findById(id);
     if (!item) {
       return NextResponse.json(
@@ -17,7 +21,10 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: item });
+    return NextResponse.json(
+      { success: true, data: item },
+      { headers: getCacheHeaders(admin === 'true') }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -45,7 +52,14 @@ export async function PUT(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: item });
+
+    // Invalidate all item-related caches
+    CacheInvalidation.items();
+
+    return NextResponse.json(
+      { success: true, data: item },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -69,7 +83,14 @@ export async function DELETE(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: {} });
+
+    // Invalidate all item-related caches
+    CacheInvalidation.items();
+
+    return NextResponse.json(
+      { success: true, data: {} },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

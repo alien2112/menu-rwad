@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/mongodb';
 import HomepageImage from '@/lib/models/HomepageImage';
 import mongoose from 'mongoose';
+import { cache } from '@/lib/cache';
 
 // GET single signature drink by ID
 export async function GET(
@@ -82,10 +84,24 @@ export async function PUT(
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      data: drink
-    });
+    // Clear cache
+    cache.delete('signature-drinks:active');
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidateTag('signature-drinks');
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: drink
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     console.error('[Signature Drinks API] Error updating:', error);
     return NextResponse.json(
@@ -122,10 +138,24 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Signature drink deleted successfully'
-    });
+    // Clear cache
+    cache.delete('signature-drinks:active');
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidateTag('signature-drinks');
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Signature drink deleted successfully'
+      },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     console.error('[Signature Drinks API] Error deleting:', error);
     return NextResponse.json(

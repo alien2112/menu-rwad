@@ -31,7 +31,14 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
+      const timestamp = Date.now();
+      const res = await fetch(`/api/categories?admin=true&_t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        },
+      });
       const data = await res.json();
       if (data.success) {
         setCategories(data.data);

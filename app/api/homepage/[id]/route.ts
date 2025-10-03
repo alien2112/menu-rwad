@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/mongodb';
 import HomepageImage from '@/lib/models/HomepageImage';
 import { deleteFromGridFS } from '@/lib/gridfs';
+import { cache } from '@/lib/cache';
 
 // GET single homepage image
 export async function GET(
@@ -46,7 +48,26 @@ export async function PUT(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: image });
+
+    // Clear server-side cache
+    cache.delete('signature-drinks:active');
+    cache.delete('offers:all');
+    cache.delete('homepage:all');
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidatePath('/offers');
+    revalidateTag('homepage');
+    revalidateTag('signature-drinks');
+
+    return NextResponse.json(
+      { success: true, data: image },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -84,7 +105,25 @@ export async function DELETE(
     // Delete document
     await HomepageImage.findByIdAndDelete(id);
 
-    return NextResponse.json({ success: true, data: {} });
+    // Clear server-side cache
+    cache.delete('signature-drinks:active');
+    cache.delete('offers:all');
+    cache.delete('homepage:all');
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidatePath('/offers');
+    revalidateTag('homepage');
+    revalidateTag('signature-drinks');
+
+    return NextResponse.json(
+      { success: true, data: {} },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

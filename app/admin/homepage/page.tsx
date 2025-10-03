@@ -37,28 +37,56 @@ export default function HomepagePage() {
 
   const fetchImages = async () => {
     try {
+      setLoading(true);
       // Use dedicated API endpoint for signature-drinks
       let allImages: IHomepageImage[] = [];
 
+      // Add timestamp to bust cache
+      const timestamp = Date.now();
+
       if (selectedSection === 'signature-drinks') {
-        // Fetch only signature drinks
-        const res = await fetch('/api/signature-drinks');
+        // Fetch only signature drinks - ADMIN MODE (no cache)
+        const res = await fetch(`/api/signature-drinks?admin=true&_t=${timestamp}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
+        });
         const data = await res.json();
         if (data.success) {
           allImages = data.data;
         }
       } else if (selectedSection) {
-        // Fetch specific section from homepage API
-        const res = await fetch(`/api/homepage?section=${selectedSection}`);
+        // Fetch specific section from homepage API - ADMIN MODE (no cache)
+        const res = await fetch(`/api/homepage?section=${selectedSection}&admin=true&_t=${timestamp}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
+        });
         const data = await res.json();
         if (data.success) {
           allImages = data.data;
         }
       } else {
-        // Fetch all sections (signature-drinks + offers + journey)
+        // Fetch all sections (signature-drinks + offers + journey) - ADMIN MODE (no cache)
         const [sigDrinksRes, homepageRes] = await Promise.all([
-          fetch('/api/signature-drinks'),
-          fetch('/api/homepage')
+          fetch(`/api/signature-drinks?admin=true&_t=${timestamp}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+            },
+          }),
+          fetch(`/api/homepage?admin=true&_t=${timestamp}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+            },
+          })
         ]);
 
         const sigDrinksData = await sigDrinksRes.json();

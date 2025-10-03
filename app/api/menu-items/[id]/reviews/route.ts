@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItemReview from '@/lib/models/MenuItemReview';
+import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // GET all reviews for a menu item
 export async function GET(
@@ -10,6 +11,8 @@ export async function GET(
   try {
     const { id } = await params;
     await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const admin = searchParams.get('admin');
 
     // Only return approved reviews for public view
     const reviews = await MenuItemReview.find({
@@ -17,7 +20,10 @@ export async function GET(
       isApproved: true
     }).sort({ createdAt: -1 });
 
-    return NextResponse.json({ success: true, data: reviews });
+    return NextResponse.json(
+      { success: true, data: reviews },
+      { headers: getCacheHeaders(admin === 'true') }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -42,7 +48,10 @@ export async function POST(
       isApproved: false // Reviews need approval by default
     });
 
-    return NextResponse.json({ success: true, data: review }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: review },
+      { status: 201, headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

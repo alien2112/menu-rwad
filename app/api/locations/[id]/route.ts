@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Location from '@/lib/models/Location';
+import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // GET single location by ID
 export async function GET(
@@ -10,16 +11,22 @@ export async function GET(
   try {
     const { id } = await params;
     await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const admin = searchParams.get('admin');
+
     const location = await Location.findById(id);
-    
+
     if (!location) {
       return NextResponse.json(
         { success: false, error: 'Location not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ success: true, data: location });
+
+    return NextResponse.json(
+      { success: true, data: location },
+      { headers: getCacheHeaders(admin === 'true') }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -42,15 +49,21 @@ export async function PUT(
       body,
       { new: true, runValidators: true }
     );
-    
+
     if (!location) {
       return NextResponse.json(
         { success: false, error: 'Location not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ success: true, data: location });
+
+    // Invalidate all location-related caches
+    CacheInvalidation.locations();
+
+    return NextResponse.json(
+      { success: true, data: location },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -68,15 +81,21 @@ export async function DELETE(
     await dbConnect();
     const { id } = await params;
     const location = await Location.findByIdAndDelete(id);
-    
+
     if (!location) {
       return NextResponse.json(
         { success: false, error: 'Location not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({ success: true, data: location });
+
+    // Invalidate all location-related caches
+    CacheInvalidation.locations();
+
+    return NextResponse.json(
+      { success: true, data: location },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

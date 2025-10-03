@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItemReview from '@/lib/models/MenuItemReview';
+import { CacheInvalidation, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // PATCH update review (admin - approve/reject)
 export async function PATCH(
@@ -25,7 +26,13 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json({ success: true, data: review });
+    // Invalidate menu-item-review caches
+    CacheInvalidation.menuItemReviews(review.menuItemId);
+
+    return NextResponse.json(
+      { success: true, data: review },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -52,7 +59,13 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ success: true, data: {} });
+    // Invalidate menu-item-review caches
+    CacheInvalidation.menuItemReviews(review.menuItemId);
+
+    return NextResponse.json(
+      { success: true, data: {} },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

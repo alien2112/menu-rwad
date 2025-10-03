@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Review from '@/lib/models/Review';
+import { CacheInvalidation, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // PATCH - Update review status
 export async function PATCH(
@@ -9,27 +10,33 @@ export async function PATCH(
 ) {
   try {
     await dbConnect();
-    
+
     const { id } = await params;
     const { isApproved } = await request.json();
-    
+
     const review = await Review.findByIdAndUpdate(
       id,
       { isApproved },
       { new: true }
     ) as any;
-    
+
     if (!review) {
       return NextResponse.json(
         { success: false, error: 'Review not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({
-      success: true,
-      data: review
-    });
+
+    // Invalidate all review-related caches
+    CacheInvalidation.reviews();
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: review
+      },
+      { headers: noCacheHeaders() }
+    );
   } catch (error) {
     console.error('Error updating review:', error);
     return NextResponse.json(
@@ -46,21 +53,27 @@ export async function DELETE(
 ) {
   try {
     await dbConnect();
-    
+
     const { id } = await params;
     const review = await Review.findByIdAndDelete(id) as any;
-    
+
     if (!review) {
       return NextResponse.json(
         { success: false, error: 'Review not found' },
         { status: 404 }
       );
     }
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Review deleted successfully'
-    });
+
+    // Invalidate all review-related caches
+    CacheInvalidation.reviews();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Review deleted successfully'
+      },
+      { headers: noCacheHeaders() }
+    );
   } catch (error) {
     console.error('Error deleting review:', error);
     return NextResponse.json(

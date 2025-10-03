@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Ingredient from '@/lib/models/Ingredient';
+import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // GET single ingredient
 export async function GET(
@@ -10,6 +11,9 @@ export async function GET(
   try {
     const { id } = await params;
     await dbConnect();
+    const { searchParams } = new URL(request.url);
+    const admin = searchParams.get('admin');
+
     const ingredient = await Ingredient.findById(id);
     if (!ingredient) {
       return NextResponse.json(
@@ -17,7 +21,10 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: ingredient });
+    return NextResponse.json(
+      { success: true, data: ingredient },
+      { headers: getCacheHeaders(admin === 'true') }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -45,7 +52,14 @@ export async function PUT(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: ingredient });
+
+    // Invalidate all ingredient-related caches
+    CacheInvalidation.ingredients();
+
+    return NextResponse.json(
+      { success: true, data: ingredient },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -69,7 +83,14 @@ export async function DELETE(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: {} });
+
+    // Invalidate all ingredient-related caches
+    CacheInvalidation.ingredients();
+
+    return NextResponse.json(
+      { success: true, data: {} },
+      { headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

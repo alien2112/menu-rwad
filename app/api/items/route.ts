@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItem from '@/lib/models/MenuItem';
+import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
 
 // GET all menu items
 export async function GET(request: NextRequest) {
@@ -8,10 +9,15 @@ export async function GET(request: NextRequest) {
     await dbConnect();
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
+    const admin = searchParams.get('admin');
 
     const query = categoryId ? { categoryId } : {};
     const items = await MenuItem.find(query).sort({ order: 1, createdAt: -1 });
-    return NextResponse.json({ success: true, data: items });
+
+    return NextResponse.json(
+      { success: true, data: items },
+      { headers: getCacheHeaders(admin === 'true') }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
@@ -26,7 +32,14 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     const body = await request.json();
     const item = await MenuItem.create(body);
-    return NextResponse.json({ success: true, data: item }, { status: 201 });
+
+    // Invalidate all item-related caches
+    CacheInvalidation.items();
+
+    return NextResponse.json(
+      { success: true, data: item },
+      { status: 201, headers: noCacheHeaders() }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },

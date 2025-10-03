@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import dbConnect from '@/lib/mongodb';
 import Category from '@/lib/models/Category';
+import { cache } from '@/lib/cache';
 
 // GET single category
 export async function GET(
@@ -47,7 +49,24 @@ export async function PUT(
       );
     }
     console.log('Updated category:', category);
-    return NextResponse.json({ success: true, data: category });
+
+    // Clear all cache
+    cache.clear();
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidatePath('/menu');
+    revalidatePath(`/category/${id}`);
+    revalidateTag('categories');
+
+    return NextResponse.json(
+      { success: true, data: category },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     console.error('Error updating category:', error);
     return NextResponse.json(
@@ -72,7 +91,23 @@ export async function DELETE(
         { status: 404 }
       );
     }
-    return NextResponse.json({ success: true, data: {} });
+
+    // Clear all cache
+    cache.clear();
+
+    // Revalidate public pages
+    revalidatePath('/');
+    revalidatePath('/menu');
+    revalidateTag('categories');
+
+    return NextResponse.json(
+      { success: true, data: {} },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error.message },
