@@ -1,60 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
+import { ReviewModal } from "@/components/ReviewModal";
 
 export default function Contact() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [loadingReviews, setLoadingReviews] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    author_name: "",
-    rating: 5,
-    text: "",
-    email: "",
-    phone: "",
-  });
-  const [message, setMessage] = useState<string>("");
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const res = await fetch('/api/reviews');
-        const data = await res.json();
-        if (data.success) setReviews(data.data || []);
-      } catch (e) {
-        // noop
-      } finally {
-        setLoadingReviews(false);
-      }
-    };
-    fetchReviews();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setMessage("");
-    try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMessage('تم إرسال المراجعة! سيتم نشرها بعد الموافقة.');
-        setForm({ author_name: "", rating: 5, text: "", email: "", phone: "" });
-      } else {
-        setMessage(data.error || 'حدث خطأ أثناء الإرسال');
-      }
-    } catch (e) {
-      setMessage('حدث خطأ أثناء الإرسال');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-coffee-primary relative overflow-hidden">
@@ -148,95 +99,15 @@ export default function Contact() {
               </a>
             </div>
 
-            {/* Reviews List */}
-            <div className="glass-notification rounded-3xl p-6">
-              <h3 className="text-white text-lg font-bold mb-4">آراء الزبائن</h3>
-              {loadingReviews ? (
-                <p className="text-white/80 text-sm">جاري التحميل...</p>
-              ) : reviews.length === 0 ? (
-                <p className="text-white/80 text-sm">لا توجد مراجعات بعد.</p>
-              ) : (
-                <div className="space-y-4">
-                  {reviews.map((r) => (
-                    <div key={r._id} className="bg-white/10 rounded-2xl p-4 border border-white/10">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="text-white font-semibold text-sm">{r.author_name}</p>
-                        <p className="text-yellow-300 text-xs">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</p>
-                      </div>
-                      <p className="text-white/90 text-sm leading-relaxed">{r.text}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Add Review Form */}
-            <div className="glass-notification rounded-3xl p-6">
-              <h3 className="text-white text-lg font-bold mb-4">أضف مراجعتك</h3>
-              {message && (
-                <div className="mb-3 text-xs text-white/90">{message}</div>
-              )}
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label className="block text-white/80 text-xs mb-1">الاسم</label>
-                  <input
-                    value={form.author_name}
-                    onChange={(e) => setForm((p) => ({ ...p, author_name: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/80 text-xs mb-1">التقييم (1 - 5)</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={5}
-                    value={form.rating}
-                    onChange={(e) => setForm((p) => ({ ...p, rating: Math.max(1, Math.min(5, Number(e.target.value) || 5)) }))}
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-white/80 text-xs mb-1">مراجعتك</label>
-                  <textarea
-                    value={form.text}
-                    onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none"
-                    rows={4}
-                    maxLength={500}
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-white/80 text-xs mb-1">البريد الإلكتروني (اختياري)</label>
-                    <input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-white/80 text-xs mb-1">الهاتف (اختياري)</label>
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-coffee-green hover:bg-coffee-green/90 text-white text-sm font-semibold py-2 px-3 rounded-lg transition-all duration-300"
-                >
-                  {submitting ? '... جاري الإرسال' : 'إرسال المراجعة'}
-                </button>
-              </form>
-            </div>
+            {/* Reviews Modal */}
+            <ReviewModal>
+              <div className="glass-notification rounded-3xl p-6 cursor-pointer hover:bg-white/5 transition-colors">
+                <h3 className="text-white text-lg font-bold mb-4">آراء الزبائن وإضافة مراجعة</h3>
+                <p className="text-white/80 text-sm text-center">
+                  اضغط هنا لعرض المراجعات السابقة وإضافة مراجعتك الخاصة
+                </p>
+              </div>
+            </ReviewModal>
 
             {/* Google Map at the bottom */}
             <div className="glass-notification rounded-3xl overflow-hidden">

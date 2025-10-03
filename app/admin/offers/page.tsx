@@ -528,6 +528,89 @@ export default function OffersPage() {
                 </div>
               </div>
 
+              {/* Applicable Items/Categories */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-white">المنتجات والفئات المشمولة بالعرض</h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-semibold text-white mb-2 block">
+                      الفئات المشمولة (اختر فئة أو أكثر)
+                    </label>
+                    <div className="glass-effect rounded-xl p-4 max-h-48 overflow-y-auto space-y-2">
+                      {categories.map((category) => (
+                        <label key={category._id} className="flex items-center gap-3 text-white hover:bg-white/10 p-2 rounded-lg cursor-pointer transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={formData.applicableCategories?.includes(category._id!) || false}
+                            onChange={(e) => {
+                              const current = formData.applicableCategories || [];
+                              if (e.target.checked) {
+                                setFormData({
+                                  ...formData,
+                                  applicableCategories: [...current, category._id!]
+                                });
+                              } else {
+                                setFormData({
+                                  ...formData,
+                                  applicableCategories: current.filter(id => id !== category._id)
+                                });
+                              }
+                            }}
+                            className="w-5 h-5 rounded"
+                          />
+                          <span>{category.name} {category.nameEn && `(${category.nameEn})`}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-white mb-2 block">
+                      المنتجات المحددة المشمولة (اختر منتج أو أكثر)
+                    </label>
+                    <div className="glass-effect rounded-xl p-4 max-h-64 overflow-y-auto space-y-2">
+                      {items.map((item) => {
+                        const category = categories.find(c => c._id === item.categoryId);
+                        return (
+                          <label key={item._id} className="flex items-center gap-3 text-white hover:bg-white/10 p-2 rounded-lg cursor-pointer transition-colors">
+                            <input
+                              type="checkbox"
+                              checked={formData.applicableItems?.includes(item._id!) || false}
+                              onChange={(e) => {
+                                const current = formData.applicableItems || [];
+                                if (e.target.checked) {
+                                  setFormData({
+                                    ...formData,
+                                    applicableItems: [...current, item._id!]
+                                  });
+                                } else {
+                                  setFormData({
+                                    ...formData,
+                                    applicableItems: current.filter(id => id !== item._id)
+                                  });
+                                }
+                              }}
+                              className="w-5 h-5 rounded"
+                            />
+                            <div className="flex-1">
+                              <span className="block">{item.name}</span>
+                              <span className="text-xs text-white/50">
+                                {category?.name} - {item.price} ريال
+                              </span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-white/50 mt-2">
+                      ملاحظة: إذا اخترت فئات، سيتم تطبيق العرض على جميع منتجات الفئة.
+                      المنتجات المحددة هنا تُضاف بالإضافة إلى منتجات الفئات المختارة.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Duration */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">المدة</h3>

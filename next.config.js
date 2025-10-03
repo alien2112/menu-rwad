@@ -21,6 +21,7 @@ const nextConfig = {
   // Performance headers
   async headers() {
     return [
+      // Static assets - long cache
       {
         source: '/:all*(svg|jpg|jpeg|png|gif|webp|avif|ico|woff|woff2|ttf|otf)',
         headers: [
@@ -28,8 +29,13 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
         ],
       },
+      // Next.js static files
       {
         source: '/_next/static/:path*',
         headers: [
@@ -39,12 +45,70 @@ const nextConfig = {
           },
         ],
       },
+      // Next.js images
       {
-        source: '/api/:path*',
+        source: '/_next/image/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, must-revalidate',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // API routes - use stale-while-revalidate
+      {
+        source: '/api/categories/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=300, stale-while-revalidate=600',
+          },
+        ],
+      },
+      {
+        source: '/api/offers/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=300, stale-while-revalidate=600',
+          },
+        ],
+      },
+      {
+        source: '/api/signature-drinks/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=600, stale-while-revalidate=1200',
+          },
+        ],
+      },
+      {
+        source: '/api/homepage/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=600, stale-while-revalidate=1200',
+          },
+        ],
+      },
+      // Images API - longer cache
+      {
+        source: '/api/images/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=172800',
+          },
+        ],
+      },
+      // Admin API - no cache
+      {
+        source: '/api/admin/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate',
           },
         ],
       },

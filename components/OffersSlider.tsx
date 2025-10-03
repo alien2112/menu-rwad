@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { OffersSkeleton } from './SkeletonLoader';
+import { OptimizedImage } from './OptimizedImage';
 
 interface Offer {
   _id: string;
@@ -94,10 +95,13 @@ export default function OffersSlider() {
               <div className="glass-notification rounded-3xl p-4 h-full flex items-center gap-4">
                 {/* Image on the left */}
                 <div className="w-32 md:w-40 lg:w-48 h-full rounded-2xl overflow-hidden flex-shrink-0">
-                  <img
+                  <OptimizedImage
                     src={offer.imageId ? `/api/images/${offer.imageId}` : '/download (2).jpeg'}
                     alt={offer.title}
-                    className="w-full h-full object-cover"
+                    width="100%"
+                    height="100%"
+                    objectFit="cover"
+                    placeholderColor="rgba(255,255,255,0.1)"
                   />
                 </div>
 
@@ -140,6 +144,7 @@ export default function OffersSlider() {
           <img
             src="/download.jpeg"
             alt="Coffee Offer"
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         </div>

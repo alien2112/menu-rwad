@@ -8,7 +8,6 @@ import {
   FolderOpen,
   Package,
   Leaf,
-  Tag,
   Menu,
   X,
   ChevronLeft,
@@ -26,7 +25,6 @@ const navigation = [
   { name: 'الفئات', href: '/admin/categories', icon: FolderOpen },
   { name: 'المنتجات', href: '/admin/items', icon: Package },
   { name: 'المكونات', href: '/admin/ingredients', icon: Leaf },
-  { name: 'العروض', href: '/admin/offers', icon: Tag },
 ];
 
 export default function AdminLayout({

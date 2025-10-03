@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CheckCircle, XCircle, Star, User, Mail, Phone, Calendar, MessageSquare } from "lucide-react";
+import { CheckCircle, XCircle, Star, User, Mail, Phone, Calendar, MessageSquare, Package } from "lucide-react";
+import Link from "next/link";
 
 interface Review {
   _id: string;
@@ -121,14 +122,23 @@ export function AdminReviewsPanel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center flex-wrap gap-4">
         <h2 className="text-white text-2xl font-bold flex items-center gap-3">
           <MessageSquare className="w-8 h-8" />
-          إدارة المراجعات
+          إدارة مراجعات المقهى
         </h2>
-        
-        {/* Filter Buttons */}
-        <div className="flex gap-2">
+
+        <div className="flex gap-3 flex-wrap">
+          {/* Link to Menu Item Reviews */}
+          <Link href="/admin/menu-item-reviews">
+            <button className="px-4 py-2 bg-coffee-gold/20 hover:bg-coffee-gold/30 text-coffee-gold rounded-lg transition-colors flex items-center gap-2">
+              <Package className="w-5 h-5" />
+              مراجعات المنتجات
+            </button>
+          </Link>
+
+          {/* Filter Buttons */}
+          <div className="flex gap-2">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-lg transition-colors ${
@@ -152,13 +162,14 @@ export function AdminReviewsPanel() {
           <button
             onClick={() => setFilter('approved')}
             className={`px-4 py-2 rounded-lg transition-colors ${
-              filter === 'approved' 
-                ? 'bg-coffee-gold text-white' 
+              filter === 'approved'
+                ? 'bg-coffee-gold text-white'
                 : 'bg-white/10 text-white/70 hover:bg-white/20'
             }`}
           >
             معتمدة ({reviews.filter(r => r.isApproved).length})
           </button>
+          </div>
         </div>
       </div>
 
@@ -244,6 +255,14 @@ export function AdminReviewsPanel() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
 
 
 

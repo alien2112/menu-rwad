@@ -235,6 +235,7 @@ export function ReviewsSlider({ placeId }: ReviewsSliderProps) {
               <img
                 src={currentReview.profile_photo_url}
                 alt={currentReview.author_name}
+                loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   // Fallback to initials if image fails to load

@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import Link from "next/link";
 import { NotificationCard } from "@/components/NotificationCard";
 import { Sidebar } from "@/components/Sidebar";
-import SignatureDrinksSlider from "@/components/SignatureDrinksSlider";
-import OffersSlider from "@/components/OffersSlider";
-import JourneySection from "@/components/JourneySection";
 import { CartIcon, CartModal } from "@/components/CartComponents";
 import ErrorBoundary, { SignatureDrinksErrorFallback, OffersErrorFallback, JourneyErrorFallback } from "@/components/ErrorBoundary";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+
+// Lazy load components that are below the fold
+const SignatureDrinksSlider = lazy(() => import("@/components/SignatureDrinksSlider"));
+const OffersSlider = lazy(() => import("@/components/OffersSlider"));
+const JourneySection = lazy(() => import("@/components/JourneySection"));
 
 // Register the ScrollTo plugin only on client side
 if (typeof window !== 'undefined') {
@@ -598,6 +601,8 @@ export default function Home() {
           <img
             src="/first-section.jpeg"
             alt="موال مراكش"
+            loading="eager"
+            fetchPriority="high"
             className="w-full h-96 md:h-[400px] lg:h-[500px] object-cover rounded-2xl mx-auto"
           />
 
@@ -607,6 +612,8 @@ export default function Home() {
               <img
                 src="/موال مراكش طواجن  1 (1).png"
                 alt="موال مراكش طواجن"
+                loading="eager"
+                fetchPriority="high"
                 className="mx-auto mb-3 md:mb-4 w-60 h-40 md:w-64 md:h-44 lg:w-72 lg:h-52 object-contain drop-shadow-lg"
               />
               <h1 className="text-white text-2xl md:text-4xl lg:text-5xl font-bold drop-shadow-lg">
@@ -710,7 +717,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
-                      <img src="/second-section-first-image.jpeg" alt="coffee" className="w-full h-full object-cover" />
+                      <img src="/second-section-first-image.jpeg" alt="coffee" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
                       تجربة القهوة المثالية
@@ -734,7 +741,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
-                      <img src="/second-section-second-image.jpeg" alt="beans" className="w-full h-full object-cover" />
+                      <img src="/second-section-second-image.jpeg" alt="beans" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
                       أجود أنواع القهوة المحضرة بعناية
@@ -758,7 +765,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="rounded-2xl overflow-hidden" style={{ width: '64px', height: '64px' }}>
-                      <img src="/second-section-third-image-correct.png" alt="cup" className="w-full h-full object-cover" />
+                      <img src="/second-section-third-image-correct.png" alt="cup" loading="lazy" className="w-full h-full object-cover" />
                     </div>
                     <p className="text-[#3C2902] text-sm font-medium text-right" style={{ fontFamily: 'SF Pro, -apple-system, sans-serif' }}>
                       أجواء مراكش في كل كوب
@@ -843,9 +850,9 @@ export default function Home() {
                   <Link key={cat._id} href={`/category/${cat._id}`} className="flex flex-col items-center">
                     <div className="bg-white rounded-xl shadow-md flex items-center justify-center md:w-20 md:h-20 lg:w-24 lg:h-24" style={{ width: '64px', height: '64px' }}>
                       {cat.image ? (
-                        <img src={cat.image} alt={cat.name} className="object-contain" style={{ width: '40px', height: '40px' }} />
+                        <img src={cat.image} alt={cat.name} loading="lazy" className="object-contain" style={{ width: '40px', height: '40px' }} />
                       ) : cat.icon ? (
-                        <img src={cat.icon} alt={cat.name} className="object-contain" style={{ width: '40px', height: '40px' }} />
+                        <img src={cat.icon} alt={cat.name} loading="lazy" className="object-contain" style={{ width: '40px', height: '40px' }} />
                       ) : (
                         <div className="w-10 h-10 rounded" style={{ backgroundColor: cat.color || '#fff' }} />
                       )}
@@ -941,7 +948,9 @@ export default function Home() {
             Our Signature Drinks
           </h2>
           <ErrorBoundary fallback={SignatureDrinksErrorFallback}>
-            <SignatureDrinksSlider />
+            <Suspense fallback={<div className="h-96 bg-white/5 rounded-3xl animate-pulse" />}>
+              <SignatureDrinksSlider />
+            </Suspense>
           </ErrorBoundary>
         </div>
 
@@ -951,7 +960,9 @@ export default function Home() {
             special OFFERS
           </h2>
           <ErrorBoundary fallback={OffersErrorFallback}>
-            <OffersSlider />
+            <Suspense fallback={<div className="h-96 bg-white/5 rounded-3xl animate-pulse" />}>
+              <OffersSlider />
+            </Suspense>
           </ErrorBoundary>
         </div>
 
@@ -961,6 +972,7 @@ export default function Home() {
             <img
               src="/Notification - Collapsed (1).png"
               alt="قصتنا"
+              loading="lazy"
               className="w-full object-contain"
             />
             <div className="absolute inset-0 flex items-center justify-center" style={{ transform: 'translateY(8px)' }}>
@@ -991,7 +1003,9 @@ export default function Home() {
 
         {/* Coffee Journey Content */}
         <ErrorBoundary fallback={JourneyErrorFallback}>
-          <JourneySection />
+          <Suspense fallback={<div className="h-96 bg-white/5 rounded-3xl animate-pulse" />}>
+            <JourneySection />
+          </Suspense>
         </ErrorBoundary>
 
         {/* Spacing between last section and footer */}
@@ -1004,6 +1018,7 @@ export default function Home() {
             <img
               src="/موال مراكش طواجن  1 (1).png"
               alt="موال مراكش طواجن"
+              loading="lazy"
               className="w-28 h-20 md:w-32 md:h-24 lg:w-40 lg:h-28 object-contain"
             />
           </div>

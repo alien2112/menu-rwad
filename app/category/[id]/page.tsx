@@ -36,9 +36,20 @@ interface MenuItem {
   price: number;
   discountPrice?: number;
   image?: string;
+  images?: string[];
   categoryId: string;
   status: 'active' | 'inactive' | 'out_of_stock';
   ingredients?: { ingredientId: string; portion: number; required: boolean }[];
+  calories?: number;
+  preparationTime?: number;
+  servingSize?: string;
+  allergens?: string[];
+  tags?: string[];
+  color?: string;
+  featured?: boolean;
+  order?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface Ingredient {
@@ -55,6 +66,8 @@ export default function CategoryPage() {
   const [ingredientsMap, setIngredientsMap] = useState<Record<string, Ingredient>>({});
   const [loading, setLoading] = useState(true);
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
 
   useEffect(() => {
     const fetchCategoryData = async () => {
@@ -79,10 +92,38 @@ export default function CategoryPage() {
         const itemsData = await itemsResponse.json();
         
         if (itemsData.success && itemsData.data) {
-          const categoryItems = itemsData.data.filter((item: MenuItem) => 
+          console.log('All items from API:', itemsData.data);
+          console.log('Looking for categoryId:', categoryId);
+          
+          let categoryItems = itemsData.data.filter((item: MenuItem) => 
             item.categoryId === categoryId && item.status !== 'inactive'
           );
-          console.log('Category items with ingredients:', categoryItems);
+          
+          console.log('Items matching categoryId:', categoryItems);
+          
+          // Special handling for offers category - show only items with discountPrice
+          if (categoryId === '68dcc52cad46b03aff8a3cbb') {
+            console.log('Filtering for offers category - items with discountPrice');
+            const itemsWithDiscount = categoryItems.filter((item: MenuItem) => {
+              console.log(`Item ${item.name}: discountPrice=${item.discountPrice}, price=${item.price}`);
+              return item.discountPrice && item.discountPrice > 0;
+            });
+            console.log('Items with discountPrice:', itemsWithDiscount);
+            
+            // If no items found in this category, show all items with discountPrice
+            if (itemsWithDiscount.length === 0) {
+              console.log('No items with discountPrice in this category, showing all items with discountPrice');
+              const allItemsWithDiscount = itemsData.data.filter((item: MenuItem) => 
+                item.discountPrice && item.discountPrice > 0 && item.status !== 'inactive'
+              );
+              console.log('All items with discountPrice:', allItemsWithDiscount);
+              categoryItems = allItemsWithDiscount;
+            } else {
+              categoryItems = itemsWithDiscount;
+            }
+          }
+          
+          console.log('Final category items:', categoryItems);
           setMenuItems(categoryItems);
         }
 
@@ -147,8 +188,18 @@ export default function CategoryPage() {
     return `/category/${category._id}`;
   };
 
-  // Prepare display items for new card UI
-  const displayItems = menuItems.map((item) => {
+  // Filter and prepare display items
+  const filteredMenuItems = menuItems.filter(item => {
+    const itemPrice = item.discountPrice || item.price;
+    const matchesSearch = searchQuery === '' ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.nameEn?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPrice = itemPrice >= priceRange[0] && itemPrice <= priceRange[1];
+    return matchesSearch && matchesPrice;
+  });
+
+  const displayItems = filteredMenuItems.map((item) => {
     // Convert ingredients to ingredient tags
     const ingredientTags = item.ingredients?.map(ingredient => {
       const ingredientData = ingredientsMap[ingredient.ingredientId];
@@ -160,6 +211,7 @@ export default function CategoryPage() {
 
 
     return {
+      id: item._id,
       image: item.image || "",
       nameAr: item.name,
       nameEn: item.nameEn || "",
@@ -240,11 +292,61 @@ export default function CategoryPage() {
       <div className="container relative z-10 mx-auto max-w-7xl px-6 py-8">
         <ErrorBoundary>
           <header className="mb-6 text-right">
-            <h2 className="mb-2 text-3xl font-bold text-white">{category.name}</h2>
-            {category.description && (
+            <h2 className="mb-2 text-3xl font-bold text-white">
+              {categoryId === '68dcc52cad46b03aff8a3cbb' ? 'العروض' : category.name}
+            </h2>
+            {categoryId === '68dcc52cad46b03aff8a3cbb' ? (
+              <p className="text-base text-white/80">اكتشف أفضل العروض والمنتجات المخفضة</p>
+            ) : category.description && (
               <p className="text-base text-white/80">{category.description}</p>
             )}
           </header>
+
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="ابحث عن منتج..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-3 pr-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/40"
+              />
+              <svg
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            {/* Price Range Filter */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4">
+              <label className="block text-white mb-2 font-semibold">نطاق السعر: {priceRange[0]} - {priceRange[1]} ريال</label>
+              <div className="flex gap-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value={priceRange[0]}
+                  onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                  className="flex-1"
+                />
+                <input
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value={priceRange[1]}
+                  onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {displayItems.map((it, idx) => (
             <div

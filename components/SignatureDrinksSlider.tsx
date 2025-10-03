@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { SignatureDrinksSkeleton } from './SkeletonLoader';
+import { OptimizedImage } from './OptimizedImage';
 
 interface Drink {
   _id: string;
@@ -112,21 +113,17 @@ export default function SignatureDrinksSlider() {
               className="glass-effect rounded-3xl overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-300 group"
             >
               <div className="relative h-64">
-                 <img
-                   src={drink.imageId ? `/api/images/${drink.imageId}` : '/second-section-first-image.jpeg'}
-                   alt={drink.title}
-                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                   loading="eager"
-                   fetchPriority="high"
-                   decoding="async"
-                   onError={(e) => {
-                     const target = e.currentTarget as HTMLImageElement;
-                     if (!target.dataset.fallbackAttempted) {
-                       target.dataset.fallbackAttempted = 'true';
-                       target.src = '/second-section-first-image.jpeg';
-                     }
-                   }}
-                 />
+                <div className="w-full h-full group-hover:scale-110 transition-transform duration-500">
+                  <OptimizedImage
+                    src={drink.imageId ? `/api/images/${drink.imageId}` : '/second-section-first-image.jpeg'}
+                    alt={drink.title}
+                    width="100%"
+                    height="100%"
+                    objectFit="cover"
+                    priority={false}
+                    placeholderColor="rgba(255,255,255,0.1)"
+                  />
+                </div>
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                   <span className="text-white font-semibold text-sm">انقر للمزيد</span>

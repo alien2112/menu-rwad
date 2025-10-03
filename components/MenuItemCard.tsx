@@ -2,7 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
-import React from "react";
+import React, { useState } from "react";
+import { MessageSquare } from "lucide-react";
+import { MenuItemReviewModal } from "./MenuItemReviewModal";
+import { OptimizedImage } from "./OptimizedImage";
 
 interface IngredientTag {
   label: string;
@@ -10,6 +13,7 @@ interface IngredientTag {
 }
 
 interface MenuItemCardProps {
+  id?: string;
   image: string;
   nameAr: string;
   nameEn: string;
@@ -26,6 +30,7 @@ interface MenuItemCardProps {
 }
 
 export const MenuItemCard = ({
+  id,
   image,
   nameAr,
   nameEn,
@@ -41,6 +46,7 @@ export const MenuItemCard = ({
   servingSize,
 }: MenuItemCardProps) => {
   const { dispatch } = useCart();
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const handleAddToCart = () => {
     dispatch({
       type: 'ADD_ITEM',
@@ -109,13 +115,24 @@ export const MenuItemCard = ({
   return (
     <article className="group overflow-hidden rounded-2xl bg-card border border-card-border backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-card/80 hover:shadow-xl">
       <div className="relative h-48 overflow-hidden bg-muted/30">
-        <img
-          src={image}
-          alt={nameAr}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {image ? (
+          <div className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-110">
+            <OptimizedImage
+              src={image}
+              alt={nameAr}
+              width="100%"
+              height="100%"
+              objectFit="cover"
+              placeholderColor="#1f2937"
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+            <span className="text-muted-foreground text-sm">لا توجد صورة</span>
+          </div>
+        )}
         {isFeatured && (
-          <div className="absolute top-3 left-3 rounded-xl bg-accent px-3 py-1.5 text-sm font-bold text-accent-foreground shadow-lg">
+          <div className="absolute top-3 left-3 rounded-xl bg-accent px-3 py-1.5 text-sm font-bold text-accent-foreground shadow-lg z-10">
             مميز
           </div>
         )}
@@ -191,33 +208,57 @@ export const MenuItemCard = ({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-muted-foreground">{category}</span>
-            <span className={cn("rounded-full px-3 py-1 font-semibold", statusConfig[status].className)}>
-              {statusConfig[status].label}
-            </span>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">{category}</span>
+              <span className={cn("rounded-full px-3 py-1 font-semibold", statusConfig[status].className)}>
+                {statusConfig[status].label}
+              </span>
+            </div>
+            {status !== 'inactive' && (
+              <button
+                type="button"
+                onClick={handleButtonClick}
+                aria-label="أضف للسلة"
+                className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
+                style={{
+                  background: '#c59a6c',
+                  boxShadow: '0 4px 12px rgba(197,154,108,0.35)'
+                }}
+              >
+                <span className="relative z-10">أضف للسلة</span>
+                {/* Shine effect */}
+                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute -left-8 top-0 h-full w-8 bg-white/30 transform rotate-12 translate-x-0 group-hover:translate-x-[160%] transition-transform duration-700" />
+                </div>
+              </button>
+            )}
           </div>
-          {status !== 'inactive' && (
+
+          {/* Reviews Button */}
+          {id && (
             <button
               type="button"
-              onClick={handleButtonClick}
-              aria-label="أضف للسلة"
-              className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
-              style={{
-                background: '#c59a6c',
-                boxShadow: '0 4px 12px rgba(197,154,108,0.35)'
-              }}
+              onClick={() => setShowReviewModal(true)}
+              className="w-full px-3 py-2 rounded-md text-xs font-semibold text-foreground bg-muted/50 hover:bg-muted transition-colors flex items-center justify-center gap-2"
             >
-              <span className="relative z-10">أضف للسلة</span>
-              {/* Shine effect */}
-              <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute -left-8 top-0 h-full w-8 bg-white/30 transform rotate-12 translate-x-0 group-hover:translate-x-[160%] transition-transform duration-700" />
-              </div>
+              <MessageSquare className="w-4 h-4" />
+              عرض التقييمات
             </button>
           )}
         </div>
       </div>
+
+      {/* Review Modal */}
+      {id && showReviewModal && (
+        <MenuItemReviewModal
+          menuItemId={id}
+          menuItemName={nameAr}
+          isOpen={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+        />
+      )}
     </article>
   );
 };

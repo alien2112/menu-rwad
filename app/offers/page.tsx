@@ -2,134 +2,75 @@
 
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
+import Image from "next/image";
 
 interface Offer {
   _id: string;
+  imageId: string;
   title: string;
   titleEn?: string;
   description?: string;
   descriptionEn?: string;
-  type: 'percentage' | 'fixed' | 'buy_x_get_y' | 'free_item';
-  discountValue?: number;
-  minPurchase?: number;
-  maxDiscount?: number;
-  image?: string;
-  color?: string;
-  buyQuantity?: number;
-  getQuantity?: number;
-  freeItemId?: string;
-  code?: string;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'inactive' | 'expired';
-  usageLimit?: number;
-  usedCount: number;
   order: number;
+  status: 'active' | 'inactive';
 }
 
 export default function Offers() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [specialCategoryId, setSpecialCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load special offers category id, then offers
-    Promise.all([fetchSpecialOffersCategoryId()])
-      .then(() => fetchOffers())
-      .catch(() => fetchOffers());
+    fetchOffers();
   }, []);
-
-  const fetchSpecialOffersCategoryId = async () => {
-    try {
-      const res = await fetch('/api/categories');
-      const data = await res.json();
-      if (data?.success && Array.isArray(data.data)) {
-        const specials = data.data.find((c: any) => {
-          const name: string = (c?.name || '').toLowerCase();
-          const nameEn: string = (c?.nameEn || '').toLowerCase();
-          return name.includes('العروض') || nameEn === 'offers' || nameEn.includes('offer');
-        });
-        if (specials?._id) setSpecialCategoryId(specials._id as string);
-      }
-    } catch (e) {
-      // non-fatal; we can still show generic active offers
-    }
-  };
 
   const fetchOffers = async () => {
     try {
-      const response = await fetch('/api/offers');
+      const response = await fetch('/api/homepage?section=offers');
       const data = await response.json();
       
-      if (data.success) {
-        // Filter only active and not expired
-        let result: Offer[] = data.data.filter((offer: Offer) => 
-          offer.status === 'active' && new Date(offer.endDate) > new Date()
-        );
-
-        // If we have the special offers category, restrict to offers tagged for it
-        if (specialCategoryId) {
-          result = result.filter((offer: any) => Array.isArray(offer.applicableCategories) && offer.applicableCategories.includes(specialCategoryId));
-        }
-
-        setOffers(result);
+      if (data.success && data.data.length > 0) {
+        setOffers(data.data);
       } else {
-        setError('Failed to fetch offers');
+        // Fallback to default offers if none found
+        setOffers([
+          {
+            _id: '1',
+            imageId: '',
+            title: 'Spanish Latte Special',
+            titleEn: 'Spanish Latte Special',
+            description: 'خصم 25% على جميع أنواع اللاتيه الإسبانية',
+            descriptionEn: '25% off on all Spanish Latte varieties',
+            order: 1,
+            status: 'active'
+          },
+          {
+            _id: '2',
+            imageId: '',
+            title: 'عرض القهوة المختصة',
+            titleEn: 'Specialty Coffee Offer',
+            description: 'تذوق أفضل أنواع القهوة المختصة بأسعار مميزة',
+            descriptionEn: 'Taste the finest specialty coffee at special prices',
+            order: 2,
+            status: 'active'
+          }
+        ]);
       }
-    } catch (err) {
-      setError('Error loading offers');
-      console.error('Error fetching offers:', err);
+    } catch (error) {
+      console.error('Error fetching offers:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const formatOfferText = (offer: Offer) => {
-    switch (offer.type) {
-      case 'percentage':
-        return `خصم ${offer.discountValue}%`;
-      case 'fixed':
-        return `خصم ${offer.discountValue} ريال`;
-      case 'buy_x_get_y':
-        return `اشترِ ${offer.buyQuantity} واحصل على ${offer.getQuantity} مجاناً`;
-      case 'free_item':
-        return 'عنصر مجاني';
-      default:
-        return offer.title;
-    }
-  };
-
-  const getImageUrl = (imageId?: string) => {
-    if (!imageId) return null;
-    return `/api/images/${imageId}`;
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-coffee-primary relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-amber-900 via-orange-800 to-red-900 relative overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="relative z-10 mobile-container bg-coffee-primary coffee-shadow min-h-screen">
-          <div className="px-6 py-8">
-            <div className="flex items-center justify-center h-64">
-              <p className="text-white text-lg">جاري التحميل...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-coffee-primary relative overflow-hidden">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="relative z-10 mobile-container bg-coffee-primary coffee-shadow min-h-screen">
-          <div className="px-6 py-8">
-            <div className="flex items-center justify-center h-64">
-              <p className="text-white text-lg">{error}</p>
-            </div>
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-10 container mx-auto max-w-7xl px-6 py-8">
+          <div className="flex items-center justify-center h-64">
+            <p className="text-white text-lg">جاري التحميل...</p>
           </div>
         </div>
       </div>
@@ -137,77 +78,78 @@ export default function Offers() {
   }
 
   return (
-    <div className="min-h-screen bg-coffee-primary relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-amber-900 via-orange-800 to-red-900 relative overflow-hidden">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="absolute inset-0 bg-black/30" />
 
-      <div className="relative z-10 mobile-container bg-coffee-primary coffee-shadow min-h-screen">
-        <div className="px-6 py-8">
-          {/* Hamburger Menu */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="absolute top-8 left-6 z-20"
-          >
-            <div className="w-4 h-4 flex flex-col justify-between">
-              <div className="w-full h-0 border-t border-white"></div>
-              <div className="w-full h-0 border-t border-white"></div>
-              <div className="w-full h-0 border-t border-white"></div>
+      <div className="relative z-10 container mx-auto max-w-7xl px-6 py-8">
+        {/* Hamburger Menu */}
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="absolute top-8 left-6 z-20"
+        >
+          <div className="w-4 h-4 flex flex-col justify-between">
+            <div className="w-full h-0 border-t border-white"></div>
+            <div className="w-full h-0 border-t border-white"></div>
+            <div className="w-full h-0 border-t border-white"></div>
+          </div>
+        </button>
+
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-white mb-2">العروض الخاصة</h1>
+          <p className="text-white/80">اكتشف أفضل العروض المتاحة حالياً</p>
+        </header>
+
+        {offers.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <p className="text-white text-2xl mb-2">لا توجد عروض متاحة حالياً</p>
+              <p className="text-white/70">تحقق مرة أخرى قريباً للحصول على أفضل العروض!</p>
             </div>
-          </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+            {offers.map((offer, idx) => (
+              <div 
+                key={offer._id} 
+                className="stagger-fade glass-notification rounded-3xl overflow-hidden hover:scale-105 transition-all duration-300"
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                {/* Offer Image */}
+                <div className="relative h-48 md:h-56 lg:h-64">
+                  <Image
+                    src={offer.imageId ? `/api/images/${offer.imageId}` : '/download (2).jpeg'}
+                    alt={offer.title}
+                    fill
+                    className="object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                </div>
 
-          <h1 className="text-white text-center text-3xl mb-8 section-title">العروض الخاصة</h1>
-
-          {offers.length === 0 ? (
-            <div className="flex items-center justify-center h-64">
-              <p className="text-white text-lg">لا توجد عروض متاحة حالياً</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {offers.map((offer) => (
-                <div key={offer._id} className="glass-notification rounded-3xl p-6">
-                  {offer.image && (
-                    <img
-                      src={getImageUrl(offer.image) || ''}
-                      alt={offer.title}
-                      className="w-full h-48 object-cover rounded-2xl mb-4"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
+                {/* Offer Content */}
+                <div className="p-6">
+                  <h3 className="text-xl md:text-2xl font-bold text-white mb-2 arabic-title">
+                    {offer.title}
+                  </h3>
+                  {offer.titleEn && (
+                    <p className="text-white/70 text-sm mb-3">{offer.titleEn}</p>
                   )}
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-white text-xl font-bold">{offer.title}</h3>
-                    {offer.code && (
-                      <span className="text-coffee-gold text-sm font-semibold bg-white/10 px-3 py-1 rounded-full">
-                        {offer.code}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-white/80 text-sm mb-3">
-                    {formatOfferText(offer)}
-                  </p>
                   {offer.description && (
-                    <p className="text-white/70 text-xs mb-2">{offer.description}</p>
-                  )}
-                  {offer.minPurchase && offer.minPurchase > 0 && (
-                    <p className="text-white/60 text-xs">
-                      الحد الأدنى للشراء: {offer.minPurchase} ريال
+                    <p className="text-white/90 text-sm md:text-base leading-relaxed mb-4">
+                      {offer.description}
                     </p>
                   )}
-                  <div className="flex justify-between items-center mt-4 text-xs text-white/60">
-                    <span>
-                      ينتهي في: {new Date(offer.endDate).toLocaleDateString('ar-SA')}
-                    </span>
-                    {offer.usageLimit && (
-                      <span>
-                        متبقي: {offer.usageLimit - offer.usedCount}
-                      </span>
-                    )}
-                  </div>
+                  {offer.descriptionEn && (
+                    <p className="text-white/70 text-xs md:text-sm leading-relaxed">
+                      {offer.descriptionEn}
+                    </p>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
