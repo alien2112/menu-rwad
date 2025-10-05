@@ -13,6 +13,13 @@ export function middleware(request: NextRequest) {
   // Performance headers
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
+  // Disable caching for admin routes
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+  }
+
   return response;
 }
 

@@ -78,6 +78,24 @@ export function OptimizedImage({
     onError?.();
   };
 
+  // Optimize GridFS images with query params
+  const optimizedSrc = (() => {
+    if (!src.startsWith('/api/images/')) return src;
+
+    const params = new URLSearchParams();
+
+    // Convert width/height to numbers if provided
+    const w = typeof width === 'number' ? width : parseInt(width as string, 10);
+    const h = typeof height === 'number' ? height : parseInt(height as string, 10);
+
+    if (w > 0) params.set('w', Math.round(w).toString());
+    if (h > 0) params.set('h', Math.round(h).toString());
+    params.set('q', '85'); // Quality
+    params.set('f', 'webp'); // Format (webp for best compression)
+
+    return `${src}?${params.toString()}`;
+  })();
+
   const containerStyle: CSSProperties = {
     position: 'relative',
     width,
@@ -142,7 +160,7 @@ export function OptimizedImage({
       {/* Actual Image */}
       {isInView && !hasError && (
         <img
-          src={src}
+          src={optimizedSrc}
           alt={alt}
           style={imgStyle}
           loading={priority ? 'eager' : 'lazy'}

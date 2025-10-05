@@ -39,9 +39,15 @@ export async function GET(request: NextRequest) {
     }
     const sort = featured === 'true' ? { featuredOrder: 1, order: 1, createdAt: -1 } : { order: 1, createdAt: -1 };
     const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 0, 50) : undefined;
-    const q = Category.find(query).sort(sort);
-    if (limit) q.limit(limit);
-    const categories = await q;
+
+    // Use lean() for better performance + select only needed fields
+    let q = Category.find(query)
+      .select('name nameEn description image color icon order featured featuredOrder status')
+      .sort(sort)
+      .lean();
+
+    if (limit) q = q.limit(limit);
+    const categories = await q.exec();
 
     // Cache the result for public requests only
     if (admin !== 'true') {

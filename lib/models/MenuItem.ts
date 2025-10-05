@@ -53,6 +53,7 @@ const MenuItemSchema = new Schema<IMenuItem>(
     categoryId: {
       type: String,
       required: [true, 'Please provide a category'],
+      index: true, // Index for fast category filtering
     },
     price: {
       type: Number,
@@ -109,10 +110,12 @@ const MenuItemSchema = new Schema<IMenuItem>(
       type: String,
       enum: ['active', 'inactive', 'out_of_stock'],
       default: 'active',
+      index: true, // Index for status filtering
     },
     featured: {
       type: Boolean,
       default: false,
+      index: true, // Index for featured items
     },
     order: {
       type: Number,
@@ -123,6 +126,11 @@ const MenuItemSchema = new Schema<IMenuItem>(
     timestamps: true,
   }
 );
+
+// Composite indexes for common queries
+MenuItemSchema.index({ categoryId: 1, status: 1, order: 1 }); // Most common query pattern
+MenuItemSchema.index({ status: 1, featured: 1, order: 1 }); // Featured items query
+MenuItemSchema.index({ discountPrice: 1, price: 1 }); // Offers query
 
 const MenuItem: Model<IMenuItem> =
   mongoose.models.MenuItem || mongoose.model<IMenuItem>('MenuItem', MenuItemSchema);

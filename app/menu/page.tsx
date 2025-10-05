@@ -2,15 +2,41 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { ShoppingCart } from "lucide-react";
-import { CartIcon, CartModal } from "@/components/CartComponents";
-import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
-import { CategoriesSection } from "@/components/CategoriesSection";
-import { MenuItemsList } from "@/components/MenuItemsList";
 import { MenuPageSkeleton } from "@/components/SkeletonLoader";
-import { SearchBar } from "@/components/SearchBar";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
+
+// Dynamic imports for heavy components (code splitting)
+const CartIcon = dynamic(() => import("@/components/CartComponents").then(mod => ({ default: mod.CartIcon })), {
+  ssr: false,
+  loading: () => null,
+});
+
+const CartModal = dynamic(() => import("@/components/CartComponents").then(mod => ({ default: mod.CartModal })), {
+  ssr: false,
+  loading: () => null,
+});
+
+const RestaurantMenuHeader = dynamic(() => import("@/components/RestaurantMenuHeader").then(mod => ({ default: mod.RestaurantMenuHeader })), {
+  loading: () => <div className="h-24 bg-white/5 animate-pulse rounded-3xl" />,
+});
+
+const CategoriesSection = dynamic(() => import("@/components/CategoriesSection").then(mod => ({ default: mod.CategoriesSection })), {
+  loading: () => <div className="h-32 bg-white/5 animate-pulse rounded-3xl mx-4" />,
+});
+
+const MenuItemsList = dynamic(() => import("@/components/MenuItemsList").then(mod => ({ default: mod.MenuItemsList })), {
+  loading: () => <div className="h-64 bg-white/5 animate-pulse rounded-3xl mx-4" />,
+});
+
+const SearchBar = dynamic(() => import("@/components/SearchBar").then(mod => ({ default: mod.SearchBar })), {
+  loading: () => <div className="h-12 bg-white/5 animate-pulse rounded-full mx-4" />,
+});
+
+const ErrorBoundary = dynamic(() => import("@/components/ErrorBoundary"), {
+  ssr: true,
+});
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -67,8 +93,8 @@ export default function Menu() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch categories
-        const categoriesResponse = await fetch('/api/categories', { cache: 'no-store' });
+        // Fetch categories with caching enabled for public view
+        const categoriesResponse = await fetch('/api/categories');
         const categoriesData = await categoriesResponse.json();
         
         if (categoriesData.success && categoriesData.data.length > 0) {
@@ -83,8 +109,8 @@ export default function Menu() {
           console.log('No categories found or API error:', categoriesData);
         }
 
-        // Fetch all menu items at once
-        const itemsResponse = await fetch('/api/items', { cache: 'no-store' });
+        // Fetch all menu items with caching enabled for public view
+        const itemsResponse = await fetch('/api/items');
         const itemsData = await itemsResponse.json();
         
         console.log('Raw API response:', itemsData);
@@ -116,7 +142,7 @@ export default function Menu() {
   useEffect(() => {
     const fetchBackground = async () => {
       try {
-        const response = await fetch('/api/page-backgrounds', { cache: 'no-store' });
+        const response = await fetch('/api/page-backgrounds');
         const data = await response.json();
         console.log('[Menu BG] API response:', data);
         if (data.success) {
