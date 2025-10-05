@@ -53,8 +53,15 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
                 ? 'bg-white/20 border-white/60' 
                 : 'bg-white/10 border-white/20 group-hover:border-white/40'
             }`}>
-              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500/40 to-orange-500/40 relative">
-                <span className="text-white text-lg font-bold">🎁</span>
+              <div className="w-full h-full relative">
+                <OptimizedImage
+                  src="/special offer.png"
+                  alt="العروض الخاصة"
+                  width="100%"
+                  height="100%"
+                  objectFit="cover"
+                  placeholderColor="rgba(255,255,255,0.1)"
+                />
                 {/* Badge showing count */}
                 <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                   {offersCount}

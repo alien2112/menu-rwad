@@ -220,8 +220,15 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
       <div className="px-4 pb-24">
         {/* Offers Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-red-500/40 to-orange-500/40">
-            <span className="text-white text-sm font-bold">🎁</span>
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 border border-white/30">
+            <OptimizedImage
+              src="/special offer.png"
+              alt="العروض الخاصة"
+              width="100%"
+              height="100%"
+              objectFit="cover"
+              placeholderColor="rgba(255,255,255,0.1)"
+            />
           </div>
           <h2 className="text-white text-xl font-bold">العروض الخاصة</h2>
           <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
