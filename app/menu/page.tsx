@@ -11,6 +11,7 @@ import { MenuPageSkeleton } from "@/components/SkeletonLoader";
 import { SearchBar } from "@/components/SearchBar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
+import { useCachedFetch } from "@/hooks/useCachedFetch";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -55,61 +56,56 @@ interface MenuItem {
 export default function Menu() {
   const router = useRouter();
   const { dispatch } = useCart();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
-  const [itemsLoaded, setItemsLoaded] = useState(false);
-  const CACHE_KEY = 'menu_categories_cache_v1';
-  const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
 
+  // Use cached fetch for categories
+  const { 
+    data: categoriesData, 
+    loading: categoriesLoading, 
+    error: categoriesError,
+    isCached: categoriesCached 
+  } = useCachedFetch<{ success: boolean; data: Category[] }>('/api/categories', {
+    cacheKey: 'menu_categories_cache_v1',
+    cacheTTL: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // Use cached fetch for menu items
+  const { 
+    data: itemsData, 
+    loading: itemsLoading, 
+    error: itemsError,
+    isCached: itemsCached 
+  } = useCachedFetch<{ success: boolean; data: MenuItem[] }>('/api/items', {
+    cacheKey: 'menu_items_cache_v1',
+    cacheTTL: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // Process categories data
+  const categories = categoriesData?.success && categoriesData.data.length > 0
+    ? categoriesData.data
+        .filter((category: Category) => category.status === 'active')
+        .sort((a: Category, b: Category) => a.order - b.order)
+    : [];
+
+  // Process menu items data
+  const menuItems = itemsData?.success && itemsData.data.length > 0
+    ? itemsData.data
+    : [];
+
+  // Overall loading state
+  const loading = categoriesLoading || itemsLoading;
+
+  // Log cache status for debugging
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Make API calls in parallel for faster loading
-        const [categoriesResponse, itemsResponse] = await Promise.all([
-          fetch('/api/categories'),
-          fetch('/api/items')
-        ]);
-
-        // Process categories
-        const categoriesData = await categoriesResponse.json();
-        if (categoriesData.success && categoriesData.data.length > 0) {
-          const activeCategories = categoriesData.data
-            .filter((category: Category) => category.status === 'active')
-            .sort((a: Category, b: Category) => a.order - b.order);
-          
-          console.log('Fetched categories:', activeCategories);
-          setCategories(activeCategories);
-        } else {
-          console.log('No categories found or API error:', categoriesData);
-        }
-        setCategoriesLoaded(true);
-
-        // Process menu items
-        const itemsData = await itemsResponse.json();
-        console.log('Raw API response:', itemsData);
-        
-        if (itemsData.success && itemsData.data.length > 0) {
-          const allItems = itemsData.data;
-          console.log('All items (no status filter):', allItems);
-          setMenuItems(allItems);
-        } else {
-          console.log('No menu items found or API error:', itemsData);
-        }
-        setItemsLoaded(true);
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (categoriesCached) {
+      console.log('Categories loaded from cache');
+    }
+    if (itemsCached) {
+      console.log('Menu items loaded from cache');
+    }
+  }, [categoriesCached, itemsCached]);
 
   useEffect(() => {
     // Fetch background asynchronously without blocking main content
@@ -239,8 +235,23 @@ export default function Menu() {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40 z-0" />
 
-      {!categoriesLoaded || !itemsLoaded ? (
+      {loading ? (
         <MenuPageSkeleton />
+      ) : categoriesError || itemsError ? (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center text-white">
+            <h2 className="text-xl font-bold mb-2">خطأ في تحميل البيانات</h2>
+            <p className="text-white/70 mb-4">
+              {categoriesError ? 'فشل في تحميل الفئات' : 'فشل في تحميل عناصر القائمة'}
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-[#C2914A] text-white px-4 py-2 rounded-full hover:bg-[#B8853F] transition-colors"
+            >
+              إعادة المحاولة
+            </button>
+          </div>
+        </div>
       ) : (
         <ErrorBoundary>
           <div className="relative z-10 min-h-screen pb-24">

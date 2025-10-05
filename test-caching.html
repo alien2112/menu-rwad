@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache Test</title>
+</head>
+<body>
+    <h1>Menu Caching Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Test localStorage caching
+        function testCaching() {
+            const results = document.getElementById('results');
+            const cacheKeys = [
+                'menu_categories_cache_v1',
+                'menu_items_cache_v1',
+                'home_featured_categories_cache_v1'
+            ];
+            
+            let html = '<h2>Cache Status:</h2><ul>';
+            
+            cacheKeys.forEach(key => {
+                const cached = localStorage.getItem(key);
+                if (cached) {
+                    try {
+                        const parsed = JSON.parse(cached);
+                        const age = Math.round((Date.now() - parsed.ts) / 1000);
+                        html += `<li><strong>${key}</strong>: ✅ Cached (${age}s old)</li>`;
+                    } catch (e) {
+                        html += `<li><strong>${key}</strong>: ❌ Invalid cache</li>';
+                    }
+                } else {
+                    html += `<li><strong>${key}</strong>: ❌ Not cached</li>';
+                }
+            });
+            
+            html += '</ul>';
+            results.innerHTML = html;
+        }
+        
+        // Test every 2 seconds
+        testCaching();
+        setInterval(testCaching, 2000);
+    </script>
+</body>
+</html>
