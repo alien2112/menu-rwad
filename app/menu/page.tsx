@@ -12,6 +12,7 @@ import { SearchBar } from "@/components/SearchBar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
 import { useCachedFetch } from "@/hooks/useCachedFetch";
+import { motion } from "framer-motion";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -59,6 +60,7 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
+  const [hero, setHero] = useState<any | null>(null);
 
   // Use cached fetch for categories
   const { 
@@ -134,9 +136,22 @@ export default function Menu() {
         console.error('Failed to fetch page background for /menu', e);
       }
     };
-    
+    const fetchHero = async () => {
+      try {
+        const response = await fetch('/api/page-hero?pageRoute=/menu');
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data)) {
+          const active = data.data.find((h: any) => h.status === 'active');
+          setHero(active || null);
+        }
+      } catch (e) {
+        console.error('Failed to fetch page hero for /menu', e);
+      }
+    };
+
     // Don't block main content loading
     fetchBackground();
+    fetchHero();
   }, []);
 
   const getBackgroundImage = () => {
@@ -263,30 +278,61 @@ export default function Menu() {
         </div>
       ) : (
         <ErrorBoundary>
-          <div className="relative z-10 min-h-screen pb-24">
+          <motion.div
+            className="relative z-10 min-h-screen pb-24"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+          >
             {/* Header */}
-            <RestaurantMenuHeader />
+            <motion.div
+              initial={{ y: -16, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <RestaurantMenuHeader hero={hero || undefined} />
+            </motion.div>
 
             {/* Search Bar */}
-            <SearchBar onSearch={handleSearch} />
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.45, ease: 'easeOut', delay: 0.05 }}
+            >
+              <SearchBar onSearch={handleSearch} />
+            </motion.div>
 
             {/* Categories Section */}
-            <CategoriesSection
-              categories={categories}
-              onCategoryClick={handleCategoryClick}
-              selectedCategory={selectedCategory}
-              offersCount={offersCount}
-            />
+            <motion.div
+              key={selectedCategory ?? 'all'}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.08 }}
+            >
+              <CategoriesSection
+                categories={categories}
+                onCategoryClick={handleCategoryClick}
+                selectedCategory={selectedCategory}
+                offersCount={offersCount}
+              />
+            </motion.div>
 
             {/* Menu Items */}
-            <MenuItemsList
-              items={filteredMenuItems}
-              onAddToCart={handleItemClick}
-              categories={categories}
-              showGrouped={selectedCategory === null && !searchQuery.trim()}
-              selectedCategory={selectedCategory}
-            />
-          </div>
+            <motion.div
+              key={`${selectedCategory ?? 'all'}-${searchQuery}`}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, ease: 'easeOut', delay: 0.1 }}
+            >
+              <MenuItemsList
+                items={filteredMenuItems}
+                onAddToCart={handleItemClick}
+                categories={categories}
+                showGrouped={selectedCategory === null && !searchQuery.trim()}
+                selectedCategory={selectedCategory}
+              />
+            </motion.div>
+          </motion.div>
         </ErrorBoundary>
       )}
 

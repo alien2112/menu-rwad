@@ -12,16 +12,12 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Image,
   Monitor,
-  MapPin,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/admin', icon: LayoutDashboard },
-  { name: 'الصفحة الرئيسية', href: '/admin/homepage', icon: Image },
-  { name: 'خلفيات الصفحات', href: '/admin/page-backgrounds', icon: Monitor },
-  { name: 'المواقع', href: '/admin/locations', icon: MapPin },
+  { name: 'وسائط الصفحة', href: '/admin/page-hero', icon: Monitor },
   { name: 'الفئات', href: '/admin/categories', icon: FolderOpen },
   { name: 'المنتجات', href: '/admin/items', icon: Package },
   { name: 'المكونات', href: '/admin/ingredients', icon: Leaf },

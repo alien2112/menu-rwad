@@ -5,6 +5,7 @@ import { OptimizedImage } from "./OptimizedImage";
 import { ShoppingCart, Star, Clock, Flame } from "lucide-react";
 import { MenuItemReviewModal } from "./MenuItemReviewModal";
 import { useCart } from "@/contexts/CartContext";
+import { motion } from "framer-motion";
 
 interface MenuItem {
   _id: string;
@@ -55,7 +56,14 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
 
   return (
     <>
-      <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 restaurant-menu-item">
+      <motion.div
+        className="bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 restaurant-menu-item"
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.99 }}
+      >
         <div className="flex flex-col gap-4">
           {/* Top Section: Image and Info */}
           <div className="flex items-start gap-4">
@@ -178,7 +186,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Review Modal */}
       {showReviewModal && (
@@ -248,11 +256,18 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
   // If not showing grouped or no categories provided, show simple list
   if (!showGrouped || categories.length === 0) {
     return (
-      <div className="px-4 space-y-4 pb-24">
+      <motion.div
+        className="px-4 space-y-4 pb-24"
+        initial="hidden"
+        animate="show"
+        variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
+      >
         {items.map((item) => (
-          <MenuItemCard key={item._id} item={item} onAddToCart={onAddToCart} />
+          <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+            <MenuItemCard item={item} onAddToCart={onAddToCart} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     );
   }
 
@@ -279,11 +294,11 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
   });
 
   return (
-    <div className="px-4 pb-24">
+    <motion.div className="px-4 pb-24" initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
       {sortedCategories.map(({ category, items: categoryItems }) => (
-        <div key={category._id} className="mb-8">
+        <motion.div key={category._id} className="mb-8" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
           {/* Category Header */}
-          <div className="flex items-center gap-3 mb-4">
+          <motion.div className="flex items-center gap-3 mb-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: "easeOut" }}>
             <div 
               className="w-8 h-8 rounded-full flex items-center justify-center"
               style={{ backgroundColor: `${category.color}40` }}
@@ -298,16 +313,23 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
             )}
             <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
             <span className="text-white/60 text-sm">{categoryItems.length} عنصر</span>
-          </div>
+          </motion.div>
 
           {/* Category Items */}
-          <div className="space-y-4">
+          <motion.div
+            className="space-y-4"
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}
+          >
             {categoryItems.map((item) => (
-              <MenuItemCard key={item._id} item={item} onAddToCart={onAddToCart} />
+              <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+                <MenuItemCard item={item} onAddToCart={onAddToCart} />
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };

@@ -9,12 +9,10 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { label: "HOME", href: "/" },
-  { label: "ABOUT US", href: "/about" },
-  { label: "OUR SERVICES", href: "/services" },
-  { label: "OFFERS", href: "/offers" },
-  { label: "CONNECT US", href: "/contact" },
-];
+  { label: "فروعنا", href: "/contact#branches" },
+  { label: "تواصل معنا", href: "/contact" },
+  { label: "اكتب رأيك", href: "whatsapp" as const },
+] as const;
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   return (
@@ -55,13 +53,25 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               <nav className="flex-1 flex flex-col justify-center space-y-8">
                 {menuItems.map((item, index) => (
                   <div key={item.label}>
-                    <Link
-                      href={item.href}
-                      className="block text-center text-white text-xs uppercase tracking-wider py-4 hover:text-coffee-green transition-colors"
-                      onClick={onClose}
-                    >
-                      {item.label}
-                    </Link>
+                    {item.href === 'whatsapp' ? (
+                      <a
+                        href={`https://wa.me/966567833138?text=${encodeURIComponent('مرحباً، أود إرسال رأيي حول التجربة.')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block text-center text-white text-sm py-4 hover:text-coffee-green transition-colors"
+                        onClick={onClose}
+                      >
+                        {item.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className="block text-center text-white text-sm py-4 hover:text-coffee-green transition-colors"
+                        onClick={onClose}
+                      >
+                        {item.label}
+                      </Link>
+                    )}
                     {index < menuItems.length - 1 && (
                       <div className="mx-auto w-32 h-px bg-coffee-secondary mt-4" />
                     )}

@@ -2,6 +2,26 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Rewrite root to /menu so the menu renders as the homepage
+  if (pathname === '/') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/menu';
+    const rewrite = NextResponse.rewrite(url);
+
+    // Security headers
+    rewrite.headers.set('X-DNS-Prefetch-Control', 'on');
+    rewrite.headers.set('X-Frame-Options', 'SAMEORIGIN');
+    rewrite.headers.set('X-Content-Type-Options', 'nosniff');
+    rewrite.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+
+    // Performance headers
+    rewrite.headers.set('X-XSS-Protection', '1; mode=block');
+
+    return rewrite;
+  }
+
   const response = NextResponse.next();
 
   // Security headers

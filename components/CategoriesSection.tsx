@@ -1,6 +1,7 @@
 "use client";
 
 import { OptimizedImage } from "./OptimizedImage";
+import { motion } from "framer-motion";
 
 interface Category {
   _id: string;
@@ -19,14 +20,35 @@ interface CategoriesSectionProps {
 }
 
 export const CategoriesSection = ({ categories, onCategoryClick, selectedCategory, offersCount = 0 }: CategoriesSectionProps) => {
+  const listVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.06, delayChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="px-4 mb-6">
       <h2 className="text-white text-lg font-bold mb-4 text-center">التصنيفات</h2>
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+      <motion.div
+        className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
+        variants={listVariants}
+        initial="hidden"
+        animate="show"
+      >
         {/* All Categories Option */}
-        <div
+        <motion.div
           onClick={() => onCategoryClick('all')}
           className="flex-shrink-0 cursor-pointer group"
+          variants={itemVariants}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
         >
           <div className={`w-20 h-20 rounded-full overflow-hidden backdrop-blur-sm border transition-all duration-300 category-circle ${
             selectedCategory === null || selectedCategory === 'all'
@@ -40,13 +62,16 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
           <p className="text-white text-xs text-center mt-2 font-medium">
             الكل
           </p>
-        </div>
+        </motion.div>
 
         {/* Offers Category - Special Category */}
         {offersCount > 0 && (
-          <div
+          <motion.div
             onClick={() => onCategoryClick('offers')}
             className="flex-shrink-0 cursor-pointer group"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className={`w-20 h-20 rounded-full overflow-hidden backdrop-blur-sm border transition-all duration-300 category-circle ${
               selectedCategory === 'offers'
@@ -71,15 +96,18 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
             <p className="text-white text-xs text-center mt-2 font-medium">
               العروض
             </p>
-          </div>
+          </motion.div>
         )}
 
         {/* Category Items */}
         {categories.map((category) => (
-          <div
+          <motion.div
             key={category._id}
             onClick={() => onCategoryClick(category._id)}
             className="flex-shrink-0 cursor-pointer group"
+            variants={itemVariants}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className={`w-20 h-20 rounded-full overflow-hidden backdrop-blur-sm border transition-all duration-300 category-circle ${
               selectedCategory === category._id 
@@ -109,9 +137,9 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
             <p className="text-white text-xs text-center mt-2 font-medium">
               {category.name}
             </p>
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 };
