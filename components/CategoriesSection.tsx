@@ -15,9 +15,10 @@ interface CategoriesSectionProps {
   categories: Category[];
   onCategoryClick: (categoryId: string) => void;
   selectedCategory?: string | null;
+  offersCount?: number;
 }
 
-export const CategoriesSection = ({ categories, onCategoryClick, selectedCategory }: CategoriesSectionProps) => {
+export const CategoriesSection = ({ categories, onCategoryClick, selectedCategory, offersCount = 0 }: CategoriesSectionProps) => {
   return (
     <div className="px-4 mb-6">
       <h2 className="text-white text-lg font-bold mb-4 text-center">التصنيفات</h2>
@@ -40,6 +41,31 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
             الكل
           </p>
         </div>
+
+        {/* Offers Category - Special Category */}
+        {offersCount > 0 && (
+          <div
+            onClick={() => onCategoryClick('offers')}
+            className="flex-shrink-0 cursor-pointer group"
+          >
+            <div className={`w-20 h-20 rounded-full overflow-hidden backdrop-blur-sm border transition-all duration-300 category-circle ${
+              selectedCategory === 'offers'
+                ? 'bg-white/20 border-white/60' 
+                : 'bg-white/10 border-white/20 group-hover:border-white/40'
+            }`}>
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500/40 to-orange-500/40 relative">
+                <span className="text-white text-lg font-bold">🎁</span>
+                {/* Badge showing count */}
+                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {offersCount}
+                </div>
+              </div>
+            </div>
+            <p className="text-white text-xs text-center mt-2 font-medium">
+              العروض
+            </p>
+          </div>
+        )}
 
         {/* Category Items */}
         {categories.map((category) => (

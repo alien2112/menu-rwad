@@ -160,6 +160,8 @@ export default function Menu() {
     
     if (categoryId === 'all') {
       setSelectedCategory(null);
+    } else if (categoryId === 'offers') {
+      setSelectedCategory('offers');
     } else {
       setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
     }
@@ -197,7 +199,7 @@ export default function Menu() {
     let items = menuItems;
     
     // Filter by category if selected
-    if (selectedCategory) {
+    if (selectedCategory && selectedCategory !== 'offers') {
       items = items.filter(item => item.categoryId === selectedCategory);
     }
     
@@ -213,6 +215,9 @@ export default function Menu() {
     
     return items;
   })();
+
+  // Calculate offers count
+  const offersCount = menuItems.filter(item => item.discountPrice && item.discountPrice < item.price).length;
 
   console.log('Selected category:', selectedCategory);
   console.log('All menu items:', menuItems.length);
@@ -255,6 +260,7 @@ export default function Menu() {
               categories={categories}
               onCategoryClick={handleCategoryClick}
               selectedCategory={selectedCategory}
+              offersCount={offersCount}
             />
 
             {/* Menu Items */}
@@ -263,6 +269,7 @@ export default function Menu() {
               onAddToCart={handleItemClick}
               categories={categories}
               showGrouped={selectedCategory === null && !searchQuery.trim()}
+              selectedCategory={selectedCategory}
             />
           </div>
         </ErrorBoundary>

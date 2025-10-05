@@ -100,17 +100,53 @@ export const OffersSkeleton: React.FC = () => (
 
 // Menu-specific skeleton components
 export const MenuPageSkeleton: React.FC = () => (
-  <div className="relative z-10 px-6 pb-8 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-    {/* Menu Header Skeleton */}
-    <div className="glass-effect rounded-3xl p-6 mb-8">
-      <Skeleton height="h-8" width="w-48" className="mb-4 mx-auto" />
-      <Skeleton height="h-4" width="w-64" className="mx-auto" />
+  <div className="relative z-10 min-h-screen pb-24">
+    {/* Restaurant Menu Header Skeleton */}
+    <div className="px-4 py-6">
+      <div className="glass-effect rounded-3xl p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Skeleton height="h-12" width="w-12" className="rounded-full" />
+            <div>
+              <Skeleton height="h-6" width="w-32" className="mb-2" />
+              <Skeleton height="h-4" width="w-24" />
+            </div>
+          </div>
+          <Skeleton height="h-8" width="w-20" className="rounded-full" />
+        </div>
+      </div>
     </div>
-    
-    {/* Menu Grid Skeleton */}
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 9 }).map((_, index) => (
-        <MenuCategorySkeleton key={index} />
+
+    {/* Search Bar Skeleton */}
+    <div className="px-4 mb-6">
+      <div className="glass-effect rounded-2xl p-4">
+        <div className="flex items-center gap-3">
+          <Skeleton height="h-5" width="w-5" className="rounded" />
+          <Skeleton height="h-5" width="w-full" className="rounded-full" />
+        </div>
+      </div>
+    </div>
+
+    {/* Categories Section Skeleton */}
+    <CategoriesSectionSkeleton />
+
+    {/* Menu Items Skeleton */}
+    <MenuItemsSkeleton />
+  </div>
+);
+
+// Categories Section Skeleton (horizontal scrollable)
+export const CategoriesSectionSkeleton: React.FC = () => (
+  <div className="px-4 mb-6">
+    <Skeleton height="h-6" width="w-24" className="mb-4 mx-auto" />
+    <div className="flex gap-4 overflow-x-auto pb-2">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="flex-shrink-0">
+          <div className="w-20 h-20 rounded-full overflow-hidden backdrop-blur-sm border border-white/20 bg-white/10">
+            <Skeleton height="h-full" width="w-full" className="rounded-full" />
+          </div>
+          <Skeleton height="h-3" width="w-16" className="mt-2 mx-auto" />
+        </div>
       ))}
     </div>
   </div>
@@ -128,37 +164,53 @@ export const MenuCategorySkeleton: React.FC = () => (
 
 // Menu items skeleton for category pages
 export const MenuItemsSkeleton: React.FC = () => (
-  <div className="px-6 py-8 md:px-8 lg:px-12">
-    {/* Category Header Skeleton */}
-    <div className="glass-effect rounded-3xl p-6 mb-8">
-      <Skeleton height="h-8" width="w-48" className="mb-4 mx-auto" />
-      <Skeleton height="h-4" width="w-64" className="mx-auto" />
-    </div>
-    
-    {/* Menu Items Grid Skeleton */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 6 }).map((_, index) => (
-        <MenuItemSkeleton key={index} />
-      ))}
-    </div>
+  <div className="px-4 space-y-4 pb-24">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <MenuItemCardSkeleton key={index} />
+    ))}
   </div>
 );
 
-export const MenuItemSkeleton: React.FC = () => (
-  <div className="glass-effect rounded-3xl overflow-hidden">
-    {/* Image Skeleton */}
-    <Skeleton height="h-48" className="w-full" />
-    
-    {/* Content Skeleton */}
-    <div className="p-6">
-      <Skeleton height="h-6" width="w-3/4" className="mb-3" />
-      <Skeleton height="h-4" width="w-full" className="mb-2" />
-      <Skeleton height="h-4" width="w-2/3" className="mb-4" />
-      
-      {/* Price Skeleton */}
-      <div className="flex justify-between items-center">
-        <Skeleton height="h-5" width="w-16" />
-        <Skeleton height="h-8" width="w-8" className="rounded-full" />
+export const MenuItemCardSkeleton: React.FC = () => (
+  <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20">
+    <div className="flex flex-col gap-4">
+      {/* Top Section: Image and Info */}
+      <div className="flex items-start gap-4">
+        {/* Circular Image */}
+        <div className="flex-shrink-0 relative">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 border-2 border-white/30 shadow-lg">
+            <Skeleton height="h-full" width="w-full" className="rounded-full" />
+          </div>
+        </div>
+
+        {/* Item Details */}
+        <div className="flex-1 min-w-0">
+          <Skeleton height="h-6" width="w-3/4" className="mb-1" />
+          <Skeleton height="h-3" width="w-1/2" className="mb-1" />
+          <Skeleton height="h-4" width="w-full" className="mb-2" />
+          <Skeleton height="h-4" width="w-2/3" className="mb-2" />
+
+          {/* Meta Info Row */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Skeleton height="h-6" width="w-16" className="rounded-full" />
+            <Skeleton height="h-6" width="w-20" className="rounded-full" />
+            <Skeleton height="h-6" width="w-18" className="rounded-full" />
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Section: Price and Actions */}
+      <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
+        {/* Price Section */}
+        <div className="flex items-center gap-2">
+          <Skeleton height="h-10" width="w-20" className="rounded-full" />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <Skeleton height="h-10" width="w-10" className="rounded-full" />
+          <Skeleton height="h-10" width="w-24" className="rounded-full" />
+        </div>
       </div>
     </div>
   </div>

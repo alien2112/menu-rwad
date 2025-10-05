@@ -31,6 +31,7 @@ interface MenuItemsListProps {
     color: string;
   }>;
   showGrouped?: boolean;
+  selectedCategory?: string | null;
 }
 
 const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id: string) => void }) => {
@@ -201,7 +202,42 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
   );
 };
 
-export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped = false }: MenuItemsListProps) => {
+export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped = false, selectedCategory }: MenuItemsListProps) => {
+  // Special handling for offers category
+  if (selectedCategory === 'offers') {
+    const offersItems = items.filter(item => item.discountPrice && item.discountPrice < item.price);
+    
+    if (offersItems.length === 0) {
+      return (
+        <div className="px-4 text-center py-8">
+          <p className="text-white/60 text-lg">لا توجد عروض متاحة حالياً</p>
+          <p className="text-white/40 text-sm mt-2">تحقق مرة أخرى لاحقاً</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4 pb-24">
+        {/* Offers Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br from-red-500/40 to-orange-500/40">
+            <span className="text-white text-sm font-bold">🎁</span>
+          </div>
+          <h2 className="text-white text-xl font-bold">العروض الخاصة</h2>
+          <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
+          <span className="text-white/60 text-sm">{offersItems.length} عرض</span>
+        </div>
+
+        {/* Offers Items */}
+        <div className="space-y-4">
+          {offersItems.map((item) => (
+            <MenuItemCard key={item._id} item={item} onAddToCart={onAddToCart} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="px-4 text-center py-8">
