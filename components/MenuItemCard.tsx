@@ -166,7 +166,7 @@ export const MenuItemCard = ({
             {/* Meta Info Row */}
             <div className="flex items-center gap-2 flex-wrap">
               {/* Calories */}
-              {calories && (
+              {calories !== undefined && calories !== null && calories >= 0 && (
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
                   <Flame className="w-3.5 h-3.5 text-orange-400" />
                   <span className="text-white/90 text-xs font-medium">
@@ -176,7 +176,7 @@ export const MenuItemCard = ({
               )}
 
               {/* Preparation Time */}
-              {preparationTime && (
+              {preparationTime !== undefined && preparationTime !== null && preparationTime >= 0 && (
                 <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
                   <Clock className="w-3.5 h-3.5 text-blue-400" />
                   <span className="text-white/90 text-xs font-medium">

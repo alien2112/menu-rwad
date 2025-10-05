@@ -108,7 +108,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
               {/* Meta Info Row */}
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Calories */}
-                {item.calories && (
+                {item.calories !== undefined && item.calories !== null && item.calories >= 0 && (
                   <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
                     <Flame className="w-3.5 h-3.5 text-orange-400" />
                     <span className="text-white/90 text-xs font-medium">
@@ -118,7 +118,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
                 )}
 
                 {/* Preparation Time */}
-                {item.preparationTime && (
+                {item.preparationTime !== undefined && item.preparationTime !== null && item.preparationTime >= 0 && (
                   <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
                     <Clock className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-white/90 text-xs font-medium">
