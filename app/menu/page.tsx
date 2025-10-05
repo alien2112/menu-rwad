@@ -59,6 +59,8 @@ export default function Menu() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+  const [itemsLoaded, setItemsLoaded] = useState(false);
   const CACHE_KEY = 'menu_categories_cache_v1';
   const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -67,42 +69,38 @@ export default function Menu() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch categories with caching enabled for public view
-        const categoriesResponse = await fetch('/api/categories');
+        // Make API calls in parallel for faster loading
+        const [categoriesResponse, itemsResponse] = await Promise.all([
+          fetch('/api/categories'),
+          fetch('/api/items')
+        ]);
+
+        // Process categories
         const categoriesData = await categoriesResponse.json();
-        
         if (categoriesData.success && categoriesData.data.length > 0) {
           const activeCategories = categoriesData.data
             .filter((category: Category) => category.status === 'active')
             .sort((a: Category, b: Category) => a.order - b.order);
           
           console.log('Fetched categories:', activeCategories);
-          console.log('Category IDs:', activeCategories.map(c => ({ id: c._id, name: c.name })));
           setCategories(activeCategories);
         } else {
           console.log('No categories found or API error:', categoriesData);
         }
+        setCategoriesLoaded(true);
 
-        // Fetch all menu items with caching enabled for public view
-        const itemsResponse = await fetch('/api/items');
+        // Process menu items
         const itemsData = await itemsResponse.json();
-        
         console.log('Raw API response:', itemsData);
         
         if (itemsData.success && itemsData.data.length > 0) {
-          // Process items from database - use real data only
           const allItems = itemsData.data;
-          
           console.log('All items (no status filter):', allItems);
-          console.log('Items with status active:', itemsData.data.filter((item: any) => item.status === 'active').length);
-          console.log('Items with status inactive:', itemsData.data.filter((item: any) => item.status === 'inactive').length);
-          console.log('Items with no status:', itemsData.data.filter((item: any) => !item.status).length);
-          
-          // Use all items for now to test
           setMenuItems(allItems);
         } else {
           console.log('No menu items found or API error:', itemsData);
         }
+        setItemsLoaded(true);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -114,11 +112,11 @@ export default function Menu() {
   }, []);
 
   useEffect(() => {
+    // Fetch background asynchronously without blocking main content
     const fetchBackground = async () => {
       try {
         const response = await fetch('/api/page-backgrounds');
         const data = await response.json();
-        console.log('[Menu BG] API response:', data);
         if (data.success) {
           const normalize = (r?: string) => {
             if (!r) return '';
@@ -129,17 +127,14 @@ export default function Menu() {
           };
           const target = normalize('/menu');
           const bg = data.data.find((b: PageBackground) => normalize(b.pageRoute) === target && b.status === 'active');
-          console.log('[Menu BG] target =', target, ' matched background =', bg);
-          if (bg) {
-            console.log('[Menu BG] backgroundImageId =', bg.backgroundImageId);
-            console.log('[Menu BG] backgroundImageUrl =', bg.backgroundImageUrl);
-          }
           setPageBackground(bg || null);
         }
       } catch (e) {
         console.error('Failed to fetch page background for /menu', e);
       }
     };
+    
+    // Don't block main content loading
     fetchBackground();
   }, []);
 
@@ -244,7 +239,7 @@ export default function Menu() {
       {/* Overlay for better text readability */}
       <div className="absolute inset-0 bg-black/40 z-0" />
 
-      {loading ? (
+      {!categoriesLoaded || !itemsLoaded ? (
         <MenuPageSkeleton />
       ) : (
         <ErrorBoundary>
