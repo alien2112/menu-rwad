@@ -2,41 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { ShoppingCart } from "lucide-react";
+import { CartIcon, CartModal } from "@/components/CartComponents";
+import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
+import { CategoriesSection } from "@/components/CategoriesSection";
+import { MenuItemsList } from "@/components/MenuItemsList";
 import { MenuPageSkeleton } from "@/components/SkeletonLoader";
+import { SearchBar } from "@/components/SearchBar";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
-
-// Dynamic imports for heavy components (code splitting)
-const CartIcon = dynamic(() => import("@/components/CartComponents").then(mod => ({ default: mod.CartIcon })), {
-  ssr: false,
-  loading: () => null,
-});
-
-const CartModal = dynamic(() => import("@/components/CartComponents").then(mod => ({ default: mod.CartModal })), {
-  ssr: false,
-  loading: () => null,
-});
-
-const RestaurantMenuHeader = dynamic(() => import("@/components/RestaurantMenuHeader").then(mod => ({ default: mod.RestaurantMenuHeader })), {
-  loading: () => <div className="h-24 bg-white/5 animate-pulse rounded-3xl" />,
-});
-
-const CategoriesSection = dynamic(() => import("@/components/CategoriesSection").then(mod => ({ default: mod.CategoriesSection })), {
-  loading: () => <div className="h-32 bg-white/5 animate-pulse rounded-3xl mx-4" />,
-});
-
-const MenuItemsList = dynamic(() => import("@/components/MenuItemsList").then(mod => ({ default: mod.MenuItemsList })), {
-  loading: () => <div className="h-64 bg-white/5 animate-pulse rounded-3xl mx-4" />,
-});
-
-const SearchBar = dynamic(() => import("@/components/SearchBar").then(mod => ({ default: mod.SearchBar })), {
-  loading: () => <div className="h-12 bg-white/5 animate-pulse rounded-full mx-4" />,
-});
-
-const ErrorBoundary = dynamic(() => import("@/components/ErrorBoundary"), {
-  ssr: true,
-});
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
