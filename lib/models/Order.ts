@@ -133,8 +133,7 @@ const OrderSchema = new Schema<IOrder>(
   }
 );
 
-// Add indexes for better performance
-OrderSchema.index({ orderNumber: 1 });
+// Add indexes for better performance (orderNumber already has unique index)
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ orderDate: -1 });
 OrderSchema.index({ 'customerInfo.phone': 1 });

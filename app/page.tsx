@@ -10,6 +10,9 @@ import { OptimizedImage } from "@/components/OptimizedImage";
 import { gsap } from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Lazy load components that are below the fold
 const SignatureDrinksSlider = lazy(() => import("@/components/SignatureDrinksSlider"));
 const OffersSlider = lazy(() => import("@/components/OffersSlider"));

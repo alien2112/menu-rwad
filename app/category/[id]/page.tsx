@@ -7,6 +7,9 @@ import { MenuItemCard } from "@/components/MenuItemCard";
 import { MenuItemsSkeleton } from "@/components/SkeletonLoader";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 interface PageBackground {
   _id: string;
   pageRoute: string;

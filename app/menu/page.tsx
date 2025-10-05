@@ -12,6 +12,9 @@ import { SearchBar } from "@/components/SearchBar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 interface PageBackground {
   _id: string;
   pageRoute: string;
