@@ -21,6 +21,7 @@ const navigation = [
   { name: 'الفئات', href: '/admin/categories', icon: FolderOpen },
   { name: 'المنتجات', href: '/admin/items', icon: Package },
   { name: 'المكونات', href: '/admin/ingredients', icon: Leaf },
+  { name: 'التحليلات', href: '/admin/analytics', icon: LayoutDashboard },
 ];
 
 export default function AdminLayout({
