@@ -166,13 +166,17 @@ export default function Menu() {
   const handleItemClick = (itemId: string) => {
     const item = menuItems.find(item => item._id === itemId);
     if (item) {
+      const actualPrice = item.discountPrice && item.discountPrice < item.price
+        ? item.discountPrice
+        : item.price;
+        
       dispatch({
         type: 'ADD_ITEM',
         payload: {
           id: item._id,
           name: item.name,
           nameEn: item.nameEn,
-          price: item.price,
+          price: actualPrice,
           image: item.image,
         }
       });

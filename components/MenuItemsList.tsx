@@ -49,16 +49,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
     : 0;
 
   const handleAddToCart = () => {
-    dispatch({
-      type: 'ADD_ITEM',
-      payload: {
-        id: item._id,
-        name: item.name,
-        nameEn: item.nameEn,
-        price: actualPrice,
-        image: item.image,
-      }
-    });
+    // Only call the parent callback, let the parent handle the dispatch
     onAddToCart(item._id);
   };
 
