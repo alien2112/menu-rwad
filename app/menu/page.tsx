@@ -66,7 +66,7 @@ export default function Menu() {
     loading: categoriesLoading, 
     error: categoriesError,
     isCached: categoriesCached 
-  } = useCachedFetch<{ success: boolean; data: Category[] }>('/api/categories', {
+  } = useCachedFetch<Category[]>('/api/categories', {
     cacheKey: 'menu_categories_cache_v1',
     cacheTTL: 10 * 60 * 1000 // 10 minutes
   });
@@ -77,21 +77,21 @@ export default function Menu() {
     loading: itemsLoading, 
     error: itemsError,
     isCached: itemsCached 
-  } = useCachedFetch<{ success: boolean; data: MenuItem[] }>('/api/items', {
+  } = useCachedFetch<MenuItem[]>('/api/items', {
     cacheKey: 'menu_items_cache_v1',
     cacheTTL: 10 * 60 * 1000 // 10 minutes
   });
 
   // Process categories data
-  const categories = categoriesData?.success && categoriesData.data.length > 0
-    ? categoriesData.data
+  const categories = categoriesData && Array.isArray(categoriesData) && categoriesData.length > 0
+    ? categoriesData
         .filter((category: Category) => category.status === 'active')
         .sort((a: Category, b: Category) => a.order - b.order)
     : [];
 
   // Process menu items data
-  const menuItems = itemsData?.success && itemsData.data.length > 0
-    ? itemsData.data
+  const menuItems = itemsData && Array.isArray(itemsData) && itemsData.length > 0
+    ? itemsData
     : [];
 
   // Overall loading state
@@ -99,13 +99,18 @@ export default function Menu() {
 
   // Log cache status for debugging
   useEffect(() => {
+    console.log('Categories data:', categoriesData);
+    console.log('Items data:', itemsData);
+    console.log('Categories length:', categories.length);
+    console.log('Menu items length:', menuItems.length);
+    
     if (categoriesCached) {
       console.log('Categories loaded from cache');
     }
     if (itemsCached) {
       console.log('Menu items loaded from cache');
     }
-  }, [categoriesCached, itemsCached]);
+  }, [categoriesCached, itemsCached, categoriesData, itemsData, categories.length, menuItems.length]);
 
   useEffect(() => {
     // Fetch background asynchronously without blocking main content
