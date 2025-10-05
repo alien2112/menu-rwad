@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectToDatabase } from '@/lib/mongodb';
+import dbConnect from '@/lib/mongodb';
 import Order from '@/lib/models/Order';
 
 // Generate unique order number
@@ -12,7 +12,7 @@ function generateOrderNumber(): string {
 
 export async function POST(request: NextRequest) {
   try {
-    await connectToDatabase();
+    await dbConnect();
 
     const orderData = await request.json();
 
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    await connectToDatabase();
+    await dbConnect();
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await connectToDatabase();
+    await dbConnect();
 
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('id');

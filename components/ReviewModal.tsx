@@ -1,19 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/client/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/client/components/ui/tabs";
+import { X, Star } from "lucide-react";
 
 interface Review {
   _id: string;
@@ -40,6 +28,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
   });
   const [message, setMessage] = useState<string>("");
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'reviews' | 'add-review'>('reviews');
 
   useEffect(() => {
     if (open) {
@@ -92,35 +81,55 @@ export function ReviewModal({ children }: ReviewModalProps) {
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+  if (!open) {
+    return (
+      <div onClick={() => setOpen(true)} className="cursor-pointer">
         {children}
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden bg-coffee-primary border-white/20">
-        <DialogHeader>
-          <DialogTitle className="text-white text-center text-xl">
-            آراء الزبائن وإضافة مراجعة
-          </DialogTitle>
-        </DialogHeader>
+      </div>
+    );
+  }
 
-        <Tabs defaultValue="reviews" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-white/10">
-            <TabsTrigger
-              value="reviews"
-              className="data-[state=active]:bg-coffee-green data-[state=active]:text-white text-white/80"
-            >
-              المراجعات السابقة
-            </TabsTrigger>
-            <TabsTrigger
-              value="add-review"
-              className="data-[state=active]:bg-coffee-green data-[state=active]:text-white text-white/80"
-            >
-              أضف مراجعتك
-            </TabsTrigger>
-          </TabsList>
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-[#4F3500] border border-white/20 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/20">
+          <h2 className="text-white text-xl font-bold">آراء الزبائن وإضافة مراجعة</h2>
+          <button
+            onClick={() => setOpen(false)}
+            className="text-white/60 hover:text-white transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
 
-          <TabsContent value="reviews" className="mt-4 max-h-96 overflow-y-auto">
+        {/* Tab Navigation */}
+        <div className="flex border-b border-white/20">
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              activeTab === 'reviews'
+                ? 'bg-[#C2914A] text-white'
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            المراجعات السابقة
+          </button>
+          <button
+            onClick={() => setActiveTab('add-review')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              activeTab === 'add-review'
+                ? 'bg-[#C2914A] text-white'
+                : 'text-white/80 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            أضف مراجعتك
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 max-h-96 overflow-y-auto">
+          {activeTab === 'reviews' ? (
             <div className="space-y-4">
               {loadingReviews ? (
                 <p className="text-white/80 text-sm text-center">جاري التحميل...</p>
@@ -136,9 +145,16 @@ export function ReviewModal({ children }: ReviewModalProps) {
                       <p className="text-white font-semibold text-sm">
                         {review.author_name}
                       </p>
-                      <p className="text-yellow-300 text-xs">
-                        {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < review.rating ? 'text-yellow-400 fill-current' : 'text-white/30'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
                     <p className="text-white/90 text-sm leading-relaxed">
                       {review.text}
@@ -150,9 +166,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                 ))
               )}
             </div>
-          </TabsContent>
-
-          <TabsContent value="add-review" className="mt-4">
+          ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               {message && (
                 <div className={`text-sm p-3 rounded-lg ${
@@ -167,7 +181,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                 <input
                   value={form.author_name}
                   onChange={(e) => setForm((p) => ({ ...p, author_name: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-coffee-green"
+                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#C2914A]"
                   required
                 />
               </div>
@@ -183,7 +197,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                     ...p,
                     rating: Math.max(1, Math.min(5, Number(e.target.value) || 5))
                   }))}
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-coffee-green"
+                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#C2914A]"
                   required
                 />
               </div>
@@ -193,7 +207,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                 <textarea
                   value={form.text}
                   onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-coffee-green"
+                  className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#C2914A]"
                   rows={4}
                   maxLength={500}
                   required
@@ -207,7 +221,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-coffee-green"
+                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#C2914A]"
                   />
                 </div>
                 <div>
@@ -215,7 +229,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
                   <input
                     value={form.phone}
                     onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-coffee-green"
+                    className="w-full px-3 py-2 rounded-xl bg-white/10 text-white border border-white/20 focus:outline-none focus:border-[#C2914A]"
                   />
                 </div>
               </div>
@@ -223,15 +237,15 @@ export function ReviewModal({ children }: ReviewModalProps) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-coffee-green hover:bg-coffee-green/90 disabled:bg-coffee-green/50 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300"
+                className="w-full bg-[#C2914A] hover:bg-[#B8853F] disabled:bg-[#C2914A]/50 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300"
               >
                 {submitting ? '... جاري الإرسال' : 'إرسال المراجعة'}
               </button>
             </form>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
