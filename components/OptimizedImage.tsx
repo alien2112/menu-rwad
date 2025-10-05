@@ -91,7 +91,7 @@ export function OptimizedImage({
     if (w > 0) params.set('w', Math.round(w).toString());
     if (h > 0) params.set('h', Math.round(h).toString());
     params.set('q', '85'); // Quality
-    params.set('f', 'webp'); // Format (webp for best compression)
+    params.set('f', 'webp'); // Default to WebP format for better compression
 
     return `${src}?${params.toString()}`;
   })();

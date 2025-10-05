@@ -16,7 +16,9 @@ export async function GET(
     const width = parseInt(searchParams.get('w') || '0', 10);
     const height = parseInt(searchParams.get('h') || '0', 10);
     const quality = Math.min(parseInt(searchParams.get('q') || '85', 10), 100);
-    const format = searchParams.get('f') || 'auto'; // auto, webp, jpeg, png
+    const format = searchParams.get('f') || 'webp'; // Default to WebP, fallback to auto
+    const acceptHeader = request.headers.get('accept') || '';
+    const supportsWebP = acceptHeader.includes('image/webp');
 
     // Create cache key based on params
     const cacheKey = `image:${id}:${width}:${height}:${quality}:${format}`;
@@ -24,7 +26,7 @@ export async function GET(
     // Try to get from cache
     const cachedImage = cache.get<{ buffer: Buffer; contentType: string }>(cacheKey);
     if (cachedImage) {
-      return new NextResponse(cachedImage.buffer, {
+      return new NextResponse(cachedImage.buffer as any, {
         headers: {
           'Content-Type': cachedImage.contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
@@ -57,10 +59,31 @@ export async function GET(
         });
       }
 
-      // Convert format
-      if (format === 'webp' || format === 'auto') {
+      // Convert format with WebP preference and fallback
+      if (format === 'webp' && supportsWebP) {
         sharpInstance = sharpInstance.webp({ quality });
         outputContentType = 'image/webp';
+      } else if (format === 'webp' && !supportsWebP) {
+        // Fallback to original format if WebP not supported
+        if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+          sharpInstance = sharpInstance.jpeg({ quality, progressive: true });
+          outputContentType = 'image/jpeg';
+        } else if (contentType.includes('png')) {
+          sharpInstance = sharpInstance.png({ quality, progressive: true });
+          outputContentType = 'image/png';
+        }
+      } else if (format === 'auto') {
+        // Auto format selection with WebP preference
+        if (supportsWebP) {
+          sharpInstance = sharpInstance.webp({ quality });
+          outputContentType = 'image/webp';
+        } else if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+          sharpInstance = sharpInstance.jpeg({ quality, progressive: true });
+          outputContentType = 'image/jpeg';
+        } else if (contentType.includes('png')) {
+          sharpInstance = sharpInstance.png({ quality, progressive: true });
+          outputContentType = 'image/png';
+        }
       } else if (format === 'jpeg' || format === 'jpg') {
         sharpInstance = sharpInstance.jpeg({ quality, progressive: true });
         outputContentType = 'image/jpeg';
@@ -76,7 +99,7 @@ export async function GET(
     // Cache the optimized image for 1 day
     cache.set(cacheKey, { buffer, contentType: outputContentType }, CacheTTL.ONE_DAY);
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as any, {
       headers: {
         'Content-Type': outputContentType,
         'Cache-Control': 'public, max-age=31536000, immutable',
