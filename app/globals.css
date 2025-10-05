@@ -339,3 +339,88 @@
 .stagger-fade {
   animation: fade-up-enter 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+/* Restaurant Menu Styles */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Restaurant menu item hover effects */
+.restaurant-menu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.restaurant-menu-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Category circle hover effects */
+.category-circle {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.category-circle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Order summary slide up animation */
+@keyframes slide-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.order-summary-enter {
+  animation: slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive adjustments for restaurant menu */
+@media (max-width: 768px) {
+  .restaurant-menu-item {
+    margin-bottom: 0.75rem;
+  }
+  
+  .category-circle {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .restaurant-menu-item {
+    margin-bottom: 1rem;
+  }
+  
+  .category-circle {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+/* Floating cart button styles */
+.floating-cart-button {
+  position: fixed !important;
+  bottom: 1.5rem !important;
+  right: 1.5rem !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+}
+
+/* Ensure menu items don't interfere with floating button */
+.menu-items-container {
+  padding-bottom: 6rem;
+}

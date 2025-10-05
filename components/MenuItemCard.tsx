@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import React, { useState } from "react";
-import { MessageSquare } from "lucide-react";
+import { ShoppingCart, Star, Clock, Flame } from "lucide-react";
 import { MenuItemReviewModal } from "./MenuItemReviewModal";
 import { OptimizedImage } from "./OptimizedImage";
 
@@ -47,6 +47,8 @@ export const MenuItemCard = ({
 }: MenuItemCardProps) => {
   const { dispatch } = useCart();
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
   const handleAddToCart = () => {
     dispatch({
       type: 'ADD_ITEM',
@@ -97,155 +99,168 @@ export const MenuItemCard = ({
     handleAddToCart();
   };
 
-  const statusConfig = {
-    active: {
-      label: "نشط",
-      className: "bg-[hsl(var(--status-active-bg))] text-[hsl(var(--status-active))]",
-    },
-    out: {
-      label: "نفذ",
-      className: "bg-[hsl(var(--status-inactive-bg))] text-[hsl(var(--status-inactive))]",
-    },
-    inactive: {
-      label: "غير نشط",
-      className: "bg-muted text-muted-foreground",
-    },
-  } as const;
+  const actualPrice = oldPrice && oldPrice > price ? price : price;
+  const hasDiscount = oldPrice && oldPrice > price;
+  const discountPercentage = hasDiscount
+    ? Math.round(((oldPrice - price) / oldPrice) * 100)
+    : 0;
 
   return (
-    <article className="group overflow-hidden rounded-2xl bg-card border border-card-border backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:bg-card/80 hover:shadow-xl">
-      <div className="relative h-48 overflow-hidden bg-muted/30">
-        {image ? (
-          <div className="absolute inset-0 h-full w-full transition-transform duration-500 group-hover:scale-110">
-            <OptimizedImage
-              src={image}
-              alt={nameAr}
-              width="100%"
-              height="100%"
-              objectFit="cover"
-              placeholderColor="#1f2937"
-            />
-          </div>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-muted">
-            <span className="text-muted-foreground text-sm">لا توجد صورة</span>
-          </div>
-        )}
-        {isFeatured && (
-          <div className="absolute top-3 left-3 rounded-xl bg-accent px-3 py-1.5 text-sm font-bold text-accent-foreground shadow-lg z-10">
-            مميز
-          </div>
-        )}
-      </div>
-
-      <div className="p-5">
-        <div className="mb-3 flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="mb-1 text-xl font-bold text-foreground leading-tight">{nameAr}</h3>
-            <p className="text-sm text-muted-foreground">{nameEn}</p>
-          </div>
-          {oldPrice && (
-            <span className="rounded-xl bg-accent/20 text-accent px-3 py-1 text-xs font-bold">خصم</span>
-          )}
-        </div>
-
-        <p className="mb-4 text-sm leading-relaxed text-foreground/85 line-clamp-2">{description}</p>
-
-        {/* Ingredient Tags */}
-        {ingredientTags && ingredientTags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3">
-            {ingredientTags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full"
-                style={{
-                  backgroundColor: '#c59a6c26',
-                  color: '#c59a6c',
-                  border: '1px solid #c59a6c4D'
-                }}
-                title={tag.label}
-              >
-                {tag.label}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="mb-3 flex items-center gap-3">
-          <span className="text-2xl font-extrabold" style={{ color: '#c59a6c' }}>{price} ريال سعودي</span>
-          {oldPrice && <span className="text-base text-muted-foreground line-through">{oldPrice} ريال سعودي</span>}
-        </div>
-
-        {(calories || preparationTime || servingSize) && (
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            {servingSize && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
-                backgroundColor: '#c59a6c26',
-                color: '#c59a6c',
-                border: '1px solid #c59a6c4D'
-              }}>
-                حجم الحصة: {servingSize}
-              </span>
-            )}
-            {calories && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
-                backgroundColor: '#c59a6c26',
-                color: '#c59a6c',
-                border: '1px solid #c59a6c4D'
-              }}>
-                {calories} kcal
-              </span>
-            )}
-            {preparationTime && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{
-                backgroundColor: '#c59a6c26',
-                color: '#c59a6c',
-                border: '1px solid #c59a6c4D'
-              }}>
-                {preparationTime} min
-              </span>
-            )}
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{category}</span>
-              <span className={cn("rounded-full px-3 py-1 font-semibold", statusConfig[status].className)}>
-                {statusConfig[status].label}
-              </span>
-            </div>
-            {status !== 'inactive' && (
-              <button
-                type="button"
-                onClick={handleButtonClick}
-                aria-label="أضف للسلة"
-                className="group relative overflow-hidden px-3 py-1 rounded-md text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-white/30"
-                style={{
-                  background: '#c59a6c',
-                  boxShadow: '0 4px 12px rgba(197,154,108,0.35)'
-                }}
-              >
-                <span className="relative z-10">أضف للسلة</span>
-                {/* Shine effect */}
-                <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="absolute -left-8 top-0 h-full w-8 bg-white/30 transform rotate-12 translate-x-0 group-hover:translate-x-[160%] transition-transform duration-700" />
+    <article className="group bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 restaurant-menu-item">
+      <div className="flex flex-col gap-4">
+        {/* Top Section: Image and Info */}
+        <div className="flex items-start gap-4">
+          {/* Circular Image */}
+          <div className="flex-shrink-0 relative">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 border-2 border-white/30 shadow-lg">
+              {image && !imageError ? (
+                <OptimizedImage
+                  src={image}
+                  alt={nameAr}
+                  width="100%"
+                  height="100%"
+                  objectFit="cover"
+                  placeholderColor="rgba(255,255,255,0.1)"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#C2914A] to-[#A67939]">
+                  <span className="text-white text-2xl font-bold">
+                    {nameAr.charAt(0)}
+                  </span>
                 </div>
-              </button>
+              )}
+            </div>
+
+            {/* Discount Badge */}
+            {hasDiscount && (
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
+                {discountPercentage}%
+              </div>
+            )}
+
+            {/* Featured Badge */}
+            {isFeatured && !hasDiscount && (
+              <div className="absolute -top-2 -right-2 bg-accent text-accent-foreground px-2 py-1 rounded-full text-xs font-bold shadow-lg z-10">
+                مميز
+              </div>
             )}
           </div>
 
-          {/* Reviews Button */}
-          {id && (
-            <button
-              type="button"
-              onClick={() => setShowReviewModal(true)}
-              className="w-full px-3 py-2 rounded-md text-xs font-semibold text-foreground bg-muted/50 hover:bg-muted transition-colors flex items-center justify-center gap-2"
-            >
-              <MessageSquare className="w-4 h-4" />
-              عرض التقييمات
-            </button>
+          {/* Item Details */}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+              {nameAr}
+            </h3>
+
+            {nameEn && (
+              <p className="text-white/60 text-xs mb-1">{nameEn}</p>
+            )}
+
+            {description && (
+              <p className="text-white/70 text-sm leading-relaxed line-clamp-2 mb-2">
+                {description}
+              </p>
+            )}
+
+            {/* Meta Info Row */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Calories */}
+              {calories && (
+                <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                  <Flame className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="text-white/90 text-xs font-medium">
+                    {calories} سعر
+                  </span>
+                </div>
+              )}
+
+              {/* Preparation Time */}
+              {preparationTime && (
+                <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                  <Clock className="w-3.5 h-3.5 text-blue-400" />
+                  <span className="text-white/90 text-xs font-medium">
+                    {preparationTime} دقيقة
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Ingredient Tags */}
+            {ingredientTags && ingredientTags.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {ingredientTags.slice(0, 3).map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: '#c59a6c26',
+                      color: '#c59a6c',
+                      border: '1px solid #c59a6c4D'
+                    }}
+                    title={tag.label}
+                  >
+                    {tag.label}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Section: Price and Actions */}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
+          {/* Price Section */}
+          <div className="flex items-center gap-2">
+            <div className="bg-gradient-to-r from-[#C2914A] to-[#B8853F] text-white px-4 py-2 rounded-full shadow-lg">
+              <span className="font-bold text-base">{actualPrice}</span>
+              <span className="text-sm mr-1">ريال</span>
+            </div>
+
+            {hasDiscount && (
+              <div className="text-white/50 text-sm line-through">
+                {oldPrice} ريال
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          {status !== 'inactive' && (
+            <div className="flex items-center gap-2">
+              {/* Review Button */}
+              {id && (
+                <button
+                  onClick={() => setShowReviewModal(true)}
+                  className="bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full transition-all duration-300 border border-white/30 hover:border-white/50 hover:scale-105"
+                  title="عرض التقييمات"
+                >
+                  <Star className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Add to Cart Button */}
+              <button
+                onClick={handleButtonClick}
+                className="relative overflow-hidden bg-gradient-to-r from-[#C2914A] to-[#B8853F] hover:from-[#B8853F] hover:to-[#A67939] text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 shadow-lg hover:scale-105 hover:shadow-xl"
+              >
+                <ShoppingCart className="w-4 h-4" />
+                <span className="relative z-10">أضف للسلة</span>
+              </button>
+            </div>
+          )}
+
+          {/* Out of stock badge */}
+          {status === 'out' && (
+            <div className="bg-yellow-500/20 text-yellow-300 px-3 py-1.5 rounded-full text-xs font-bold">
+              نفذ من المخزون
+            </div>
+          )}
+
+          {/* Inactive badge */}
+          {status === 'inactive' && (
+            <div className="bg-gray-500/20 text-gray-400 px-3 py-1.5 rounded-full text-xs font-bold">
+              غير متاح
+            </div>
           )}
         </div>
       </div>

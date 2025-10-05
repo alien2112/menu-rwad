@@ -291,14 +291,19 @@ export default function ItemsPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex gap-2">
                     <span className="text-2xl font-bold text-coffee-green">
-                      {item.discountPrice || item.price} ج.م
+                      {item.discountPrice || item.price} ريال سعودي
                     </span>
                     {item.discountPrice && (
                       <span className="text-lg text-white/50 line-through">
-                        {item.price} ج.م
+                        {item.price} ريال سعودي
                       </span>
                     )}
                   </div>
+                  {item.calories && item.calories > 0 && (
+                    <div className="text-sm text-white/60">
+                      <span className="text-coffee-gold font-medium">{item.calories}</span> سعرة حرارية
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between text-sm">

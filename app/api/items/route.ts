@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItem from '@/lib/models/MenuItem';
 import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
+import mongoose from 'mongoose';
 
 // GET all menu items
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
+    
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
     const admin = searchParams.get('admin');
@@ -19,6 +21,7 @@ export async function GET(request: NextRequest) {
       { headers: getCacheHeaders(admin === 'true') }
     );
   } catch (error: any) {
+    console.error('❌ API Error:', error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 400 }

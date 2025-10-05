@@ -10,8 +10,8 @@ function resolveMongoUri(): string {
   const std = process.env.MONGODB_URI;
   if (std && std.trim() && !std.trim().startsWith('@')) return std.trim();
 
-  // Fallback: hardcoded Atlas URI (user-provided)
-  return 'mongodb+srv://eslamabdaltif:oneone2@cluster0marakshv2.ltf0bnd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0marakshv2';
+  // Fallback: hardcoded Atlas URI (user-provided) with explicit database name
+  return 'mongodb+srv://eslamabdaltif:oneone2@cluster0marakshv2.ltf0bnd.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0marakshv2';
 }
 
 const MONGODB_URI = resolveMongoUri();

@@ -216,7 +216,7 @@ export default function IngredientsPage() {
               <div className="flex justify-between text-white/70">
                 <span>السعر لكل وحدة:</span>
                 <span className="font-semibold text-coffee-green">
-                  {ingredient.pricePerUnit} ج.م
+                  {ingredient.pricePerUnit} ريال سعودي
                 </span>
               </div>
             </div>

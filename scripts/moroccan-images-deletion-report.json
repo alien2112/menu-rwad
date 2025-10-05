@@ -1,0 +1,423 @@
+{
+  "generatedAt": "2025-10-04T08:35:54.685Z",
+  "totalProcessed": 27,
+  "successfullyDeleted": 27,
+  "notFound": 0,
+  "categories": {
+    "tea": [
+      {
+        "original": "شاي أتاي.jpg",
+        "filename": "tea-شاي-أتاي.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0b8c827f20fa2ae5ab"
+      },
+      {
+        "original": "شاي أخضر.jpg",
+        "filename": "tea-شاي-أخضر.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0c8c827f20fa2ae5ad"
+      },
+      {
+        "original": "شاي احمر.jpg",
+        "filename": "tea-شاي-احمر.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0c8c827f20fa2ae5af"
+      }
+    ],
+    "natural-juices": [
+      {
+        "original": "عصير افوكادو.jpg",
+        "filename": "natural-juices-عصير-افوكادو.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0d8c827f20fa2ae5b1"
+      },
+      {
+        "original": "عصير برتقال.jpg",
+        "filename": "natural-juices-عصير-برتقال.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0e8c827f20fa2ae5b3"
+      },
+      {
+        "original": "عصير رمان.jpg",
+        "filename": "natural-juices-عصير-رمان.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0e8c827f20fa2ae5b5"
+      },
+      {
+        "original": "عصير فراوله فريش.jpg",
+        "filename": "natural-juices-عصير-فراوله-فريش.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0f8c827f20fa2ae5b7"
+      },
+      {
+        "original": "عصير ليمون نعناع.jpg",
+        "filename": "natural-juices-عصير-ليمون-نعناع.jpg",
+        "deleted": true,
+        "fileId": "68e0dc0f8c827f20fa2ae5b9"
+      },
+      {
+        "original": "عصير مانجو.jpg",
+        "filename": "natural-juices-عصير-مانجو.jpg",
+        "deleted": true,
+        "fileId": "68e0dc108c827f20fa2ae5bb"
+      },
+      {
+        "original": "عصير موال مراكش.jpg",
+        "filename": "natural-juices-عصير-موال-مراكش.jpg",
+        "deleted": true,
+        "fileId": "68e0dc118c827f20fa2ae5bd"
+      }
+    ],
+    "cold-coffee": [
+      {
+        "original": "أيس موكا.jpg",
+        "filename": "cold-coffee-أيس-موكا.jpg",
+        "deleted": true,
+        "fileId": "68e0dc128c827f20fa2ae5bf"
+      },
+      {
+        "original": "ايس أمريكانو.jpg",
+        "filename": "cold-coffee-ايس-أمريكانو.jpg",
+        "deleted": true,
+        "fileId": "68e0dc138c827f20fa2ae5c1"
+      },
+      {
+        "original": "ايس بيستاشيو لاتيه.jpg",
+        "filename": "cold-coffee-ايس-بيستاشيو-لاتيه.jpg",
+        "deleted": true,
+        "fileId": "68e0dc158c827f20fa2ae5c4"
+      },
+      {
+        "original": "ايس دريب.png",
+        "filename": "cold-coffee-ايس-دريب.png",
+        "deleted": true,
+        "fileId": "68e0dc158c827f20fa2ae5c6"
+      },
+      {
+        "original": "ايس سبانيش لايته.jpg",
+        "filename": "cold-coffee-ايس-سبانيش-لايته.jpg",
+        "deleted": true,
+        "fileId": "68e0dc168c827f20fa2ae5c8"
+      },
+      {
+        "original": "ايس لايته.jpg",
+        "filename": "cold-coffee-ايس-لايته.jpg",
+        "deleted": true,
+        "fileId": "68e0dc178c827f20fa2ae5ca"
+      },
+      {
+        "original": "ايس وايت موكا.jpg",
+        "filename": "cold-coffee-ايس-وايت-موكا.jpg",
+        "deleted": true,
+        "fileId": "68e0dc188c827f20fa2ae5cc"
+      },
+      {
+        "original": "قهوة اليوم باردة.png",
+        "filename": "cold-coffee-قهوة-اليوم-باردة.png",
+        "deleted": true,
+        "fileId": "68e0dc188c827f20fa2ae5ce"
+      }
+    ],
+    "cocktails": [
+      {
+        "original": "ايس تي.jpg",
+        "filename": "cocktails-ايس-تي.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1a8c827f20fa2ae5d1"
+      },
+      {
+        "original": "ايس كركديه.jpg",
+        "filename": "cocktails-ايس-كركديه.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1b8c827f20fa2ae5d3"
+      },
+      {
+        "original": "بيرة.jpg",
+        "filename": "cocktails-بيرة.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1b8c827f20fa2ae5d5"
+      },
+      {
+        "original": "ريد بول موهيتو.png",
+        "filename": "cocktails-ريد-بول-موهيتو.png",
+        "deleted": true,
+        "fileId": "68e0dc1c8c827f20fa2ae5d7"
+      },
+      {
+        "original": "سفن موهيتو.jpg",
+        "filename": "cocktails-سفن-موهيتو.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1d8c827f20fa2ae5da"
+      },
+      {
+        "original": "كودريد موهيتو.jpg",
+        "filename": "cocktails-كودريد-موهيتو.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1e8c827f20fa2ae5dc"
+      },
+      {
+        "original": "كودريد.jpg",
+        "filename": "cocktails-كودريد.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1e8c827f20fa2ae5de"
+      },
+      {
+        "original": "مشروب غازي.jpg",
+        "filename": "cocktails-مشروب-غازي.jpg",
+        "deleted": true,
+        "fileId": "68e0dc1f8c827f20fa2ae5e0"
+      },
+      {
+        "original": "موهيتو ريتا.jpg",
+        "filename": "cocktails-موهيتو-ريتا.jpg",
+        "deleted": true,
+        "fileId": "68e0dc208c827f20fa2ae5e2"
+      }
+    ]
+  },
+  "deletions": [
+    {
+      "original": "شاي أتاي.jpg",
+      "filename": "tea-شاي-أتاي.jpg",
+      "category": "الشاي",
+      "categoryFolder": "tea",
+      "deleted": true,
+      "fileId": "68e0dc0b8c827f20fa2ae5ab",
+      "fileSize": 83082
+    },
+    {
+      "original": "شاي أخضر.jpg",
+      "filename": "tea-شاي-أخضر.jpg",
+      "category": "الشاي",
+      "categoryFolder": "tea",
+      "deleted": true,
+      "fileId": "68e0dc0c8c827f20fa2ae5ad",
+      "fileSize": 67279
+    },
+    {
+      "original": "شاي احمر.jpg",
+      "filename": "tea-شاي-احمر.jpg",
+      "category": "الشاي",
+      "categoryFolder": "tea",
+      "deleted": true,
+      "fileId": "68e0dc0c8c827f20fa2ae5af",
+      "fileSize": 70036
+    },
+    {
+      "original": "عصير افوكادو.jpg",
+      "filename": "natural-juices-عصير-افوكادو.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc0d8c827f20fa2ae5b1",
+      "fileSize": 74470
+    },
+    {
+      "original": "عصير برتقال.jpg",
+      "filename": "natural-juices-عصير-برتقال.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc0e8c827f20fa2ae5b3",
+      "fileSize": 67080
+    },
+    {
+      "original": "عصير رمان.jpg",
+      "filename": "natural-juices-عصير-رمان.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc0e8c827f20fa2ae5b5",
+      "fileSize": 64316
+    },
+    {
+      "original": "عصير فراوله فريش.jpg",
+      "filename": "natural-juices-عصير-فراوله-فريش.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc0f8c827f20fa2ae5b7",
+      "fileSize": 5229
+    },
+    {
+      "original": "عصير ليمون نعناع.jpg",
+      "filename": "natural-juices-عصير-ليمون-نعناع.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc0f8c827f20fa2ae5b9",
+      "fileSize": 107978
+    },
+    {
+      "original": "عصير مانجو.jpg",
+      "filename": "natural-juices-عصير-مانجو.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc108c827f20fa2ae5bb",
+      "fileSize": 104206
+    },
+    {
+      "original": "عصير موال مراكش.jpg",
+      "filename": "natural-juices-عصير-موال-مراكش.jpg",
+      "category": "العصيرات الطبيعية",
+      "categoryFolder": "natural-juices",
+      "deleted": true,
+      "fileId": "68e0dc118c827f20fa2ae5bd",
+      "fileSize": 104981
+    },
+    {
+      "original": "أيس موكا.jpg",
+      "filename": "cold-coffee-أيس-موكا.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc128c827f20fa2ae5bf",
+      "fileSize": 95163
+    },
+    {
+      "original": "ايس أمريكانو.jpg",
+      "filename": "cold-coffee-ايس-أمريكانو.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc138c827f20fa2ae5c1",
+      "fileSize": 414905
+    },
+    {
+      "original": "ايس بيستاشيو لاتيه.jpg",
+      "filename": "cold-coffee-ايس-بيستاشيو-لاتيه.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc158c827f20fa2ae5c4",
+      "fileSize": 4421
+    },
+    {
+      "original": "ايس دريب.png",
+      "filename": "cold-coffee-ايس-دريب.png",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc158c827f20fa2ae5c6",
+      "fileSize": 161629
+    },
+    {
+      "original": "ايس سبانيش لايته.jpg",
+      "filename": "cold-coffee-ايس-سبانيش-لايته.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc168c827f20fa2ae5c8",
+      "fileSize": 68028
+    },
+    {
+      "original": "ايس لايته.jpg",
+      "filename": "cold-coffee-ايس-لايته.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc178c827f20fa2ae5ca",
+      "fileSize": 64494
+    },
+    {
+      "original": "ايس وايت موكا.jpg",
+      "filename": "cold-coffee-ايس-وايت-موكا.jpg",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc188c827f20fa2ae5cc",
+      "fileSize": 7286
+    },
+    {
+      "original": "قهوة اليوم باردة.png",
+      "filename": "cold-coffee-قهوة-اليوم-باردة.png",
+      "category": "القهوة الباردة",
+      "categoryFolder": "cold-coffee",
+      "deleted": true,
+      "fileId": "68e0dc188c827f20fa2ae5ce",
+      "fileSize": 370007
+    },
+    {
+      "original": "ايس تي.jpg",
+      "filename": "cocktails-ايس-تي.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1a8c827f20fa2ae5d1",
+      "fileSize": 40998
+    },
+    {
+      "original": "ايس كركديه.jpg",
+      "filename": "cocktails-ايس-كركديه.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1b8c827f20fa2ae5d3",
+      "fileSize": 80578
+    },
+    {
+      "original": "بيرة.jpg",
+      "filename": "cocktails-بيرة.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1b8c827f20fa2ae5d5",
+      "fileSize": 4555
+    },
+    {
+      "original": "ريد بول موهيتو.png",
+      "filename": "cocktails-ريد-بول-موهيتو.png",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1c8c827f20fa2ae5d7",
+      "fileSize": 289722
+    },
+    {
+      "original": "سفن موهيتو.jpg",
+      "filename": "cocktails-سفن-موهيتو.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1d8c827f20fa2ae5da",
+      "fileSize": 11144
+    },
+    {
+      "original": "كودريد موهيتو.jpg",
+      "filename": "cocktails-كودريد-موهيتو.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1e8c827f20fa2ae5dc",
+      "fileSize": 21960
+    },
+    {
+      "original": "كودريد.jpg",
+      "filename": "cocktails-كودريد.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1e8c827f20fa2ae5de",
+      "fileSize": 5091
+    },
+    {
+      "original": "مشروب غازي.jpg",
+      "filename": "cocktails-مشروب-غازي.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc1f8c827f20fa2ae5e0",
+      "fileSize": 118215
+    },
+    {
+      "original": "موهيتو ريتا.jpg",
+      "filename": "cocktails-موهيتو-ريتا.jpg",
+      "category": "المكتيلز والمهيتو",
+      "categoryFolder": "cocktails",
+      "deleted": true,
+      "fileId": "68e0dc208c827f20fa2ae5e2",
+      "fileSize": 62653
+    }
+  ]
+}

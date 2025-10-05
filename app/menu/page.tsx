@@ -2,11 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ShoppingCart } from "lucide-react";
 import { CartIcon, CartModal } from "@/components/CartComponents";
-import { MenuHeader } from "@/components/MenuHeader";
-import { CategoryTile } from "@/components/CategoryTile";
+import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
+import { CategoriesSection } from "@/components/CategoriesSection";
+import { MenuItemsList } from "@/components/MenuItemsList";
 import { MenuPageSkeleton } from "@/components/SkeletonLoader";
+import { SearchBar } from "@/components/SearchBar";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { useCart } from "@/contexts/CartContext";
 
 interface PageBackground {
   _id: string;
@@ -29,65 +33,81 @@ interface Category {
   status: 'active' | 'inactive';
 }
 
+interface MenuItem {
+  _id: string;
+  name: string;
+  nameEn?: string;
+  description?: string;
+  price: number;
+  discountPrice?: number;
+  image?: string;
+  calories?: number;
+  categoryId: string;
+  status: 'active' | 'inactive';
+}
+
+
 // No static fallback; will use cache or fetch
 
 export default function Menu() {
   const router = useRouter();
-  const [menuItems, setMenuItems] = useState<Array<{ id: string; title: string; iconSrc: string; iconAlt: string; route: string; color?: string }>>([]);
+  const { dispatch } = useCart();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const CACHE_KEY = 'menu_categories_cache_v1';
   const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchData = async () => {
       try {
-        // Try cache first
-        const now = Date.now();
-        const cachedRaw = typeof window !== 'undefined' ? localStorage.getItem(CACHE_KEY) : null;
-        if (cachedRaw) {
-          try {
-            const cached = JSON.parse(cachedRaw) as { ts: number; items: any[] };
-            if (cached && Array.isArray(cached.items) && now - cached.ts < CACHE_TTL_MS) {
-              setMenuItems(cached.items);
-              setLoading(false);
-              return;
-            }
-          } catch {}
+        // Fetch categories
+        const categoriesResponse = await fetch('/api/categories', { cache: 'no-store' });
+        const categoriesData = await categoriesResponse.json();
+        
+        if (categoriesData.success && categoriesData.data.length > 0) {
+          const activeCategories = categoriesData.data
+            .filter((category: Category) => category.status === 'active')
+            .sort((a: Category, b: Category) => a.order - b.order);
+          
+          console.log('Fetched categories:', activeCategories);
+          console.log('Category IDs:', activeCategories.map(c => ({ id: c._id, name: c.name })));
+          setCategories(activeCategories);
+        } else {
+          console.log('No categories found or API error:', categoriesData);
         }
 
-        const response = await fetch('/api/categories', { cache: 'no-store' });
-        const data = await response.json();
+        // Fetch all menu items at once
+        const itemsResponse = await fetch('/api/items', { cache: 'no-store' });
+        const itemsData = await itemsResponse.json();
         
-        if (data.success && data.data.length > 0) {
-          // Transform categories to menu items format
-          const transformedItems = data.data
-            .filter((category: Category) => category.status === 'active')
-            .sort((a: Category, b: Category) => a.order - b.order)
-            .map((category: Category) => ({
-              id: category._id,
-              title: category.name,
-              iconSrc: category.image || category.icon || '',
-              iconAlt: category.nameEn || category.name,
-              route: `/category/${category._id}`,
-              color: category.color
-            }));
+        console.log('Raw API response:', itemsData);
+        
+        if (itemsData.success && itemsData.data.length > 0) {
+          // Process items from database - use real data only
+          const allItems = itemsData.data;
           
-          setMenuItems(transformedItems);
-          // Save to cache
-          try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: now, items: transformedItems }));
-          } catch {}
+          console.log('All items (no status filter):', allItems);
+          console.log('Items with status active:', itemsData.data.filter((item: any) => item.status === 'active').length);
+          console.log('Items with status inactive:', itemsData.data.filter((item: any) => item.status === 'inactive').length);
+          console.log('Items with no status:', itemsData.data.filter((item: any) => !item.status).length);
+          
+          // Use all items for now to test
+          setMenuItems(allItems);
+        } else {
+          console.log('No menu items found or API error:', itemsData);
         }
       } catch (error) {
-        console.error('Failed to fetch categories:', error);
-        // Keep empty; UI will simply show nothing
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCategories();
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -130,11 +150,71 @@ export default function Menu() {
     return undefined;
   };
 
-  const handleItemClick = (route: string) => {
-    router.push(route);
+  const handleCategoryClick = (categoryId: string) => {
+    console.log('Category clicked:', categoryId);
+    console.log('Available categories:', categories.map(c => ({ id: c._id, name: c.name })));
+    console.log('Available menu items:', menuItems.map(m => ({ id: m._id, name: m.name, categoryId: m.categoryId })));
+    
+    if (categoryId === 'all') {
+      setSelectedCategory(null);
+    } else {
+      setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
+    }
+  };
+
+  const handleItemClick = (itemId: string) => {
+    const item = menuItems.find(item => item._id === itemId);
+    if (item) {
+      dispatch({
+        type: 'ADD_ITEM',
+        payload: {
+          id: item._id,
+          name: item.name,
+          nameEn: item.nameEn,
+          price: item.price,
+          image: item.image,
+        }
+      });
+    }
+  };
+
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // Clear category selection when searching
+    if (query.trim()) {
+      setSelectedCategory(null);
+    }
   };
 
   const backgroundImageUrl = getBackgroundImage();
+  
+  // Filter menu items by selected category and search query
+  const filteredMenuItems = (() => {
+    let items = menuItems;
+    
+    // Filter by category if selected
+    if (selectedCategory) {
+      items = items.filter(item => item.categoryId === selectedCategory);
+    }
+    
+    // Filter by search query if provided
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      items = items.filter(item => 
+        item.name.toLowerCase().includes(query) ||
+        (item.nameEn && item.nameEn.toLowerCase().includes(query)) ||
+        (item.description && item.description.toLowerCase().includes(query))
+      );
+    }
+    
+    return items;
+  })();
+
+  console.log('Selected category:', selectedCategory);
+  console.log('All menu items:', menuItems.length);
+  console.log('Filtered menu items:', filteredMenuItems.length);
+  console.log('Filtered items:', filteredMenuItems);
 
   return (
     <div
@@ -144,46 +224,53 @@ export default function Menu() {
         backgroundImageUrl
           ? {
               backgroundImage: `url('${backgroundImageUrl}')`,
-              backgroundSize: 'contain',
+              backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }
           : {
-              background: 'linear-gradient(to bottom right, #201007, #1c0e06, #0a0502)',
+              background: 'linear-gradient(to bottom right, #4F3500, #3E2901, #2A1F00)',
             }
       }
     >
       {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30 z-0" />
+      <div className="absolute inset-0 bg-black/40 z-0" />
 
       {loading ? (
         <MenuPageSkeleton />
       ) : (
         <ErrorBoundary>
-          <div className="relative z-10 px-6 pb-8 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
-            <MenuHeader />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {menuItems.map((item, index) => (
-                <div className="stagger-fade" style={{ animationDelay: `${index * 100}ms` }} key={item.id}>
-                  <CategoryTile
-                    title={item.title}
-                    icon={item.iconSrc}
-                    fallbackSrc={item.iconAlt}
-                    color={item.color || '#ffffff'}
-                    href={item.route}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="relative z-10 min-h-screen pb-24">
+            {/* Header */}
+            <RestaurantMenuHeader />
+
+            {/* Search Bar */}
+            <SearchBar onSearch={handleSearch} />
+
+            {/* Categories Section */}
+            <CategoriesSection
+              categories={categories}
+              onCategoryClick={handleCategoryClick}
+              selectedCategory={selectedCategory}
+            />
+
+            {/* Menu Items */}
+            <MenuItemsList
+              items={filteredMenuItems}
+              onAddToCart={handleItemClick}
+              categories={categories}
+              showGrouped={selectedCategory === null && !searchQuery.trim()}
+            />
           </div>
         </ErrorBoundary>
       )}
 
-      {/* Cart Components */}
+      {/* Unified Cart Components */}
       <div className="fixed top-6 right-6 z-40">
         <CartIcon />
       </div>
       <CartModal />
+
     </div>
   );
 }

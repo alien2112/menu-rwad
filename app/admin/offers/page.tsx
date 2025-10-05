@@ -290,7 +290,7 @@ export default function OffersPage() {
                   )}
                   {offer.type === 'fixed' && (
                     <div className="text-white/70">
-                      خصم <span className="font-bold text-coffee-green">{offer.discountValue} ج.م</span>
+                      خصم <span className="font-bold text-coffee-green">{offer.discountValue} ريال سعودي</span>
                     </div>
                   )}
                   {offer.type === 'buy_x_get_y' && (
