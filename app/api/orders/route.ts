@@ -80,11 +80,36 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const page = parseInt(searchParams.get('page') || '1');
     const skip = (page - 1) * limit;
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
 
     // Build query
     const query: any = {};
     if (status) {
       query.status = status;
+    }
+    // Optional date range filter by orderDate
+    if (from || to) {
+      query.orderDate = {};
+      if (from) {
+        const fromDate = new Date(from);
+        if (!isNaN(fromDate.getTime())) {
+          query.orderDate.$gte = fromDate;
+        }
+      }
+      if (to) {
+        const toDate = new Date(to);
+        if (!isNaN(toDate.getTime())) {
+          // include the full day for date-only strings by setting time to end of day
+          if (/^\d{4}-\d{2}-\d{2}$/.test(to)) {
+            toDate.setHours(23, 59, 59, 999);
+          }
+          query.orderDate.$lte = toDate;
+        }
+      }
+      if (Object.keys(query.orderDate).length === 0) {
+        delete query.orderDate;
+      }
     }
 
     // Get orders with pagination

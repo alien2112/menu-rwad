@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     // Select only fields needed for menu display (projection)
     const items = await MenuItem
       .find(query)
-      .select('name nameEn description price discountPrice image calories preparationTime categoryId status')
+      .select('name nameEn description price discountPrice cost image calories preparationTime categoryId status')
       .sort({ order: 1, createdAt: -1 })
       .lean()
       .exec();

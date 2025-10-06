@@ -60,6 +60,11 @@ const MenuItemSchema = new Schema<IMenuItem>(
       required: [true, 'Please provide a price'],
       min: 0,
     },
+    cost: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
     discountPrice: {
       type: Number,
       min: 0,
