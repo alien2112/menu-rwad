@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, Eye, EyeOff, X } from 'lucide-react';
-import ColorPicker from '@/components/admin/ColorPicker';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IMenuItem, IMenuItemIngredient } from '@/lib/models/MenuItem';
 import { ICategory } from '@/lib/models/Category';
@@ -16,9 +15,10 @@ export default function ItemsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<IMenuItem | null>(null);
-  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'colors' | 'ingredients' | 'more' | 'settings'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'ingredients' | 'more' | 'settings'>('basic');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [formData, setFormData] = useState<Partial<IMenuItem>>({
     name: '',
     nameEn: '',
@@ -48,7 +48,7 @@ export default function ItemsPage() {
   const fetchData = async () => {
     try {
       const [itemsRes, categoriesRes, ingredientsRes] = await Promise.all([
-        fetch('/api/items'),
+        fetch('/api/items?admin=true', { headers: { 'Cache-Control': 'no-store' } }),
         fetch('/api/categories'),
         fetch('/api/ingredients'),
       ]);
@@ -74,20 +74,50 @@ export default function ItemsPage() {
     try {
       const url = editingItem ? `/api/items/${editingItem._id}` : '/api/items';
       const method = editingItem ? 'PUT' : 'POST';
+      // sanitize payload: remove empty ingredients and coerce numbers
+      const sanitized: Partial<IMenuItem> = {
+        ...formData,
+        price: Number(formData.price) || 0,
+        discountPrice: formData.discountPrice !== undefined && formData.discountPrice !== null
+          ? Number(formData.discountPrice)
+          : undefined,
+        calories: formData.calories !== undefined && formData.calories !== null
+          ? Number(formData.calories)
+          : undefined,
+        preparationTime: formData.preparationTime !== undefined && formData.preparationTime !== null
+          ? Number(formData.preparationTime)
+          : undefined,
+        order: formData.order !== undefined && formData.order !== null
+          ? Number(formData.order)
+          : undefined,
+        ingredients: (formData.ingredients || [])
+          .filter((ing) => ing && ing.ingredientId)
+          .map((ing) => ({
+            ingredientId: ing.ingredientId,
+            portion: Number(ing.portion) || 1,
+            required: Boolean(ing.required),
+          })),
+      };
 
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(sanitized),
       });
 
       const data = await res.json();
       if (data.success) {
         fetchData();
         handleCloseModal();
+        setErrorMessage('');
+      } else {
+        const msg = data.error || 'حدث خطأ غير متوقع، حاول مرة أخرى';
+        setErrorMessage(msg);
+        console.error('API error:', msg);
       }
     } catch (error) {
       console.error('Error saving item:', error);
+      setErrorMessage('تعذر حفظ المنتج. تحقق من البيانات وأعد المحاولة');
     }
   };
 
@@ -114,6 +144,7 @@ export default function ItemsPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingItem(null);
+    setErrorMessage('');
     setFormData({
       name: '',
       nameEn: '',
@@ -168,8 +199,42 @@ export default function ItemsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-white text-xl">جاري التحميل...</div>
+      <div className="space-y-6">
+        <div className="glass-effect rounded-2xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div className="h-7 w-48 bg-white/10 rounded animate-pulse" />
+              <div className="h-4 w-64 bg-white/10 rounded mt-2 animate-pulse" />
+            </div>
+            <div className="h-11 w-44 bg-white/10 rounded-xl animate-pulse" />
+          </div>
+        </div>
+
+        <div className="glass-effect rounded-2xl p-4 space-y-4">
+          <div className="h-11 bg-white/10 rounded-xl animate-pulse" />
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-9 w-24 bg-white/10 rounded-xl animate-pulse" />
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="glass-effect rounded-2xl overflow-hidden">
+              <div className="h-48 bg-white/10 animate-pulse" />
+              <div className="p-6 space-y-3">
+                <div className="h-5 w-2/3 bg-white/10 rounded animate-pulse" />
+                <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse" />
+                <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                <div className="flex items-center justify-between pt-2">
+                  <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+                  <div className="h-5 w-16 bg-white/10 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -250,11 +315,7 @@ export default function ItemsPage() {
                     fill
                     className="object-cover"
                   />
-                  {item.featured && (
-                    <div className="absolute top-2 right-2 px-3 py-1 bg-coffee-green rounded-lg text-white text-xs font-semibold">
-                      مميز
-                    </div>
-                  )}
+                  {/* Featured badge removed as per admin request */}
                 </div>
               )}
 
@@ -290,7 +351,7 @@ export default function ItemsPage() {
 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex gap-2">
-                    <span className="text-2xl font-bold text-coffee-green">
+                    <span className="text-2xl font-bold text-white">
                       {item.discountPrice || item.price} ريال سعودي
                     </span>
                     {item.discountPrice && (
@@ -345,12 +406,16 @@ export default function ItemsPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {errorMessage && (
+                <div className="p-3 rounded-lg bg-red-500/20 text-red-200 border border-red-400/30">
+                  {errorMessage}
+                </div>
+              )}
               {/* Tabs */}
               <div className="flex flex-wrap gap-2">
                 {[
                   { key: 'basic', label: 'الأساسي' },
                   { key: 'images', label: 'الصور' },
-                  { key: 'colors', label: 'الألوان' },
                   { key: 'ingredients', label: 'المكونات' },
                   { key: 'more', label: 'معلومات إضافية' },
                   { key: 'settings', label: 'الإعدادات' },
@@ -483,14 +548,7 @@ export default function ItemsPage() {
               </div>
               )}
 
-              {/* Color */}
-              {activeTab === 'colors' && (
-                <ColorPicker
-                  label="لون بطاقة المنتج في صفحة القائمة"
-                  value={formData.color || '#4F3500'}
-                  onChange={(color) => setFormData({ ...formData, color })}
-                />
-              )}
+              {/* Color customization removed to restore previous styling */}
 
               {/* Ingredients */}
               {activeTab === 'ingredients' && (
@@ -640,17 +698,7 @@ export default function ItemsPage() {
                     />
                   </div>
 
-                  <div className="flex items-center pt-8">
-                    <label className="flex items-center gap-3 text-white">
-                      <input
-                        type="checkbox"
-                        checked={formData.featured}
-                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                        className="w-5 h-5 rounded"
-                      />
-                      <span className="font-semibold">منتج مميز</span>
-                    </label>
-                  </div>
+                  {/* Featured toggle removed as per admin request */}
                 </div>
               </div>
               )}

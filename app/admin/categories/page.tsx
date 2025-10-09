@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, Eye, EyeOff } from 'lucide-react';
-import ColorPicker from '@/components/admin/ColorPicker';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { ICategory } from '@/lib/models/Category';
 
@@ -12,16 +11,12 @@ export default function CategoriesPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingCategory, setEditingCategory] = useState<ICategory | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'basic' | 'colors'>('basic');
   const [formData, setFormData] = useState<Partial<ICategory>>({
     name: '',
     nameEn: '',
     description: '',
     image: '',
-    color: '#4F3500',
     order: 0,
-    featured: false,
-    featuredOrder: 0,
     status: 'active',
   });
 
@@ -61,13 +56,10 @@ export default function CategoriesPage() {
       // Prepare data with proper types
       const submitData = {
         ...formData,
-        featured: !!formData.featured,
-        featuredOrder: formData.featured ? (formData.featuredOrder || 1) : 0,
       };
 
       console.log('FormData before submit:', formData);
       console.log('Submitting category data:', submitData);
-      console.log('Featured:', submitData.featured, 'FeaturedOrder:', submitData.featuredOrder);
 
       const res = await fetch(url, {
         method,
@@ -109,8 +101,6 @@ export default function CategoriesPage() {
     setEditingCategory(category);
     setFormData({
       ...category,
-      featured: category.featured ?? false,
-      featuredOrder: category.featuredOrder ?? 0,
     });
     setShowModal(true);
   };
@@ -123,10 +113,7 @@ export default function CategoriesPage() {
       nameEn: '',
       description: '',
       image: '',
-      color: '#4F3500',
       order: 0,
-      featured: false,
-      featuredOrder: 0,
       status: 'active',
     });
   };
@@ -138,8 +125,40 @@ export default function CategoriesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-white text-xl">جاري التحميل...</div>
+      <div className="space-y-6">
+        <div className="glass-effect rounded-2xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div className="h-7 w-48 bg-white/10 rounded animate-pulse" />
+              <div className="h-4 w-64 bg-white/10 rounded mt-2 animate-pulse" />
+            </div>
+            <div className="h-11 w-44 bg-white/10 rounded-xl animate-pulse" />
+          </div>
+        </div>
+
+        <div className="glass-effect rounded-2xl p-4">
+          <div className="h-11 bg-white/10 rounded-xl animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="glass-effect rounded-2xl p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-white/10 animate-pulse" />
+                <div className="flex gap-2">
+                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
+                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
+                </div>
+              </div>
+              <div className="h-5 w-2/3 bg-white/10 rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse mb-4" />
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-24 bg-white/10 rounded animate-pulse" />
+                <div className="h-6 w-20 bg-white/10 rounded-full animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -185,10 +204,7 @@ export default function CategoriesPage() {
             className="glass-effect rounded-2xl p-6 hover:bg-white/15 transition-all duration-200"
           >
             <div className="flex items-start justify-between mb-4">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: category.color }}
-              >
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-white/10">
                 {category.status === 'active' ? (
                   <Eye className="text-white" size={24} />
                 ) : (
@@ -234,18 +250,7 @@ export default function CategoriesPage() {
               </span>
             </div>
 
-            {category.featured && (
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <div className="flex items-center justify-between">
-                  <span className="text-yellow-400 text-sm font-medium flex items-center gap-1">
-                    ⭐ مميزة في الرئيسية
-                  </span>
-                  <span className="text-white/50 text-xs">
-                    ترتيب: {category.featuredOrder || 0}
-                  </span>
-                </div>
-              </div>
-            )}
+            {/* Featured display removed */}
           </div>
         ))}
       </div>
@@ -265,19 +270,6 @@ export default function CategoriesPage() {
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Tabs */}
-              <div className="flex gap-2 mb-2">
-                {['basic','colors'].map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setActiveTab(key as 'basic' | 'colors')}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === key ? 'bg-coffee-green text-white' : 'glass-effect text-white/80 hover:bg-white/10'}`}
-                  >
-                    {key === 'basic' ? 'الأساسي' : 'الألوان'}
-                  </button>
-                ))}
-              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">
@@ -319,19 +311,11 @@ export default function CategoriesPage() {
                 />
               </div>
 
-              <ColorPicker
-                label="اللون"
-                value={formData.color || '#4F3500'}
-                onChange={(color) => setFormData({ ...formData, color })}
-              />
-
               <ImageUpload
                 label="صورة الفئة"
                 value={formData.image}
                 onChange={(image) => setFormData({ ...formData, image })}
               />
-
-              {activeTab === 'basic' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">
@@ -359,56 +343,6 @@ export default function CategoriesPage() {
                   </select>
                 </div>
               </div>
-              )}
-
-              {activeTab === 'basic' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-semibold text-white mb-2 block">عرض في الرئيسية (مميزة)</label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={!!formData.featured}
-                      onChange={(e) => {
-                        const isChecked = e.target.checked;
-                        setFormData({
-                          ...formData,
-                          featured: isChecked,
-                          featuredOrder: isChecked ? (formData.featuredOrder || 1) : 0
-                        });
-                      }}
-                      className="w-5 h-5 accent-coffee-green"
-                    />
-                    <span className="text-white/80 text-sm">إظهار ضمن "إكتشف قائمة مشروباتنا"</span>
-                  </div>
-                </div>
-
-                {formData.featured && (
-                  <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">ترتيب الظهور في الرئيسية</label>
-                    <select
-                      value={formData.featuredOrder || 1}
-                      onChange={(e) => setFormData({ ...formData, featuredOrder: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
-                    >
-                      {Array.from({ length: 8 }).map((_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-              )}
-
-              {activeTab === 'colors' && (
-                <div>
-                  <ColorPicker
-                    label="لون الفئة في صفحة القائمة"
-                    value={formData.color || '#4F3500'}
-                    onChange={(color) => setFormData({ ...formData, color })}
-                  />
-                </div>
-              )}
 
               <div className="flex gap-3 pt-4">
                 <button

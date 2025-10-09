@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search } from 'lucide-react';
-import ColorPicker from '@/components/admin/ColorPicker';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
@@ -118,8 +117,44 @@ export default function IngredientsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-white text-xl">جاري التحميل...</div>
+      <div className="space-y-6">
+        <div className="glass-effect rounded-2xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div className="h-7 w-48 bg-white/10 rounded animate-pulse" />
+              <div className="h-4 w-64 bg-white/10 rounded mt-2 animate-pulse" />
+            </div>
+            <div className="h-11 w-44 bg-white/10 rounded-xl animate-pulse" />
+          </div>
+        </div>
+
+        <div className="glass-effect rounded-2xl p-4">
+          <div className="h-11 bg-white/10 rounded-xl animate-pulse" />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="glass-effect rounded-2xl p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-white/10 animate-pulse" />
+                <div className="flex gap-2">
+                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
+                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
+                </div>
+              </div>
+              <div className="h-5 w-2/3 bg-white/10 rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse mb-4" />
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                <div className="h-4 w-5/6 bg-white/10 rounded animate-pulse" />
+                <div className="h-4 w-2/3 bg-white/10 rounded animate-pulse" />
+              </div>
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="h-6 w-20 bg-white/10 rounded-full animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -381,12 +416,6 @@ export default function IngredientsPage() {
               {/* Visual */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white">المظهر</h3>
-
-                <ColorPicker
-                  label="اللون"
-                  value={formData.color || '#00BF89'}
-                  onChange={(color) => setFormData({ ...formData, color })}
-                />
 
                 <ImageUpload
                   label="صورة المكون"

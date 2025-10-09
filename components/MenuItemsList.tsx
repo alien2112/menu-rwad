@@ -411,18 +411,22 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
     );
   }
 
-  // If not showing grouped or no categories provided, show simple list
+  // If not showing grouped or no categories provided, show simple list/grid respecting viewMode
   if (!showGrouped || categories.length === 0) {
     return (
       <motion.div
-        className="px-4 space-y-4 pb-24"
+        className={viewMode === 'grid' ? 'px-4 grid grid-cols-2 gap-4 pb-24' : 'px-4 space-y-4 pb-24'}
         initial="hidden"
         animate="show"
         variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
       >
         {items.map((item) => (
           <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-            <MenuItemCard item={item} onAddToCart={onAddToCart} />
+            {viewMode === 'grid' ? (
+              <MenuItemGridCard item={item} onAddToCart={onAddToCart} />
+            ) : (
+              <MenuItemCard item={item} onAddToCart={onAddToCart} />
+            )}
           </motion.div>
         ))}
       </motion.div>
