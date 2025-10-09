@@ -33,7 +33,161 @@ interface MenuItemsListProps {
   }>;
   showGrouped?: boolean;
   selectedCategory?: string | null;
+  viewMode?: 'list' | 'grid';
 }
+
+const MenuItemGridCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id: string) => void }) => {
+  const [imageError, setImageError] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const { dispatch } = useCart();
+
+  const actualPrice = item.discountPrice && item.discountPrice < item.price
+    ? item.discountPrice
+    : item.price;
+
+  const hasDiscount = item.discountPrice && item.discountPrice < item.price;
+  const discountPercentage = hasDiscount
+    ? Math.round(((item.price - item.discountPrice!) / item.price) * 100)
+    : 0;
+
+  const handleAddToCart = () => {
+    onAddToCart(item._id);
+  };
+
+  return (
+    <>
+      <motion.div
+        className="bg-card text-card-foreground rounded-3xl overflow-hidden transition-all duration-300 restaurant-menu-item"
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        whileHover={{ y: -2 }}
+        whileTap={{ scale: 0.99 }}
+      >
+        {/* Image Section */}
+        <div className="relative h-48 overflow-hidden">
+          {item.image && !imageError ? (
+            <OptimizedImage
+              src={item.image}
+              alt={item.name}
+              width="100%"
+              height="100%"
+              objectFit="cover"
+              className="w-full h-full"
+              placeholderColor="rgba(255,255,255,0.1)"
+              preserveTransparency={true}
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+              <ShoppingCart className="w-12 h-12 text-white/30" />
+            </div>
+          )}
+
+          {/* Discount Badge */}
+          {hasDiscount && (
+            <div className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+              -{discountPercentage}%
+            </div>
+          )}
+
+          {/* Add to Cart Button */}
+          <button
+            onClick={handleAddToCart}
+            className="absolute bottom-3 right-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white p-2 rounded-full transition-all duration-200 hover:scale-110"
+          >
+            <ShoppingCart className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-4">
+          <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+            {item.name}
+          </h3>
+
+          {item.nameEn && (
+            <p className="text-white/60 text-xs mb-2">{item.nameEn}</p>
+          )}
+
+          {item.description && (
+            <p className="text-white/70 text-sm leading-relaxed line-clamp-2 mb-3">
+              {item.description}
+            </p>
+          )}
+
+          {/* Meta Info */}
+          <div className="flex items-center gap-2 flex-wrap mb-3">
+            {/* Calories */}
+            {item.calories !== undefined && item.calories !== null && item.calories >= 0 && (
+              <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                <Flame className="w-3 h-3 text-orange-400" />
+                <span className="text-white/90 text-xs font-medium">
+                  {item.calories} سعر
+                </span>
+              </div>
+            )}
+
+            {/* Preparation Time */}
+            {item.preparationTime !== undefined && item.preparationTime !== null && item.preparationTime >= 0 && (
+              <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                <Clock className="w-3 h-3 text-blue-400" />
+                <span className="text-white/90 text-xs font-medium">
+                  {item.preparationTime} دقيقة
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Price and Rating */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {hasDiscount ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-bold text-lg">
+                    {actualPrice.toFixed(2)} ر.س
+                  </span>
+                  <span className="text-white/50 text-sm line-through">
+                    {item.price.toFixed(2)} ر.س
+                  </span>
+                </div>
+              ) : (
+                <span className="text-white font-bold text-lg">
+                  {actualPrice.toFixed(2)} ر.س
+                </span>
+              )}
+            </div>
+
+            {/* Rating */}
+            {item.averageRating && item.reviewCount ? (
+              <button
+                onClick={() => setShowReviewModal(true)}
+                className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full hover:bg-white/20 transition-colors"
+              >
+                <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                <span className="text-white/90 text-xs font-medium">
+                  {item.averageRating.toFixed(1)}
+                </span>
+                <span className="text-white/60 text-xs">
+                  ({item.reviewCount})
+                </span>
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <MenuItemReviewModal
+          itemId={item._id}
+          itemName={item.name}
+          onClose={() => setShowReviewModal(false)}
+        />
+      )}
+    </>
+  );
+};
 
 const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id: string) => void }) => {
   const [imageError, setImageError] = useState(false);
@@ -57,7 +211,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
   return (
     <>
       <motion.div
-        className="bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 restaurant-menu-item"
+        className="bg-card text-card-foreground rounded-3xl p-5 transition-all duration-300 restaurant-menu-item"
         initial={{ opacity: 0, y: 12, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
@@ -99,7 +253,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
 
             {/* Item Details */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+          <h3 className="text-white font-bold text-lg mb-1 leading-tight">
                 {item.name}
               </h3>
 
@@ -201,7 +355,7 @@ const MenuItemCard = ({ item, onAddToCart }: { item: MenuItem; onAddToCart: (id:
   );
 };
 
-export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped = false, selectedCategory }: MenuItemsListProps) => {
+export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped = false, selectedCategory, viewMode = 'list' }: MenuItemsListProps) => {
   // Special handling for offers category
   if (selectedCategory === 'offers') {
     const offersItems = items.filter(item => item.discountPrice && item.discountPrice < item.price);
@@ -235,9 +389,13 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
         </div>
 
         {/* Offers Items */}
-        <div className="space-y-4">
+        <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-4'}>
           {offersItems.map((item) => (
-            <MenuItemCard key={item._id} item={item} onAddToCart={onAddToCart} />
+            viewMode === 'grid' ? (
+              <MenuItemGridCard key={item._id} item={item} onAddToCart={onAddToCart} />
+            ) : (
+              <MenuItemCard key={item._id} item={item} onAddToCart={onAddToCart} />
+            )
           ))}
         </div>
       </div>
@@ -307,9 +465,9 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
                 {category.name.charAt(0)}
               </span>
             </div>
-            <h2 className="text-white text-xl font-bold">{category.name}</h2>
+            <h2 className="text-foreground text-xl font-bold">{category.name}</h2>
             {category.nameEn && (
-              <span className="text-white/60 text-sm">({category.nameEn})</span>
+              <span className="text-foreground/60 text-sm">({category.nameEn})</span>
             )}
             <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
             <span className="text-white/60 text-sm">{categoryItems.length} عنصر</span>
@@ -317,14 +475,18 @@ export const MenuItemsList = ({ items, onAddToCart, categories = [], showGrouped
 
           {/* Category Items */}
           <motion.div
-            className="space-y-4"
+            className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-4'}
             initial="hidden"
             animate="show"
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}
           >
             {categoryItems.map((item) => (
               <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-                <MenuItemCard item={item} onAddToCart={onAddToCart} />
+                {viewMode === 'grid' ? (
+                  <MenuItemGridCard item={item} onAddToCart={onAddToCart} />
+                ) : (
+                  <MenuItemCard item={item} onAddToCart={onAddToCart} />
+                )}
               </motion.div>
             ))}
           </motion.div>

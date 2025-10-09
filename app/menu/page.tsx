@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, List, Grid3X3 } from "lucide-react";
 import { CartIcon, CartModal } from "@/components/CartComponents";
 import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
 import { CategoriesSection } from "@/components/CategoriesSection";
@@ -61,6 +61,7 @@ export default function Menu() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
   const [hero, setHero] = useState<any | null>(null);
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
 
   // Use cached fetch for categories
   const { 
@@ -241,7 +242,7 @@ export default function Menu() {
 
   return (
     <div
-      className="min-h-screen relative overflow-hidden font-['Tajawal']"
+      className="min-h-screen relative overflow-hidden font-['Tajawal'] bg-background"
       dir="rtl"
       style={
         backgroundImageUrl
@@ -251,26 +252,24 @@ export default function Menu() {
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }
-          : {
-              background: 'linear-gradient(to bottom right, #4F3500, #3E2901, #2A1F00)',
-            }
+          : {}
       }
     >
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40 z-0" />
+      {/* Light overlay for background images */}
+      {backgroundImageUrl && <div className="absolute inset-0 bg-black/20 z-0" />}
 
       {loading ? (
         <MenuPageSkeleton />
       ) : categoriesError || itemsError ? (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center text-white">
+          <div className="text-center text-foreground">
             <h2 className="text-xl font-bold mb-2">خطأ في تحميل البيانات</h2>
-            <p className="text-white/70 mb-4">
+            <p className="text-foreground/70 mb-4">
               {categoriesError ? 'فشل في تحميل الفئات' : 'فشل في تحميل عناصر القائمة'}
             </p>
             <button 
               onClick={() => window.location.reload()} 
-              className="bg-[#C2914A] text-white px-4 py-2 rounded-full hover:bg-[#B8853F] transition-colors"
+              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-full hover:bg-secondary/90 transition-colors"
             >
               إعادة المحاولة
             </button>
@@ -317,9 +316,47 @@ export default function Menu() {
               />
             </motion.div>
 
+            {/* View Toggle */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
+              className="px-4 mb-4"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-foreground/70 text-sm">عرض:</span>
+                  <div className="flex bg-white/10 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                        viewMode === 'list'
+                          ? 'bg-white/20 text-foreground'
+                          : 'text-foreground/60 hover:text-foreground/80'
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                      قائمة
+                    </button>
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-all ${
+                        viewMode === 'grid'
+                          ? 'bg-white/20 text-foreground'
+                          : 'text-foreground/60 hover:text-foreground/80'
+                      }`}
+                    >
+                      <Grid3X3 className="w-4 h-4" />
+                      شبكة
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
             {/* Menu Items */}
             <motion.div
-              key={`${selectedCategory ?? 'all'}-${searchQuery}`}
+              key={`${selectedCategory ?? 'all'}-${searchQuery}-${viewMode}`}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut', delay: 0.1 }}
@@ -330,6 +367,7 @@ export default function Menu() {
                 categories={categories}
                 showGrouped={selectedCategory === null && !searchQuery.trim()}
                 selectedCategory={selectedCategory}
+                viewMode={viewMode}
               />
             </motion.div>
           </motion.div>

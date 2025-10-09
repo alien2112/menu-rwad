@@ -14,15 +14,22 @@
    */
   :root {
     /* Restaurant theme - warm, inviting colors */
-    --background: 18 15% 6%;
-    --foreground: 0 0% 100%;
+    /* Legacy dark coffee color from old theme */
+    --coffee-primary: 28 100% 15%; /* #4F3500 */
+    --coffee-secondary: 31 100% 12%; /* #3E2901 */
 
-    --card: 0 0% 100% / 0.08;
+    /* #F6EEDF -> hsl(39, 56%, 92%) */
+    --background: 39 56% 92%;
+    /* Use coffee color for general text on light background */
+    --foreground: var(--coffee-primary);
+
+    /* Make generic card color match legacy dark coffee (raw HSL triplet) */
+    --card: var(--coffee-primary);
     --card-foreground: 0 0% 100%;
-    --card-border: 0 0% 100% / 0.15;
+    --card-border: 0 0% 0% / 0.15;
 
-    --popover: 18 15% 8%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 45 25% 98%;
+    --popover-foreground: 18 15% 6%;
 
     /* Coffee brown primary */
     --primary: 32 72% 35%;
@@ -31,11 +38,11 @@
 
     /* Warm gold secondary */
     --secondary: 38 65% 52%;
-    --secondary-foreground: 20 40% 10%;
+    --secondary-foreground: 0 0% 100%;
 
     /* Muted glass effect */
-    --muted: 0 0% 100% / 0.12;
-    --muted-foreground: 0 0% 100% / 0.7;
+    --muted: 0 0% 0% / 0.12;
+    --muted-foreground: 18 15% 6% / 0.7;
 
     /* Fresh green accent */
     --accent: 142 50% 42%;
@@ -45,8 +52,8 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 100% / 0.12;
-    --input: 0 0% 100% / 0.15;
+    --border: 0 0% 0% / 0.12;
+    --input: 0 0% 0% / 0.15;
     --ring: 38 65% 52%;
 
     --radius: 1.5rem;
@@ -122,34 +129,34 @@
 
   /* Glass Morphism Components */
   .glass-effect {
-    background: rgba(255, 255, 255, 0.07);
-    backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: hsl(var(--coffee-primary));
+    backdrop-filter: blur(0px);
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
   .glass-notification {
-    background: rgba(255, 255, 255, 0.07);
+    background: rgba(18, 15, 6, 0.85);
     backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(18, 15, 6, 0.2);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   }
 
   .glass-sidebar {
-    background: linear-gradient(0deg, rgba(250, 250, 250, 0.30) 0%, rgba(250, 250, 250, 0.30) 100%), rgba(15, 15, 15, 0.40);
+    background: linear-gradient(0deg, rgba(18, 15, 6, 0.90) 0%, rgba(18, 15, 6, 0.90) 100%), rgba(255, 255, 255, 0.10);
     backdrop-filter: blur(30px);
     box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
   }
 
   .glass-button {
-    background: linear-gradient(0deg, #F7F7F7 0%, #F7F7F7 100%), linear-gradient(0deg, rgba(255, 255, 255, 0.50) 0%, rgba(255, 255, 255, 0.50) 100%), #333;
+    background: linear-gradient(0deg, #F7F7F7 0%, #F7F7F7 100%), linear-gradient(0deg, rgba(0, 0, 0, 0.10) 0%, rgba(0, 0, 0, 0.10) 100%), #333;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
   .glass-green-button {
     background: rgba(0, 191, 137, 0.49);
     backdrop-filter: blur(40px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
 
   /* Custom shadows and effects */
@@ -211,11 +218,11 @@
   }
 
   .menu-item {
-    @apply glass-effect rounded-3xl p-4 flex items-center gap-3 cursor-pointer hover:bg-white/15 transition-all duration-200;
+    @apply glass-effect rounded-3xl p-4 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-all duration-200;
   }
 
   .menu-grid-item {
-    @apply glass-effect rounded-3xl p-4 cursor-pointer hover:bg-white/15 transition-all duration-200;
+    @apply glass-effect rounded-3xl p-4 cursor-pointer hover:bg-white/10 transition-all duration-200;
   }
 
   /* Enhanced inner card animations */
@@ -225,7 +232,7 @@
 
   .inner-card-hover:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
 
   .inner-card-image {
@@ -367,7 +374,7 @@
 
 .category-circle:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* Order summary slide up animation */

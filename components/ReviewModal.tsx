@@ -91,9 +91,9 @@ export function ReviewModal({ children }: ReviewModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#4F3500] border border-white/20 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+      <div className="bg-card border border-border rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/20">
+        <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-white text-xl font-bold">آراء الزبائن وإضافة مراجعة</h2>
           <button
             onClick={() => setOpen(false)}
@@ -104,12 +104,12 @@ export function ReviewModal({ children }: ReviewModalProps) {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-white/20">
+        <div className="flex border-b border-border">
           <button
             onClick={() => setActiveTab('reviews')}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
               activeTab === 'reviews'
-                ? 'bg-[#C2914A] text-white'
+                ? 'bg-secondary text-secondary-foreground'
                 : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}
           >
@@ -119,7 +119,7 @@ export function ReviewModal({ children }: ReviewModalProps) {
             onClick={() => setActiveTab('add-review')}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
               activeTab === 'add-review'
-                ? 'bg-[#C2914A] text-white'
+                ? 'bg-secondary text-secondary-foreground'
                 : 'text-white/80 hover:text-white hover:bg-white/10'
             }`}
           >

@@ -55,7 +55,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-coffee-primary flex items-center justify-center p-6">
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="glass-notification rounded-3xl p-8 w-full max-w-md">
           <div className="text-center mb-8">
             <Lock className="w-16 h-16 text-white mx-auto mb-4" />
@@ -70,7 +70,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="كلمة المرور"
-                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/60 focus:outline-none focus:border-coffee-gold transition-colors"
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 pr-12 text-white placeholder-white/60 focus:outline-none focus:border-secondary transition-colors"
                 required
               />
               <button
@@ -84,7 +84,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
             <button
               type="submit"
-              className="w-full bg-coffee-gold hover:bg-coffee-gold/90 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+              className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground font-bold py-3 px-6 rounded-xl transition-colors"
             >
               دخول
             </button>

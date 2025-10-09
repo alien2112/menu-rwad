@@ -83,12 +83,12 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
                   value={customColor}
                   onChange={(e) => setCustomColor(e.target.value)}
                   placeholder="#000000"
-                  className="flex-1 px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-coffee-green focus:outline-none"
+                  className="flex-1 px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-accent focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleColorSelect(customColor)}
-                  className="px-4 py-2 glass-green-button rounded-lg text-white text-sm font-semibold hover:bg-coffee-green transition-colors"
+                  className="px-4 py-2 glass-green-button rounded-lg text-white text-sm font-semibold hover:bg-accent transition-colors"
                 >
                   تطبيق
                 </button>

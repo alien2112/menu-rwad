@@ -106,7 +106,7 @@ export const MenuItemCard = ({
     : 0;
 
   return (
-    <article className="group bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20 hover:bg-white/15 transition-all duration-300 restaurant-menu-item">
+    <article className="group bg-card text-card-foreground rounded-3xl p-5 transition-all duration-300 restaurant-menu-item">
       <div className="flex flex-col gap-4">
         {/* Top Section: Image and Info */}
         <div className="flex items-start gap-4">

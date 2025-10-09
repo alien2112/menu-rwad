@@ -93,14 +93,14 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-coffee-primary">
-        <p className="text-white text-lg">جاري التحميل...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-foreground text-lg">جاري التحميل...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-amber-900 via-orange-800 to-red-900">
+    <div className="min-h-screen relative overflow-hidden bg-background">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-90"
@@ -108,7 +108,7 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
           backgroundImage: `url('${getBackgroundImage()}')`
         }}
       >
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Content */}
@@ -135,7 +135,7 @@ export function MenuDetailTemplate({ title, items, backgroundImage, pageRoute }:
               </svg>
             </button>
             <div className="flex-1">
-              <h1 className="text-white font-medium text-base leading-tight tracking-tight text-center">
+              <h1 className="text-foreground font-medium text-base leading-tight tracking-tight text-center">
                 {title}
               </h1>
             </div>

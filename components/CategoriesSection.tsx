@@ -35,7 +35,7 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
 
   return (
     <div className="px-4 mb-6">
-      <h2 className="text-white text-lg font-bold mb-4 text-center">التصنيفات</h2>
+      <h2 className="text-foreground text-lg font-bold mb-4 text-center">التصنيفات</h2>
       <motion.div
         className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
         variants={listVariants}
@@ -59,7 +59,7 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
               <span className="text-white text-lg font-bold">الكل</span>
             </div>
           </div>
-          <p className="text-white text-xs text-center mt-2 font-medium">
+          <p className="text-foreground text-xs text-center mt-2 font-medium">
             الكل
           </p>
         </motion.div>
@@ -93,7 +93,7 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
                 </div>
               </div>
             </div>
-            <p className="text-white text-xs text-center mt-2 font-medium">
+            <p className="text-foreground text-xs text-center mt-2 font-medium">
               العروض
             </p>
           </motion.div>
@@ -134,7 +134,7 @@ export const CategoriesSection = ({ categories, onCategoryClick, selectedCategor
                 </div>
               )}
             </div>
-            <p className="text-white text-xs text-center mt-2 font-medium">
+            <p className="text-foreground text-xs text-center mt-2 font-medium">
               {category.name}
             </p>
           </motion.div>

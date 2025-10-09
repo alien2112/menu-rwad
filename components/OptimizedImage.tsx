@@ -12,6 +12,7 @@ interface OptimizedImageProps {
   priority?: boolean;
   objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
   placeholderColor?: string;
+  preserveTransparency?: boolean;
   onLoad?: () => void;
   onError?: () => void;
 }
@@ -35,6 +36,7 @@ export function OptimizedImage({
   priority = false,
   objectFit = 'cover',
   placeholderColor = '#e5e7eb',
+  preserveTransparency = false,
   onLoad,
   onError,
 }: OptimizedImageProps) {
@@ -100,7 +102,7 @@ export function OptimizedImage({
     position: 'relative',
     width,
     height,
-    backgroundColor: placeholderColor,
+    backgroundColor: preserveTransparency ? 'transparent' : placeholderColor,
     overflow: 'hidden',
     ...style,
   };
@@ -119,7 +121,7 @@ export function OptimizedImage({
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: placeholderColor,
+    backgroundColor: preserveTransparency ? 'transparent' : placeholderColor,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

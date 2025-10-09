@@ -27,9 +27,9 @@ export const RestaurantMenuHeader = ({ hero }: { hero?: HeroMedia }) => {
           aria-label="فتح القائمة"
         >
           <div className="w-5 h-5 flex flex-col justify-between">
-            <div className="w-full h-0 border-t border-white"></div>
-            <div className="w-full h-0 border-t border-white"></div>
-            <div className="w-full h-0 border-t border-white"></div>
+            <div className="w-full h-0 border-t border-foreground"></div>
+            <div className="w-full h-0 border-t border-foreground"></div>
+            <div className="w-full h-0 border-t border-foreground"></div>
           </div>
         </button>
 
@@ -67,8 +67,8 @@ export const RestaurantMenuHeader = ({ hero }: { hero?: HeroMedia }) => {
                   fetchPriority="high"
                   className="mx-auto mb-2 w-48 h-32 md:w-56 md:h-36 object-contain drop-shadow-lg"
                 />
-                <h1 className="text-white text-lg font-bold tracking-wide">موال مراكش</h1>
-                <p className="text-white/80 text-sm">FOOD & DRINKS</p>
+                <h1 className="text-foreground text-lg font-bold tracking-wide">موال مراكش</h1>
+                <p className="text-foreground/80 text-sm">FOOD & DRINKS</p>
               </div>
             </div>
           </div>

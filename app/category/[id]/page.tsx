@@ -274,7 +274,7 @@ export default function CategoryPage() {
 
   return (
     <div
-      className="min-h-screen relative overflow-hidden font-['Tajawal']"
+      className="min-h-screen relative overflow-hidden font-['Tajawal'] bg-background"
       dir="rtl"
       style={
         backgroundImageUrl
@@ -284,24 +284,22 @@ export default function CategoryPage() {
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
             }
-          : {
-              background: 'linear-gradient(to bottom right, #201007, #1c0e06, #0a0502)',
-            }
+          : {}
       }
     >
-      {/* Overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/30 z-0" />
+      {/* Light overlay for background images */}
+      {backgroundImageUrl && <div className="absolute inset-0 bg-black/20 z-0" />}
 
       <div className="container relative z-10 mx-auto max-w-7xl px-6 py-8">
         <ErrorBoundary>
           <header className="mb-6 text-right">
-            <h2 className="mb-2 text-3xl font-bold text-white">
+            <h2 className="mb-2 text-3xl font-bold text-foreground">
               {categoryId === '68dcc52cad46b03aff8a3cbb' ? 'العروض' : category.name}
             </h2>
             {categoryId === '68dcc52cad46b03aff8a3cbb' ? (
-              <p className="text-base text-white/80">اكتشف أفضل العروض والمنتجات المخفضة</p>
+              <p className="text-base text-foreground/80">اكتشف أفضل العروض والمنتجات المخفضة</p>
             ) : category.description && (
-              <p className="text-base text-white/80">{category.description}</p>
+              <p className="text-base text-foreground/80">{category.description}</p>
             )}
           </header>
 

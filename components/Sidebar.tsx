@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Glass overlay */}
           <div className="absolute inset-0 m-4">
-            <div className="glass-sidebar rounded-2xl h-full p-4 flex flex-col" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+            <div className="glass-sidebar rounded-2xl h-full p-4 flex flex-col">
 
               {/* Menu Title */}
               <div className="text-center py-8">
@@ -58,7 +58,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         href={`https://wa.me/966567833138?text=${encodeURIComponent('مرحباً، أود إرسال رأيي حول التجربة.')}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="block text-center text-white text-sm py-4 hover:text-coffee-green transition-colors"
+                        className="block text-center text-white text-sm py-4 hover:text-accent transition-colors"
                         onClick={onClose}
                       >
                         {item.label}
@@ -66,7 +66,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     ) : (
                       <Link
                         href={item.href}
-                        className="block text-center text-white text-sm py-4 hover:text-coffee-green transition-colors"
+                        className="block text-center text-white text-sm py-4 hover:text-accent transition-colors"
                         onClick={onClose}
                       >
                         {item.label}
