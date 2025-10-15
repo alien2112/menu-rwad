@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm outdated)",
+      "Bash(node:*)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3000)",
+      "Bash(tasklist)",
+      "Bash(findstr /I \"18656\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

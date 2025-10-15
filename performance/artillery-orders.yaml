@@ -1,0 +1,148 @@
+config:
+  target: 'http://localhost:3000'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 100
+      name: "Sustained load"
+    - duration: 60
+      arrivalRate: 200
+      name: "Peak load"
+    - duration: 60
+      arrivalRate: 10
+      name: "Cool down"
+  defaults:
+    headers:
+      Authorization: 'Bearer test-admin-token'
+      Content-Type: 'application/json'
+
+scenarios:
+  # Menu Items API Load Test
+  menuItemsLoad:
+    weight: 30
+    flow:
+      - get:
+          url: "/api/items"
+          qs:
+            page: "{{ $randomInt(1, 10) }}"
+            limit: "{{ $randomInt(10, 50) }}"
+            search: "{{ $randomString() }}"
+      - think: 1
+
+  # Orders API Load Test
+  ordersLoad:
+    weight: 25
+    flow:
+      - post:
+          url: "/api/orders"
+          json:
+            orderNumber: "LOAD-{{ $randomString() }}"
+            items:
+              - menuItemId: "{{ $randomString() }}"
+                menuItemName: "Load Test Item"
+                menuItemNameEn: "Load Test Item"
+                quantity: "{{ $randomInt(1, 5) }}"
+                unitPrice: "{{ $randomInt(10, 50) }}"
+                totalPrice: "{{ $randomInt(10, 50) }}"
+                customizations: []
+                department: "kitchen"
+                departmentStatus: "pending"
+                estimatedPrepTime: 15
+            totalAmount: "{{ $randomInt(50, 200) }}"
+            discountAmount: 0
+            taxInfo:
+              subtotal: "{{ $randomInt(50, 200) }}"
+              taxRate: 15
+              taxAmount: "{{ $randomInt(5, 30) }}"
+              includeTaxInPrice: true
+            customerInfo:
+              name: "Load Test Customer {{ $randomString() }}"
+              phone: "+966501234567"
+              address: "Load Test Address"
+            status: "pending"
+            orderDate: "{{ $isoTimestamp() }}"
+            source: "website_whatsapp"
+            departmentStatuses:
+              kitchen: "pending"
+              barista: "pending"
+              shisha: "pending"
+      - think: 2
+
+  # Inventory API Load Test
+  inventoryLoad:
+    weight: 20
+    flow:
+      - get:
+          url: "/api/ingredients"
+          qs:
+            page: "{{ $randomInt(1, 5) }}"
+            limit: "{{ $randomInt(10, 30) }}"
+            category: "{{ $randomString() }}"
+      - think: 1
+      - put:
+          url: "/api/ingredients/{{ $randomString() }}"
+          json:
+            currentQuantity: "{{ $randomInt(0, 100) }}"
+            minLimit: "{{ $randomInt(5, 20) }}"
+            alertLimit: "{{ $randomInt(10, 30) }}"
+      - think: 1
+
+  # Admin Dashboard Load Test
+  adminDashboardLoad:
+    weight: 15
+    flow:
+      - get:
+          url: "/api/admin/dashboard"
+      - think: 2
+      - get:
+          url: "/api/admin/reports/sales"
+          qs:
+            from: "2024-01-01"
+            to: "2024-12-31"
+      - think: 3
+
+  # Reports API Load Test
+  reportsLoad:
+    weight: 10
+    flow:
+      - get:
+          url: "/api/admin/reports/inventory"
+      - think: 2
+      - post:
+          url: "/api/admin/reports/export"
+          json:
+            reportType: "sales"
+            format: "csv"
+            from: "2024-01-01"
+            to: "2024-12-31"
+            includeCharts: false
+      - think: 5
+
+# Custom functions for random data generation
+functions:
+  randomString: |
+    function() {
+      return Math.random().toString(36).substring(2, 15);
+    }
+  
+  randomInt: |
+    function(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+  
+  isoTimestamp: |
+    function() {
+      return new Date().toISOString();
+    }
+
+
+
+
+
+
+
