@@ -85,7 +85,6 @@ const PrintJobSchema = new Schema<IPrintJob>(
     orderId: {
       type: String,
       required: true,
-      index: true,
     },
     orderNumber: {
       type: String,

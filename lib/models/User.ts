@@ -27,7 +27,6 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-UserSchema.index({ username: 1 });
 UserSchema.index({ role: 1, isActive: 1 });
 
 const User: Model<IUser> =

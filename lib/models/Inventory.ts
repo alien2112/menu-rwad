@@ -35,7 +35,6 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
     ingredientId: {
       type: String,
       required: [true, 'Please provide an ingredient ID'],
-      index: true,
     },
     ingredientName: {
       type: String,
@@ -73,7 +72,6 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
       type: String,
       enum: ['in_stock', 'low_stock', 'out_of_stock'],
       default: 'in_stock',
-      index: true,
     },
   },
   {
@@ -86,7 +84,6 @@ const InventoryConsumptionSchema = new Schema<IInventoryConsumption>(
     ingredientId: {
       type: String,
       required: [true, 'Please provide an ingredient ID'],
-      index: true,
     },
     ingredientName: {
       type: String,
@@ -107,15 +104,12 @@ const InventoryConsumptionSchema = new Schema<IInventoryConsumption>(
       type: String,
       enum: ['order', 'waste', 'spoilage', 'manual_adjustment', 'other'],
       required: [true, 'Please provide a reason for consumption'],
-      index: true,
     },
     orderId: {
       type: String,
-      index: true,
     },
     menuItemId: {
       type: String,
-      index: true,
     },
     notes: {
       type: String,
@@ -128,7 +122,6 @@ const InventoryConsumptionSchema = new Schema<IInventoryConsumption>(
     recordedAt: {
       type: Date,
       default: Date.now,
-      index: true,
     },
   },
   {
