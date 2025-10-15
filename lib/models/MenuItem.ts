@@ -6,6 +6,24 @@ export interface IMenuItemIngredient {
   required: boolean;
 }
 
+export interface IMenuItemSizeOption {
+  id: string;
+  name: string;
+  nameEn?: string;
+  priceModifier: number; // Additional price for this size
+  description?: string;
+}
+
+export interface IMenuItemAddonOption {
+  id: string;
+  name: string;
+  nameEn?: string;
+  price: number;
+  category: string;
+  required: boolean;
+  maxQuantity?: number;
+}
+
 export interface IMenuItem {
   _id?: string;
   name: string;
@@ -27,6 +45,12 @@ export interface IMenuItem {
   status: 'active' | 'inactive' | 'out_of_stock';
   featured: boolean;
   order: number;
+  // Customization features
+  sizeOptions?: IMenuItemSizeOption[];
+  addonOptions?: IMenuItemAddonOption[];
+  dietaryModifications?: string[];
+  rating?: number;
+  reviewCount?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -124,6 +148,72 @@ const MenuItemSchema = new Schema<IMenuItem>(
     },
     order: {
       type: Number,
+      default: 0,
+    },
+    // Customization features
+    sizeOptions: [{
+      id: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      nameEn: {
+        type: String,
+      },
+      priceModifier: {
+        type: Number,
+        required: true,
+        default: 0,
+      },
+      description: {
+        type: String,
+      },
+    }],
+    addonOptions: [{
+      id: {
+        type: String,
+        required: true,
+      },
+      name: {
+        type: String,
+        required: true,
+      },
+      nameEn: {
+        type: String,
+      },
+      price: {
+        type: Number,
+        required: true,
+        min: 0,
+      },
+      category: {
+        type: String,
+        required: true,
+      },
+      required: {
+        type: Boolean,
+        default: false,
+      },
+      maxQuantity: {
+        type: Number,
+        min: 1,
+      },
+    }],
+    dietaryModifications: [{
+      type: String,
+    }],
+    rating: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
+    },
+    reviewCount: {
+      type: Number,
+      min: 0,
       default: 0,
     },
   },

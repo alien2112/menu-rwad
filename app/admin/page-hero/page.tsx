@@ -25,6 +25,13 @@ export default function PageHeroAdmin() {
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
 
+  // Branding (Logo) controls
+  const [logoUrl, setLogoUrl] = useState<string>("");
+  const [logoPosition, setLogoPosition] = useState<'left' | 'center' | 'right'>('center');
+  const [savingLogo, setSavingLogo] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [brandingMessage, setBrandingMessage] = useState<string | null>(null);
+
   const fetchHeroes = async () => {
     try {
       setLoading(true);
@@ -42,6 +49,17 @@ export default function PageHeroAdmin() {
 
   useEffect(() => {
     fetchHeroes();
+    // Load current site settings for logo
+    (async () => {
+      try {
+        const res = await fetch('/api/site-settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success && json.data) {
+          setLogoUrl(json.data.logoUrl || "");
+          setLogoPosition(json.data.logoPosition || 'center');
+        }
+      } catch {}
+    })();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,6 +91,42 @@ export default function PageHeroAdmin() {
       alert(e.message);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleLogoUpload = async (f: File) => {
+    setUploadingLogo(true);
+    setBrandingMessage(null);
+    try {
+      const fd = new FormData();
+      fd.append('file', f);
+      const res = await fetch('/api/upload-simple', { method: 'POST', body: fd });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'فشل رفع الشعار');
+      setLogoUrl(`/api/images/${json.data.id}`);
+    } catch (e: any) {
+      setBrandingMessage(e.message || 'فشل رفع الشعار');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const saveBranding = async () => {
+    setSavingLogo(true);
+    setBrandingMessage(null);
+    try {
+      const res = await fetch('/api/site-settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ logoUrl, logoPosition }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'فشل حفظ الإعدادات');
+      setBrandingMessage('تم حفظ إعدادات الشعار');
+    } catch (e: any) {
+      setBrandingMessage(e.message || 'فشل حفظ الإعدادات');
+    } finally {
+      setSavingLogo(false);
     }
   };
 
@@ -165,6 +219,71 @@ export default function PageHeroAdmin() {
           </button>
         </div>
       </form>
+
+      {/* Branding (Logo) settings integrated into this page */}
+      <div className="glass-effect rounded-2xl p-4 space-y-4">
+        <h2 className="text-white font-semibold">إعدادات الشعار</h2>
+        {brandingMessage && (
+          <div className="p-3 rounded-lg bg-white/10 border border-white/20 text-white">{brandingMessage}</div>
+        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-3">
+            <label className="text-white/80 text-sm">رابط الشعار</label>
+            <input
+              className="w-full rounded-xl bg-white/10 text-white px-3 py-2"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://... أو سيتم ملؤه عند الرفع"
+            />
+            <div>
+              <label className="text-white/80 text-sm mb-1 block">رفع الشعار</label>
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingLogo}
+                className="text-white"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleLogoUpload(f);
+                }}
+              />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <label className="text-white/80 text-sm">موضع الشعار</label>
+            <select
+              className="w-full rounded-xl bg-white/10 text-white px-3 py-2"
+              value={logoPosition}
+              onChange={(e) => setLogoPosition(e.target.value as any)}
+            >
+              <option value="left">يسار</option>
+              <option value="center">وسط</option>
+              <option value="right">يمين</option>
+            </select>
+            <div>
+              <label className="text-white/80 text-sm mb-1 block">معاينة</label>
+              <div className="h-32 bg-white/5 rounded-xl border border-white/10 flex items-center px-4">
+                <div className={`${logoPosition === 'left' ? 'justify-start' : logoPosition === 'right' ? 'justify-end' : 'justify-center'} w-full flex`}>
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="h-16 object-contain" />
+                  ) : (
+                    <div className="text-white/50">لا يوجد شعار</div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <button
+            onClick={saveBranding}
+            disabled={savingLogo}
+            className="bg-coffee-green text-white rounded-xl px-4 py-2 disabled:opacity-50"
+          >
+            {savingLogo ? 'جار الحفظ...' : 'حفظ إعدادات الشعار'}
+          </button>
+        </div>
+      </div>
 
       <div className="glass-effect rounded-2xl p-4 max-h-96 overflow-auto">
         <h2 className="text-white font-semibold mb-3">السجلات</h2>

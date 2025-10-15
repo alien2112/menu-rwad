@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const webpackLib = require('webpack');
+
 const nextConfig = {
   // External packages for server components
   serverExternalPackages: ['mongoose'],
@@ -11,7 +13,8 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Keep a minimal CSP for the images loader context; full CSP set in middleware
+    contentSecurityPolicy: "default-src 'self';",
   },
 
   // Compression and optimization
@@ -128,60 +131,41 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
-  // Webpack configuration for production optimization
-  webpack: (config, { isServer, dev }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        // Add more fallbacks for browser compatibility
-        path: false,
-        crypto: false,
-        stream: false,
-        util: false,
-        buffer: false,
-        process: false,
-      };
+  // Minimal webpack customization
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = config.plugins || [];
+      config.plugins.push(new webpackLib.DefinePlugin({ self: 'globalThis' }));
     }
-
-    // Minimal production optimizations to avoid self is not defined error
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'deterministic',
-        // Remove runtimeChunk and splitChunks to avoid issues
-        // runtimeChunk: 'single',
-        // splitChunks: {
-        //   chunks: 'all',
-        //   cacheGroups: {
-        //     default: {
-        //       minChunks: 2,
-        //       priority: -20,
-        //       reuseExistingChunk: true,
-        //     },
-        //     vendor: {
-        //       test: /[\\/]node_modules[\\/]/,
-        //       name: 'vendors',
-        //       priority: -10,
-        //       chunks: 'all',
-        //     },
-        //   },
-        // },
-      };
-    }
-
     return config;
   },
 
-  // Enable SWC minification (faster than Terser) - removed deprecated swcMinify
+  // Enable SWC minification (enabled by default in Next.js 15)
 
-  // Experimental features disabled to avoid build issues
-  // experimental: {
-  //   // optimizeCss: true, // Disabled due to self is not defined error
-  //   optimizePackageImports: ['lucide-react', 'gsap'],
-  // },
+  // Experimental features for better optimization
+  experimental: {},
+
+  // Production source maps (disable to reduce bundle size)
+  productionBrowserSourceMaps: false,
+
+  // Reduce JavaScript sent to client
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Optimize redirects and rewrites
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/menu',
+        permanent: true,
+      },
+    ];
+  },
 }
 
 module.exports = nextConfig

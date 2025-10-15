@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X, ShoppingCart, Clock, User, MapPin, Phone } from "lucide-react";
+import { OrderReceipt } from "./OrderReceipt";
 
 interface OrderItem {
   menuItemId: string;
@@ -23,6 +24,12 @@ interface OrderData {
   items: OrderItem[];
   totalAmount: number;
   discountAmount?: number;
+  taxInfo?: {
+    subtotal: number;
+    taxRate: number;
+    taxAmount: number;
+    includeTaxInPrice: boolean;
+  };
   customerInfo: CustomerInfo;
   notes?: string;
 }

@@ -1,12 +1,7 @@
 "use client";
 
-import { AdminAuth } from "@/components/AdminAuth";
-import { AdminReviewsPanel } from "@/components/AdminReviewsPanel";
+import EnhancedAdminDashboard from "@/components/EnhancedAdminDashboard";
 
 export default function AdminPage() {
-  return (
-    <AdminAuth>
-      <AdminReviewsPanel />
-    </AdminAuth>
-  );
+  return <EnhancedAdminDashboard />;
 }

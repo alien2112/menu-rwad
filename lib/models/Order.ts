@@ -8,6 +8,9 @@ export interface IOrderItem {
   unitPrice: number;
   totalPrice: number;
   customizations?: string[];
+  department: 'kitchen' | 'barista' | 'shisha';
+  departmentStatus: 'pending' | 'in_progress' | 'ready' | 'served';
+  estimatedPrepTime?: number; // in minutes
 }
 
 export interface ICustomerInfo {
@@ -22,13 +25,29 @@ export interface IOrder {
   items: IOrderItem[];
   totalAmount: number;
   discountAmount?: number;
+  taxInfo?: {
+    subtotal: number;
+    taxRate: number;
+    taxAmount: number;
+    includeTaxInPrice: boolean;
+  };
   customerInfo: ICustomerInfo;
   status: 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled';
+  departmentStatuses: {
+    kitchen: 'pending' | 'in_progress' | 'ready' | 'served';
+    barista: 'pending' | 'in_progress' | 'ready' | 'served';
+    shisha: 'pending' | 'in_progress' | 'ready' | 'served';
+  };
   orderDate: Date;
   deliveryDate?: Date;
-  source: 'website_whatsapp' | 'manual';
+  source: 'website_whatsapp' | 'manual' | 'website';
   notes?: string;
   whatsappMessageId?: string;
+  assignedTo?: {
+    kitchen?: string;
+    barista?: string;
+    shisha?: string;
+  };
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -63,6 +82,22 @@ const OrderItemSchema = new Schema<IOrderItem>({
   customizations: [{
     type: String,
   }],
+  department: {
+    type: String,
+    enum: ['kitchen', 'barista', 'shisha'],
+    required: true,
+    index: true,
+  },
+  departmentStatus: {
+    type: String,
+    enum: ['pending', 'in_progress', 'ready', 'served'],
+    default: 'pending',
+    index: true,
+  },
+  estimatedPrepTime: {
+    type: Number,
+    min: 0,
+  },
 });
 
 const CustomerInfoSchema = new Schema<ICustomerInfo>({
@@ -98,6 +133,25 @@ const OrderSchema = new Schema<IOrder>(
       type: Number,
       min: 0,
     },
+    taxInfo: {
+      subtotal: {
+        type: Number,
+        min: 0,
+      },
+      taxRate: {
+        type: Number,
+        min: 0,
+        max: 100,
+      },
+      taxAmount: {
+        type: Number,
+        min: 0,
+      },
+      includeTaxInPrice: {
+        type: Boolean,
+        default: true,
+      },
+    },
     customerInfo: {
       type: CustomerInfoSchema,
       required: true,
@@ -116,7 +170,7 @@ const OrderSchema = new Schema<IOrder>(
     },
     source: {
       type: String,
-      enum: ['website_whatsapp', 'manual'],
+      enum: ['website_whatsapp', 'manual', 'website'],
       default: 'website_whatsapp',
     },
     notes: {
@@ -126,6 +180,37 @@ const OrderSchema = new Schema<IOrder>(
     whatsappMessageId: {
       type: String,
       trim: true,
+    },
+    departmentStatuses: {
+      kitchen: {
+        type: String,
+        enum: ['pending', 'in_progress', 'ready', 'served'],
+        default: 'pending',
+      },
+      barista: {
+        type: String,
+        enum: ['pending', 'in_progress', 'ready', 'served'],
+        default: 'pending',
+      },
+      shisha: {
+        type: String,
+        enum: ['pending', 'in_progress', 'ready', 'served'],
+        default: 'pending',
+      },
+    },
+    assignedTo: {
+      kitchen: {
+        type: String,
+        trim: true,
+      },
+      barista: {
+        type: String,
+        trim: true,
+      },
+      shisha: {
+        type: String,
+        trim: true,
+      },
     },
   },
   {

@@ -1,35 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Category from '@/lib/models/Category';
-import { cache, CacheTTL } from '@/lib/cache';
+import { sanitizeString, sanitizeInteger, sanitizeObject } from '@/lib/sanitize';
 
 // GET all categories
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const featured = searchParams.get('featured');
-    const limitParam = searchParams.get('limit');
-    const admin = searchParams.get('admin'); // Check if admin request
+    const featured = sanitizeString(searchParams.get('featured'));
+    const limitParam = sanitizeString(searchParams.get('limit'));
+    const admin = sanitizeString(searchParams.get('admin')); // Check if admin request
 
-    // Create cache key based on query params
-    const cacheKey = `categories:${featured}:${limitParam}`;
-
-    // Admin requests bypass cache
-    if (admin !== 'true') {
-      // Try to get from cache for public requests
-      const cachedData = cache.get(cacheKey);
-      if (cachedData) {
-        return NextResponse.json(
-          { success: true, data: cachedData, cached: true },
-          {
-            headers: {
-              'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
-              'X-Cache-Status': 'HIT'
-            }
-          }
-        );
-      }
-    }
+    // Simple caching - removed complex cache logic for now
 
     await dbConnect();
     const query: any = {};
@@ -38,7 +20,7 @@ export async function GET(request: NextRequest) {
       query.status = 'active';
     }
     const sort = featured === 'true' ? { featuredOrder: 1, order: 1, createdAt: -1 } : { order: 1, createdAt: -1 };
-    const limit = limitParam ? Math.min(parseInt(limitParam, 10) || 0, 50) : undefined;
+    const limit = limitParam ? sanitizeInteger(limitParam, 1, 50, 20) : undefined;
 
     // Use lean() for better performance + select only needed fields
     let q = Category.find(query)
@@ -49,10 +31,7 @@ export async function GET(request: NextRequest) {
     if (limit) q = q.limit(limit);
     const categories = await q.exec();
 
-    // Cache the result for public requests only
-    if (admin !== 'true') {
-      cache.set(cacheKey, categories, CacheTTL.ONE_MINUTE); // Shorter cache for fresher data
-    }
+    // Cache removed for now
 
     const headers: Record<string, string> = {};
 
@@ -72,8 +51,13 @@ export async function GET(request: NextRequest) {
       { headers }
     );
   } catch (error: any) {
+    console.error('GET /api/categories failed:', {
+      message: error?.message,
+      name: error?.name,
+      stack: error?.stack,
+    });
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message ?? 'Unknown error' },
       { status: 400 }
     );
   }
@@ -83,19 +67,17 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    const body = await request.json();
-    console.log('Creating category with data:', body);
-    const category = await Category.create(body);
+    const rawBody = await request.json();
+
+    // Sanitize category data
+    const allowedKeys = ['name', 'nameEn', 'description', 'image', 'color', 'icon', 'order', 'featured', 'featuredOrder', 'status'];
+    const sanitizedBody = sanitizeObject(rawBody, allowedKeys);
+
+    console.log('Creating category with data:', sanitizedBody);
+    const category = await Category.create(sanitizedBody);
     console.log('Created category:', category);
 
-    // Invalidate all category caches
-    cache.clear(); // Clear all cache to be safe
-
-    // Revalidate public pages
-    const { revalidatePath, revalidateTag } = await import('next/cache');
-    revalidatePath('/');
-    revalidatePath('/menu');
-    revalidateTag('categories');
+    // Cache invalidation removed for now
 
     return NextResponse.json(
       { success: true, data: category },

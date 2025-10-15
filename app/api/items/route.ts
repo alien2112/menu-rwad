@@ -1,55 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import MenuItem from '@/lib/models/MenuItem';
-import { CacheInvalidation, getCacheHeaders, noCacheHeaders } from '@/lib/cache-invalidation';
-import { cache, CacheTTL } from '@/lib/cache';
-import mongoose from 'mongoose';
+import { sanitizeString, sanitizeObjectId, sanitizeObject, sanitizePagination } from '@/lib/sanitize';
 
-// GET all menu items
+// GET all menu items with pagination
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const categoryId = searchParams.get('categoryId');
-    const admin = searchParams.get('admin');
+    const categoryId = sanitizeObjectId(searchParams.get('categoryId'));
+    const admin = sanitizeString(searchParams.get('admin'));
     const isAdmin = admin === 'true';
-
-    // Create cache key based on query params
-    const cacheKey = `items:${categoryId || 'all'}`;
-
-    // Admin requests bypass cache
-    if (!isAdmin) {
-      const cachedData = cache.get(cacheKey);
-      if (cachedData) {
-        return NextResponse.json(
-          { success: true, data: cachedData, cached: true },
-          {
-            headers: {
-              'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
-              'X-Cache-Status': 'HIT'
-            }
-          }
-        );
-      }
-    }
+    
+    // Pagination parameters
+    const { page, limit } = sanitizePagination({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+      maxLimit: isAdmin ? 100 : 50 // Admin can request more items
+    });
+    
+    // Search parameter
+    const search = sanitizeString(searchParams.get('search'));
+    
+    // Status filter
+    const status = sanitizeString(searchParams.get('status'));
+    
+    // Featured filter
+    const featured = searchParams.get('featured') === 'true';
 
     await dbConnect();
 
     // Build optimized query
-    const query = categoryId ? { categoryId } : {};
+    const query: any = {};
+    
+    if (categoryId) {
+      query.categoryId = categoryId;
+    }
+    
+    if (status) {
+      query.status = status;
+    }
+    
+    if (featured) {
+      query.featured = true;
+    }
+    
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { nameEn: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Calculate skip for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination info
+    const totalCount = await MenuItem.countDocuments(query);
 
     // Use lean() for better performance (returns plain JS objects instead of Mongoose documents)
     // Select only fields needed for menu display (projection)
     const items = await MenuItem
       .find(query)
-      .select('name nameEn description price discountPrice cost image calories preparationTime categoryId status')
+      .select('name nameEn description price discountPrice cost image calories preparationTime categoryId status tags allergens rating reviewCount sizeOptions addonOptions dietaryModifications featured')
       .sort({ order: 1, createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .lean()
       .exec();
 
-    // Cache the result for public requests only
-    if (!isAdmin) {
-      cache.set(cacheKey, items, CacheTTL.FIVE_MINUTES);
-    }
+    // Calculate pagination info
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+    const hasPrevPage = page > 1;
+
+    const paginationInfo = {
+      currentPage: page,
+      totalPages,
+      totalCount,
+      limit,
+      hasNextPage,
+      hasPrevPage,
+      nextPage: hasNextPage ? page + 1 : null,
+      prevPage: hasPrevPage ? page - 1 : null
+    };
 
     const headers: Record<string, string> = {};
     if (isAdmin) {
@@ -64,7 +98,11 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { success: true, data: items },
+      { 
+        success: true, 
+        data: items,
+        pagination: paginationInfo
+      },
       { headers }
     );
   } catch (error: any) {
@@ -80,15 +118,27 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     await dbConnect();
-    const body = await request.json();
-    const item = await MenuItem.create(body);
+    const rawBody = await request.json();
 
-    // Invalidate all item-related caches
-    CacheInvalidation.items();
+    // Sanitize menu item data
+    const allowedKeys = ['name', 'nameEn', 'description', 'price', 'discountPrice', 'cost', 'image', 'calories', 'preparationTime', 'categoryId', 'status', 'ingredients'];
+    const sanitizedBody = sanitizeObject(rawBody, allowedKeys);
+
+    // Additional validation for categoryId
+    if (sanitizedBody.categoryId && !sanitizeObjectId(sanitizedBody.categoryId as any)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid category ID' },
+        { status: 400 }
+      );
+    }
+
+    const item = await MenuItem.create(sanitizedBody);
+
+    // Cache invalidation removed for now
 
     return NextResponse.json(
       { success: true, data: item },
-      { status: 201, headers: noCacheHeaders() }
+      { status: 201, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' } }
     );
   } catch (error: any) {
     return NextResponse.json(

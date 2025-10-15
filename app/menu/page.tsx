@@ -8,7 +8,7 @@ import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
 import { CategoriesSection } from "@/components/CategoriesSection";
 import { MenuItemsList } from "@/components/MenuItemsList";
 import { MenuPageSkeleton } from "@/components/SkeletonLoader";
-import { SearchBar } from "@/components/SearchBar";
+import { AdvancedSearchFilter } from "@/components/AdvancedSearchFilter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useCart } from "@/contexts/CartContext";
 import { useCachedFetch } from "@/hooks/useCachedFetch";
@@ -49,6 +49,28 @@ interface MenuItem {
   calories?: number;
   categoryId: string;
   status: 'active' | 'inactive';
+  preparationTime?: number;
+  tags?: string[];
+  allergens?: string[];
+  rating?: number;
+  reviewCount?: number;
+  sizeOptions?: Array<{
+    id: string;
+    name: string;
+    nameEn?: string;
+    priceModifier: number;
+    description?: string;
+  }>;
+  addonOptions?: Array<{
+    id: string;
+    name: string;
+    nameEn?: string;
+    price: number;
+    category: string;
+    required: boolean;
+    maxQuantity?: number;
+  }>;
+  dietaryModifications?: string[];
 }
 
 
@@ -58,10 +80,11 @@ export default function Menu() {
   const router = useRouter();
   const { dispatch } = useCart();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([]);
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
   const [hero, setHero] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+  const [siteTheme, setSiteTheme] = useState<Record<string, string> | null>(null);
 
   // Use cached fetch for categories
   const { 
@@ -149,11 +172,68 @@ export default function Menu() {
         console.error('Failed to fetch page hero for /menu', e);
       }
     };
+    const fetchSiteTheme = async () => {
+      try {
+        const res = await fetch('/api/site-settings', { cache: 'no-store' });
+        const data = await res.json();
+        if (res.ok && data?.success !== false) {
+          setSiteTheme(data?.data?.theme || null);
+        }
+      } catch {}
+    };
 
     // Don't block main content loading
     fetchBackground();
     fetchHero();
+    fetchSiteTheme();
   }, []);
+
+  // Apply CSS variables to document for this page only (on mount/changes)
+  useEffect(() => {
+    if (!siteTheme) return;
+    const root = document.documentElement;
+    const appliedKeys: string[] = [];
+    const hexToHslTriplet = (hex: string): string | null => {
+      const parsed = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!parsed) return null;
+      const r = parseInt(parsed[1], 16) / 255;
+      const g = parseInt(parsed[2], 16) / 255;
+      const b = parseInt(parsed[3], 16) / 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0; const l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      const H = Math.round(h * 360);
+      const S = Math.round(s * 100);
+      const L = Math.round(l * 100);
+      return `${H} ${S}% ${L}%`;
+    };
+    const applyVar = (key: string, value: string) => {
+      // Accept either raw HSL triplet or HEX; convert HEX to HSL triplet
+      let triplet = value;
+      if (/^#([A-Fa-f0-9]{6})$/.test(value)) {
+        const hsl = hexToHslTriplet(value);
+        if (hsl) triplet = hsl;
+      }
+      root.style.setProperty(`--${key}`, triplet);
+      appliedKeys.push(key);
+    };
+    Object.entries(siteTheme).forEach(([key, value]) => {
+      if (typeof value === 'string' && value.trim()) applyVar(key, value.trim());
+    });
+    return () => {
+      // Cleanup on unmount: remove overrides so defaults apply elsewhere
+      appliedKeys.forEach((k) => root.style.removeProperty(`--${k}`));
+    };
+  }, [siteTheme]);
 
   const getBackgroundImage = () => {
     if (pageBackground?.backgroundImageId) {
@@ -200,18 +280,14 @@ export default function Menu() {
   };
 
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // Clear category selection when searching
-    if (query.trim()) {
-      setSelectedCategory(null);
-    }
+  const handleFilteredItems = (items: MenuItem[]) => {
+    setFilteredMenuItems(items);
   };
 
   const backgroundImageUrl = getBackgroundImage();
   
-  // Filter menu items by selected category and search query
-  const filteredMenuItems = (() => {
+  // Filter menu items by selected category
+  const categoryFilteredItems = (() => {
     let items = menuItems;
     
     // Filter by category if selected
@@ -219,26 +295,24 @@ export default function Menu() {
       items = items.filter(item => item.categoryId === selectedCategory);
     }
     
-    // Filter by search query if provided
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      items = items.filter(item => 
-        item.name.toLowerCase().includes(query) ||
-        (item.nameEn && item.nameEn.toLowerCase().includes(query)) ||
-        (item.description && item.description.toLowerCase().includes(query))
-      );
-    }
-    
     return items;
   })();
+
+  // Ensure we show items even before AdvancedSearchFilter emits
+  useEffect(() => {
+    if (filteredMenuItems.length === 0 && categoryFilteredItems.length > 0) {
+      setFilteredMenuItems(categoryFilteredItems);
+    }
+    // Only react to the counts to avoid unnecessary re-renders
+  }, [categoryFilteredItems.length, filteredMenuItems.length]);
 
   // Calculate offers count
   const offersCount = menuItems.filter(item => item.discountPrice && item.discountPrice < item.price).length;
 
   console.log('Selected category:', selectedCategory);
   console.log('All menu items:', menuItems.length);
-  console.log('Filtered menu items:', filteredMenuItems.length);
-  console.log('Filtered items:', filteredMenuItems);
+  console.log('Category filtered items:', categoryFilteredItems.length);
+  console.log('Final filtered items:', filteredMenuItems.length);
 
   return (
     <div
@@ -292,13 +366,17 @@ export default function Menu() {
               <RestaurantMenuHeader hero={hero || undefined} />
             </motion.div>
 
-            {/* Search Bar */}
+            {/* Advanced Search & Filter */}
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.45, ease: 'easeOut', delay: 0.05 }}
             >
-              <SearchBar onSearch={handleSearch} />
+              <AdvancedSearchFilter
+                items={categoryFilteredItems}
+                onFilteredItems={handleFilteredItems}
+                categories={categories}
+              />
             </motion.div>
 
             {/* Categories Section */}
@@ -356,7 +434,7 @@ export default function Menu() {
 
             {/* Menu Items */}
             <motion.div
-              key={`${selectedCategory ?? 'all'}-${searchQuery}-${viewMode}`}
+              key={`${selectedCategory ?? 'all'}-${viewMode}`}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut', delay: 0.1 }}
@@ -365,7 +443,7 @@ export default function Menu() {
                 items={filteredMenuItems}
                 onAddToCart={handleItemClick}
                 categories={categories}
-                showGrouped={selectedCategory === null && !searchQuery.trim()}
+                showGrouped={selectedCategory === null}
                 selectedCategory={selectedCategory}
                 viewMode={viewMode}
               />

@@ -2,15 +2,24 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 
+export interface CartItemCustomization {
+  sizeId?: string;
+  addons: Array<{
+    addonId: string;
+    quantity: number;
+  }>;
+  specialInstructions: string;
+  dietaryModifications: string[];
+}
+
 export interface CartItem {
-  id: string;
-  name: string;
-  nameEn?: string;
-  price: number;
+  menuItemId: string;
+  menuItemName: string;
+  menuItemNameEn?: string;
   quantity: number;
-  image?: string;
-  category?: string;
-  notes?: string;
+  unitPrice: number;
+  totalPrice: number;
+  customization?: CartItemCustomization;
 }
 
 interface CartState {
@@ -21,9 +30,9 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: Omit<CartItem, 'quantity'> }
+  | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; payload: string }
-  | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
+  | { type: 'UPDATE_QUANTITY'; payload: { menuItemId: string; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'TOGGLE_CART' }
   | { type: 'SET_CART_OPEN'; payload: boolean }
@@ -39,21 +48,25 @@ const initialState: CartState = {
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find(item => item.menuItemId === action.payload.menuItemId);
       
       let newItems: CartItem[];
       if (existingItem) {
         newItems = state.items.map(item =>
-          item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.menuItemId === action.payload.menuItemId
+            ? { 
+                ...item, 
+                quantity: item.quantity + action.payload.quantity,
+                totalPrice: (item.quantity + action.payload.quantity) * item.unitPrice
+              }
             : item
         );
       } else {
-        newItems = [...state.items, { ...action.payload, quantity: 1 }];
+        newItems = [...state.items, action.payload];
       }
 
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalPrice = newItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
       return {
         ...state,
@@ -64,9 +77,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case 'REMOVE_ITEM': {
-      const newItems = state.items.filter(item => item.id !== action.payload);
+      const newItems = state.items.filter(item => item.menuItemId !== action.payload);
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalPrice = newItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
       return {
         ...state,
@@ -78,13 +91,17 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
     case 'UPDATE_QUANTITY': {
       const newItems = state.items.map(item =>
-        item.id === action.payload.id
-          ? { ...item, quantity: Math.max(0, action.payload.quantity) }
+        item.menuItemId === action.payload.menuItemId
+          ? { 
+              ...item, 
+              quantity: Math.max(0, action.payload.quantity),
+              totalPrice: Math.max(0, action.payload.quantity) * item.unitPrice
+            }
           : item
       ).filter(item => item.quantity > 0);
 
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = newItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalPrice = newItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
       return {
         ...state,
@@ -116,7 +133,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
     case 'LOAD_CART': {
       const totalItems = action.payload.reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = action.payload.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const totalPrice = action.payload.reduce((sum, item) => sum + item.totalPrice, 0);
 
       return {
         ...state,
@@ -134,10 +151,37 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 const CartContext = createContext<{
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (menuItemId: string) => void;
+  updateQuantity: (menuItemId: string, quantity: number) => void;
+  clearCart: () => void;
+  toggleCart: () => void;
+  cartItems: CartItem[];
 } | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
+
+  // Convenience functions
+  const addToCart = (item: CartItem) => {
+    dispatch({ type: 'ADD_ITEM', payload: item });
+  };
+
+  const removeFromCart = (menuItemId: string) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: menuItemId });
+  };
+
+  const updateQuantity = (menuItemId: string, quantity: number) => {
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { menuItemId, quantity } });
+  };
+
+  const clearCart = () => {
+    dispatch({ type: 'CLEAR_CART' });
+  };
+
+  const toggleCart = () => {
+    dispatch({ type: 'TOGGLE_CART' });
+  };
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -162,7 +206,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [state.items]);
 
   return (
-    <CartContext.Provider value={{ state, dispatch }}>
+    <CartContext.Provider value={{ 
+      state, 
+      dispatch, 
+      addToCart, 
+      removeFromCart, 
+      updateQuantity, 
+      clearCart, 
+      toggleCart,
+      cartItems: state.items
+    }}>
       {children}
     </CartContext.Provider>
   );
@@ -176,6 +229,12 @@ export function useCart() {
     return {
       state: initialState,
       dispatch: () => {},
+      addToCart: () => {},
+      removeFromCart: () => {},
+      updateQuantity: () => {},
+      clearCart: () => {},
+      toggleCart: () => {},
+      cartItems: [],
     };
   }
   return context;

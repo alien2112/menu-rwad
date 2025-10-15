@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 
 type HeroMedia = {
@@ -14,6 +14,22 @@ type HeroMedia = {
 export const RestaurantMenuHeader = ({ hero }: { hero?: HeroMedia }) => {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>("/موال مراكش طواجن  1 (1).png");
+  const [logoPosition, setLogoPosition] = useState<'left' | 'center' | 'right'>('center');
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success && json.data) {
+          setLogoUrl(json.data.logoUrl || logoUrl);
+          setLogoPosition(json.data.logoPosition || 'center');
+        }
+      } catch {}
+    };
+    loadSettings();
+  }, []);
   
   return (
     <header className="relative w-full mb-6">
@@ -57,11 +73,15 @@ export const RestaurantMenuHeader = ({ hero }: { hero?: HeroMedia }) => {
               </>
             )}
 
-            <div className="relative z-10 h-full flex items-center justify-center">
+            <div
+              className={`relative z-10 h-full flex items-center ${
+                logoPosition === 'left' ? 'justify-start pl-6' : logoPosition === 'right' ? 'justify-end pr-6' : 'justify-center'
+              }`}
+            >
               {/* Brand Logo - Same as home page */}
               <div className="text-center">
                 <img
-                  src="/موال مراكش طواجن  1 (1).png"
+                  src={logoUrl}
                   alt="موال مراكش طواجن"
                   loading="eager"
                   fetchPriority="high"

@@ -24,50 +24,6 @@ export function ReviewsSlider({ placeId }: ReviewsSliderProps) {
   const [error, setError] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Customer reviews data
-  const customerReviews: Review[] = [
-    {
-      id: "1",
-      author_name: "أحمد محمد",
-      rating: 5,
-      text: "مقهى رائع جداً! القهوة لذيذة والأجواء مريحة. أنصح الجميع بزيارته.",
-      time: Date.now() - 86400000, // 1 day ago
-      profile_photo_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face&auto=format"
-    },
-    {
-      id: "2", 
-      author_name: "فاطمة علي",
-      rating: 5,
-      text: "تجربة استثنائية! الخدمة ممتازة والقهوة من أجود الأنواع. شكراً لكم",
-      time: Date.now() - 172800000, // 2 days ago
-      profile_photo_url: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face&auto=format"
-    },
-    {
-      id: "3",
-      author_name: "محمد السعيد",
-      rating: 4,
-      text: "مكان جميل ومريح، القهوة جيدة والأسعار معقولة. سأعود مرة أخرى",
-      time: Date.now() - 259200000, // 3 days ago
-      profile_photo_url: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face&auto=format"
-    },
-    {
-      id: "4",
-      author_name: "نورا أحمد",
-      rating: 5,
-      text: "أفضل مقهى في المدينة! الأجواء المغربية الأصيلة والقهوة المميزة",
-      time: Date.now() - 345600000, // 4 days ago
-      profile_photo_url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face&auto=format"
-    },
-    {
-      id: "5",
-      author_name: "خالد حسن",
-      rating: 5,
-      text: "خدمة رائعة وقهوة لذيذة. المكان نظيف ومريح للعمل والاسترخاء",
-      time: Date.now() - 432000000, // 5 days ago
-      profile_photo_url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face&auto=format"
-    }
-  ];
-
   useEffect(() => {
     // Load reviews from API
     const loadReviews = async () => {
@@ -90,15 +46,13 @@ export function ReviewsSlider({ placeId }: ReviewsSliderProps) {
           
           setReviews(apiReviews);
         } else {
-          // Fallback to mock data if no reviews from API
-          setReviews(customerReviews);
+          setReviews([]);
         }
         
         setLoading(false);
       } catch (err) {
         console.error('Error loading reviews:', err);
-        // Fallback to mock data on error
-        setReviews(customerReviews);
+        setError('فشل تحميل المراجعات');
         setLoading(false);
       }
     };

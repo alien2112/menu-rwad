@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
+import { useTaxSettings } from '@/hooks/useTaxSettings';
 import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
 import { OrderConfirmationModal } from './OrderConfirmationModal';
 import { generateWhatsAppMessage, getWhatsAppUrl } from '@/lib/whatsapp-utils';
@@ -26,6 +27,7 @@ export function CartIcon() {
 
 export function CartModal() {
   const { state, dispatch } = useCart();
+  const { calculateTax, formatPrice, settings } = useTaxSettings();
   const [tableNumber, setTableNumber] = useState<string>('');
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<any>(null);
@@ -33,9 +35,9 @@ export function CartModal() {
 
   if (!state.isOpen) return null;
 
-  const formatPrice = (price: number) => {
-    return `${price.toFixed(2)} ر.س`;
-  };
+  // Calculate tax for the entire cart
+  const cartTaxCalculation = calculateTax(state.totalPrice);
+  const showTaxBreakdown = settings?.displayTaxBreakdown && settings?.enableTaxHandling;
 
   const generateOrderNumber = () => {
     const date = new Date();
@@ -51,15 +53,22 @@ export function CartModal() {
     const orderData = {
       orderNumber: generateOrderNumber(),
       items: state.items.map(item => ({
-        menuItemId: item.id,
-        menuItemName: item.name,
-        menuItemNameEn: item.nameEn,
+        menuItemId: item.menuItemId,
+        menuItemName: item.menuItemName,
+        menuItemNameEn: item.menuItemNameEn,
         quantity: item.quantity,
-        unitPrice: item.price,
-        totalPrice: item.price * item.quantity,
+        unitPrice: item.unitPrice,
+        totalPrice: item.totalPrice,
+        customizations: item.customization,
       })),
-      totalAmount: state.totalPrice,
+      totalAmount: cartTaxCalculation.finalPrice,
       discountAmount: 0,
+      taxInfo: settings?.enableTaxHandling ? {
+        subtotal: cartTaxCalculation.breakdown.subtotal,
+        taxRate: cartTaxCalculation.breakdown.taxRate,
+        taxAmount: cartTaxCalculation.breakdown.taxAmount,
+        includeTaxInPrice: settings.includeTaxInPrice
+      } : undefined,
       customerInfo: {
         name: '',
         phone: '',
@@ -167,10 +176,24 @@ export function CartModal() {
                 />
               </div>
 
-              <div className="flex justify-between items-center mb-4">
+              {/* Tax Breakdown */}
+              {showTaxBreakdown && (
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-white/70">المجموع الفرعي:</span>
+                    <span className="text-white">{formatPrice(cartTaxCalculation.breakdown.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-white/70">الضريبة ({cartTaxCalculation.breakdown.taxRate}%):</span>
+                    <span className="text-white">{formatPrice(cartTaxCalculation.breakdown.taxAmount)}</span>
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-between items-center mb-4 border-t border-white/20 pt-3">
                 <span className="text-white font-semibold">المجموع الكلي:</span>
                 <span className="text-coffee-gold font-bold text-xl">
-                  {formatPrice(state.totalPrice)}
+                  {formatPrice(cartTaxCalculation.finalPrice)}
                 </span>
               </div>
             </div>
@@ -237,11 +260,54 @@ function CartItem({ item }: { item: any }) {
         {/* Item Details */}
         <div className="flex-1 min-w-0">
           <h3 className="text-white font-semibold text-sm mb-1 truncate">
-            {item.name}
+            {item.menuItemName || item.name}
           </h3>
-          <p className="text-coffee-gold font-bold">
-            {formatPrice(item.price * item.quantity)}
-          </p>
+          {item.menuItemNameEn && (
+            <p className="text-white/60 text-xs mb-1">{item.menuItemNameEn}</p>
+          )}
+          
+          {/* Customizations */}
+          {item.customization && (
+            <div className="mt-1 space-y-1">
+              {/* Size */}
+              {item.customization.sizeId && (
+                <div className="text-xs text-white/70">
+                  الحجم: {item.customization.sizeId}
+                </div>
+              )}
+              
+              {/* Addons */}
+              {item.customization.addons && item.customization.addons.length > 0 && (
+                <div className="text-xs text-white/70">
+                  الإضافات: {item.customization.addons.map((addon: any) => `${addon.name} (${addon.quantity})`).join(', ')}
+                </div>
+              )}
+              
+              {/* Dietary Modifications */}
+              {item.customization.dietaryModifications && item.customization.dietaryModifications.length > 0 && (
+                <div className="text-xs text-white/70">
+                  تعديلات: {item.customization.dietaryModifications.join(', ')}
+                </div>
+              )}
+              
+              {/* Special Instructions */}
+              {item.customization.specialInstructions && (
+                <div className="text-xs text-white/70">
+                  ملاحظات: {item.customization.specialInstructions}
+                </div>
+              )}
+            </div>
+          )}
+          
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-coffee-gold font-bold text-sm">
+              {formatPrice(item.unitPrice || item.price)}
+            </span>
+            <span className="text-white/60 text-xs">× {item.quantity}</span>
+            <span className="text-coffee-gold font-bold text-sm ml-auto">
+              = {formatPrice(item.totalPrice || (item.price * item.quantity))}
+            </span>
+          </div>
         </div>
 
         {/* Quantity Controls */}
@@ -249,7 +315,7 @@ function CartItem({ item }: { item: any }) {
           <button
             onClick={() => dispatch({
               type: 'UPDATE_QUANTITY',
-              payload: { id: item.id, quantity: item.quantity - 1 }
+              payload: { menuItemId: item.menuItemId || item.id, quantity: item.quantity - 1 }
             })}
             className="p-1 hover:bg-white/20 rounded-lg transition-colors"
           >
@@ -263,7 +329,7 @@ function CartItem({ item }: { item: any }) {
           <button
             onClick={() => dispatch({
               type: 'UPDATE_QUANTITY',
-              payload: { id: item.id, quantity: item.quantity + 1 }
+              payload: { menuItemId: item.menuItemId || item.id, quantity: item.quantity + 1 }
             })}
             className="p-1 hover:bg-white/20 rounded-lg transition-colors"
           >
@@ -273,7 +339,7 @@ function CartItem({ item }: { item: any }) {
 
         {/* Remove Button */}
         <button
-          onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.id })}
+          onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.menuItemId || item.id })}
           className="p-1 hover:bg-red-500/20 rounded-lg transition-colors"
         >
           <Trash2 size={16} className="text-red-400" />

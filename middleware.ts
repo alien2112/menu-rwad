@@ -10,28 +10,16 @@ export function middleware(request: NextRequest) {
     url.pathname = '/menu';
     const rewrite = NextResponse.rewrite(url);
 
-    // Security headers
-    rewrite.headers.set('X-DNS-Prefetch-Control', 'on');
-    rewrite.headers.set('X-Frame-Options', 'SAMEORIGIN');
-    rewrite.headers.set('X-Content-Type-Options', 'nosniff');
-    rewrite.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-
-    // Performance headers
-    rewrite.headers.set('X-XSS-Protection', '1; mode=block');
+    // Apply security headers
+    applySecurityHeaders(rewrite);
 
     return rewrite;
   }
 
   const response = NextResponse.next();
 
-  // Security headers
-  response.headers.set('X-DNS-Prefetch-Control', 'on');
-  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-
-  // Performance headers
-  response.headers.set('X-XSS-Protection', '1; mode=block');
+  // Apply security headers
+  applySecurityHeaders(response);
 
   // Disable caching for admin routes
   if (request.nextUrl.pathname.startsWith('/admin')) {
@@ -41,6 +29,40 @@ export function middleware(request: NextRequest) {
   }
 
   return response;
+}
+
+function applySecurityHeaders(response: NextResponse) {
+  // Content Security Policy
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline'", // unsafe-inline needed for Next.js
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com", // allow Google Fonts styles
+    "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com", // explicit for style elements
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data: https://fonts.gstatic.com", // allow Google Fonts font files
+    "connect-src 'self' https:",
+    "media-src 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests"
+  ].join('; ');
+
+  response.headers.set('Content-Security-Policy', cspDirectives);
+
+  // Security headers
+  response.headers.set('X-DNS-Prefetch-Control', 'on');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // Permissions Policy (formerly Feature Policy)
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  // Strict Transport Security (HSTS) - enforce HTTPS
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
 }
 
 export const config = {

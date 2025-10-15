@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
+import { useTaxSettings } from "@/hooks/useTaxSettings";
 import React, { useState } from "react";
 import { ShoppingCart, Star, Clock, Flame } from "lucide-react";
 import { MenuItemReviewModal } from "./MenuItemReviewModal";
@@ -46,6 +47,7 @@ export const MenuItemCard = ({
   servingSize,
 }: MenuItemCardProps) => {
   const { dispatch } = useCart();
+  const { formatPriceWithTax, calculateTax } = useTaxSettings();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [imageError, setImageError] = useState(false);
 
@@ -104,6 +106,10 @@ export const MenuItemCard = ({
   const discountPercentage = hasDiscount
     ? Math.round(((oldPrice - price) / oldPrice) * 100)
     : 0;
+  
+  // Calculate tax-adjusted price for display
+  const taxCalculation = calculateTax(actualPrice);
+  const displayPrice = formatPriceWithTax(actualPrice);
 
   return (
     <article className="group bg-card text-card-foreground rounded-3xl p-5 transition-all duration-300 restaurant-menu-item">
@@ -213,8 +219,7 @@ export const MenuItemCard = ({
           {/* Price Section */}
           <div className="flex items-center gap-2">
             <div className="bg-gradient-to-r from-[#C2914A] to-[#B8853F] text-white px-4 py-2 rounded-full shadow-lg">
-              <span className="font-bold text-base">{actualPrice}</span>
-              <span className="text-sm mr-1">ريال</span>
+              <span className="font-bold text-base">{displayPrice}</span>
             </div>
 
             {hasDiscount && (

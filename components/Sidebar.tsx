@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,6 +16,17 @@ const menuItems = [
 ] as const;
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const [logoUrl, setLogoUrl] = useState<string>("/موال مراكش طواجن  1 (1).png");
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const res = await fetch('/api/site-settings', { cache: 'no-store' });
+        const json = await res.json();
+        if (json.success && json.data) setLogoUrl(json.data.logoUrl || logoUrl);
+      } catch {}
+    };
+    if (isOpen) loadSettings();
+  }, [isOpen]);
   return (
     <>
       {/* Backdrop */}
@@ -81,7 +93,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               {/* Bottom Logo */}
               <div className="pt-6 pb-2 flex items-end justify-center">
                 <img
-                  src="/موال مراكش طواجن  1 (1).png"
+                  src={logoUrl}
                   alt="موال مراكش طواجن"
                   className="w-32 h-24 object-contain"
                 />

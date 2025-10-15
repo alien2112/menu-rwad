@@ -1,9 +1,3 @@
-/** @import must precede all other statements */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Marcellus+SC:wght@400&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Seymour+One:wght@400&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,8 +118,45 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Cairo', 'Inter', system-ui, sans-serif;
+    font-family: var(--font-cairo), var(--font-inter), system-ui, sans-serif;
+    font-feature-settings: 'kern' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
+  /* High-contrast admin theme overrides */
+  .admin-theme {
+    color: rgba(255,255,255,0.95);
+  }
+  .admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 {
+    color: rgba(255,255,255,0.98);
+  }
+  .admin-theme a { color: #fff; }
+  .admin-theme .text-white\/70 { color: rgba(255,255,255,0.85) !important; }
+  .admin-theme .text-white\/80 { color: rgba(255,255,255,0.9) !important; }
+  .admin-theme .text-white\/60 { color: rgba(255,255,255,0.8) !important; }
+  .admin-theme .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.12) !important; }
+  .admin-theme .glass-effect { border-color: rgba(255,255,255,0.25); }
+  .admin-theme input, .admin-theme select, .admin-theme textarea {
+    color: #fff;
+    background-color: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.25);
+  }
+  .admin-theme input::placeholder, .admin-theme textarea::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
+  .admin-theme .btn, .admin-theme button {
+    color: #fff;
+  }
+  .admin-theme .glass-sidebar { border-color: rgba(255,255,255,0.2); }
+  /* Ensure text on white cards stays dark for readability */
+  .admin-theme .bg-white,
+  .admin-theme .bg-white * {
+    color: #0f172a; /* slate-900 */
+  }
+  /* Prevent white text utility from making text invisible on white surfaces */
+  .admin-theme .bg-white .text-white { color: #0f172a !important; }
 
   /* Glass Morphism Components */
   .glass-effect {
@@ -174,19 +205,19 @@
 
   /* Arabic text styles */
   .arabic-title {
-    font-family: 'Marcellus SC', serif;
+    font-family: var(--font-marcellus-sc), serif;
     font-weight: 400;
     text-transform: uppercase;
   }
 
   .arabic-body {
-    font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-inter), -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     font-weight: 700;
   }
 
   /* Section titles with Seymour One */
   .section-title {
-    font-family: 'Seymour One', serif;
+    font-family: var(--font-seymour-one), serif;
     font-weight: 400;
   }
 
@@ -328,6 +359,69 @@
   /* Ensure select elements have proper contrast */
   select {
     color-scheme: dark;
+  }
+}
+
+/* Themed, minimal, luxurious scrollbar */
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --scroll-thumb-start: hsl(var(--accent)); /* can be overridden by theme.scroll-thumb-start */
+  --scroll-thumb-end: hsl(var(--secondary)); /* can be overridden by theme.scroll-thumb-end */
+  --scroll-track: hsl(var(--background) / 0.25); /* can be overridden by theme.scroll-track */
+  --scroll-thumb-idle-opacity: 0.15;
+  --scroll-thumb-active-opacity: 0.9;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--scroll-thumb-start) 70%, var(--scroll-thumb-end) 30%) transparent;
+}
+
+/* WebKit */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html:not([data-scrolling="true"]) *::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--scroll-thumb-start) 100%, transparent 0%) 0%, color-mix(in oklab, var(--scroll-thumb-end) 100%, transparent 0%) 100%);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 0 0 rgba(0,0,0,0);
+  opacity: var(--scroll-thumb-idle-opacity);
+  transition: opacity 180ms ease, box-shadow 200ms ease, border-width 180ms ease;
+}
+
+html[data-scrolling="true"] *::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--scroll-thumb-start) 0%, var(--scroll-thumb-end) 100%);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  box-shadow: 0 0 12px hsl(var(--accent) / 0.35), 0 0 2px hsl(var(--accent) / 0.7) inset;
+  opacity: var(--scroll-thumb-active-opacity);
+}
+
+*::-webkit-scrollbar-track:hover {
+  background: var(--scroll-track);
+}
+
+@media (pointer: coarse) {
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  html:not([data-scrolling="true"]) *::-webkit-scrollbar-thumb {
+    border-width: 4px;
   }
 }
 
