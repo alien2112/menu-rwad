@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { RoleBasedAuth } from "@/components/RoleBasedAuth";
-import ComprehensiveAnalyticsDashboard from "@/components/ComprehensiveAnalyticsDashboard";
-import WasteLoggingPanel from "@/components/WasteLoggingPanel";
+import { RoleBasedAuth } from "../../../components/RoleBasedAuth";
+import ComprehensiveAnalyticsDashboard from "../../../components/ComprehensiveAnalyticsDashboard";
+import WasteLoggingPanel from "../../../components/WasteLoggingPanel";
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'waste'>('analytics');

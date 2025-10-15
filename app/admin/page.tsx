@@ -1,6 +1,6 @@
 "use client";
 
-import EnhancedAdminDashboard from "@/components/EnhancedAdminDashboard";
+import EnhancedAdminDashboard from "../../components/EnhancedAdminDashboard";
 
 export default function AdminPage() {
   return <EnhancedAdminDashboard />;

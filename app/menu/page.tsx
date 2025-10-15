@@ -3,15 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingCart, List, Grid3X3 } from "lucide-react";
-import { CartIcon, CartModal } from "@/components/CartComponents";
-import { RestaurantMenuHeader } from "@/components/RestaurantMenuHeader";
-import { CategoriesSection } from "@/components/CategoriesSection";
-import { MenuItemsList } from "@/components/MenuItemsList";
-import { MenuPageSkeleton } from "@/components/SkeletonLoader";
-import { AdvancedSearchFilter } from "@/components/AdvancedSearchFilter";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import { useCart } from "@/contexts/CartContext";
-import { useCachedFetch } from "@/hooks/useCachedFetch";
+import { CartIcon, CartModal } from "../../components/CartComponents";
+import { RestaurantMenuHeader } from "../../components/RestaurantMenuHeader";
+import { CategoriesSection } from "../../components/CategoriesSection";
+import { MenuItemsList } from "../../components/MenuItemsList";
+import { MenuPageSkeleton } from "../../components/SkeletonLoader";
+import { AdvancedSearchFilter } from "../../components/AdvancedSearchFilter";
+import ErrorBoundary from "../../components/ErrorBoundary";
+import { useCart } from "../../contexts/CartContext";
+import { useCachedFetch } from "../../hooks/useCachedFetch";
 import { motion } from "framer-motion";
 
 // Force dynamic rendering
