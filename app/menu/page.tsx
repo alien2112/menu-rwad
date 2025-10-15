@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,8 +15,6 @@ import { useCart } from "../../contexts/CartContext";
 import { useCachedFetch } from "../../hooks/useCachedFetch";
 import { motion } from "framer-motion";
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
 
 interface PageBackground {
   _id: string;
