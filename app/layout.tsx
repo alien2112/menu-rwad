@@ -4,7 +4,7 @@ import "@/lib/polyfills";
 import { CartProvider } from "@/contexts/CartContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import ThemeRoot from "@/components/ThemeRoot";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import dbConnect from "@/lib/mongodb";
 import SiteSettings from "@/lib/models/SiteSettings";
 import { cairo, inter } from "./fonts";
@@ -150,14 +150,14 @@ export default async function RootLayout({
             })();`
           }}
         />
-        <ThemeRoot initialTheme={initialTheme}>
+        <ThemeProvider initialTheme={initialTheme}>
           <LanguageProvider>
             <CartProvider>
               {children}
               <LanguageSwitcher />
             </CartProvider>
           </LanguageProvider>
-        </ThemeRoot>
+        </ThemeProvider>
       </body>
     </html>
   );

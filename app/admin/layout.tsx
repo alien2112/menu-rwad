@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { RoleBasedAuth } from '@/components/RoleBasedAuth';
 import {
   LayoutDashboard,
   FolderOpen,
@@ -131,6 +132,7 @@ export default function AdminLayout({
     : allNavigation;
 
   return (
+    <RoleBasedAuth embedded>
     <div className="admin-theme min-h-screen bg-gradient-to-br from-[#4F3500] via-[#3E2901] to-[#2A1B00]">
       {/* Mobile menu button */}
       <button
@@ -225,5 +227,6 @@ export default function AdminLayout({
         />
       )}
     </div>
+    </RoleBasedAuth>
   );
 }
