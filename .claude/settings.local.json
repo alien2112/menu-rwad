@@ -6,7 +6,9 @@
       "Bash(netstat -ano)",
       "Bash(findstr :3000)",
       "Bash(tasklist)",
-      "Bash(findstr /I \"18656\")"
+      "Bash(findstr /I \"18656\")",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

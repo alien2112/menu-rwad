@@ -23,6 +23,7 @@ import {
   Calculator,
   Printer,
   Users,
+  Building2,
 } from 'lucide-react';
 
 interface User {
@@ -35,6 +36,7 @@ interface User {
 const allNavigation = [
   { name: 'لوحة التحكم', href: '/admin', icon: LayoutDashboard, roles: ['admin', 'kitchen', 'barista', 'shisha'] },
   { name: 'الطلبات', href: '/admin/orders', icon: Package, roles: ['admin'] },
+  { name: 'إدارة الفروع', href: '/admin/branches', icon: Building2, roles: ['admin'] },
   { name: 'المطبخ', href: '/admin/kitchen', icon: ChefHat, roles: ['admin', 'kitchen'] },
   { name: 'البارستا', href: '/admin/barista', icon: Coffee, roles: ['admin', 'barista'] },
   { name: 'الشيشة', href: '/admin/shisha', icon: Wind, roles: ['admin', 'shisha'] },
@@ -49,6 +51,7 @@ const allNavigation = [
   { name: 'الضرائب والامتثال', href: '/admin/tax-compliance', icon: Calculator, roles: ['admin'] },
   { name: 'إدارة الطابعات', href: '/admin/printers', icon: Printer, roles: ['admin'] },
   { name: 'وسائط الصفحة', href: '/admin/page-hero', icon: Monitor, roles: ['admin'] },
+  { name: 'قالب القائمة', href: '/admin/menu-template', icon: Monitor, roles: ['admin'] },
 ];
 
 export default function AdminLayout({

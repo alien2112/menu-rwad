@@ -22,6 +22,9 @@ export interface ICustomerInfo {
 export interface IOrder {
   _id?: string;
   orderNumber: string;
+  branchId?: string; // Branch where order was placed
+  restaurantId?: string; // For multi-tenant support
+  tableNumber?: string; // If order is for dine-in
   items: IOrderItem[];
   totalAmount: number;
   discountAmount?: number;
@@ -123,6 +126,18 @@ const OrderSchema = new Schema<IOrder>(
       unique: true,
       trim: true,
     },
+    branchId: {
+      type: String,
+      index: true,
+    },
+    restaurantId: {
+      type: String,
+      index: true,
+    },
+    tableNumber: {
+      type: String,
+      trim: true,
+    },
     items: [OrderItemSchema],
     totalAmount: {
       type: Number,
@@ -222,6 +237,9 @@ const OrderSchema = new Schema<IOrder>(
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ orderDate: -1 });
 OrderSchema.index({ 'customerInfo.phone': 1 });
+OrderSchema.index({ branchId: 1, orderDate: -1 }); // Branch-specific order queries
+OrderSchema.index({ restaurantId: 1, branchId: 1 }); // Multi-tenant queries
+OrderSchema.index({ branchId: 1, status: 1 }); // Branch order status filtering
 
 const Order: Model<IOrder> =
   mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

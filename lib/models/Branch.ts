@@ -17,9 +17,14 @@ export interface BranchDocument extends Document {
   name: string;
   nameEn?: string;
   slug: string;
+  restaurantId?: string; // For multi-tenant support
+  managerId?: string; // Assigned branch manager
   address: string;
   phone: string;
   email?: string;
+  city?: string;
+  country?: string;
+  timezone?: string;
   location?: BranchLocation;
   openingHours: OpeningHours[];
   themeId?: string;
@@ -70,10 +75,33 @@ const BranchSchema = new Schema<BranchDocument>({
     trim: true,
     lowercase: true,
   },
+  restaurantId: {
+    type: String,
+    trim: true,
+    index: true,
+  },
+  managerId: {
+    type: String,
+    trim: true,
+    index: true,
+  },
   address: {
     type: String,
     required: true,
     trim: true,
+  },
+  city: {
+    type: String,
+    trim: true,
+  },
+  country: {
+    type: String,
+    trim: true,
+  },
+  timezone: {
+    type: String,
+    trim: true,
+    default: 'Asia/Riyadh',
   },
   phone: {
     type: String,

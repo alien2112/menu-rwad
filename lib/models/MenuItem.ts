@@ -31,6 +31,8 @@ export interface IMenuItem {
   description?: string;
   descriptionEn?: string;
   categoryId: string;
+  branchId?: string; // Branch-specific menu items (optional for global items)
+  restaurantId?: string; // For multi-tenant support
   price: number;
   discountPrice?: number;
   image?: string;
@@ -79,6 +81,14 @@ const MenuItemSchema = new Schema<IMenuItem>(
       type: String,
       required: [true, 'Please provide a category'],
       index: true, // Index for fast category filtering
+    },
+    branchId: {
+      type: String,
+      index: true, // Index for branch filtering
+    },
+    restaurantId: {
+      type: String,
+      index: true,
     },
     price: {
       type: Number,
@@ -231,6 +241,8 @@ const MenuItemSchema = new Schema<IMenuItem>(
 MenuItemSchema.index({ categoryId: 1, status: 1, order: 1 }); // Most common query pattern
 MenuItemSchema.index({ status: 1, featured: 1, order: 1 }); // Featured items query
 MenuItemSchema.index({ discountPrice: 1, price: 1 }); // Offers query
+MenuItemSchema.index({ branchId: 1, categoryId: 1, status: 1 }); // Branch-specific menu queries
+MenuItemSchema.index({ restaurantId: 1, branchId: 1 }); // Multi-tenant queries
 
 const MenuItem: Model<IMenuItem> =
   mongoose.models.MenuItem || mongoose.model<IMenuItem>('MenuItem', MenuItemSchema);

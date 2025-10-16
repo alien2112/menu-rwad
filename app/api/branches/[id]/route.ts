@@ -61,6 +61,9 @@ export async function PUT(
       name,
       nameEn,
       address,
+      city,
+      country,
+      timezone,
       phone,
       email,
       location,
@@ -71,7 +74,9 @@ export async function PUT(
       isMainBranch,
       isActive,
       order,
-      status
+      status,
+      restaurantId,
+      managerId
     } = body;
 
     // If this is being set as main branch, unset others
@@ -89,6 +94,9 @@ export async function PUT(
     if (name !== undefined) updateData.name = name;
     if (nameEn !== undefined) updateData.nameEn = nameEn;
     if (address !== undefined) updateData.address = address;
+    if (city !== undefined) updateData.city = city;
+    if (country !== undefined) updateData.country = country;
+    if (timezone !== undefined) updateData.timezone = timezone;
     if (phone !== undefined) updateData.phone = phone;
     if (email !== undefined) updateData.email = email;
     if (location !== undefined) updateData.location = location;
@@ -100,6 +108,8 @@ export async function PUT(
     if (isActive !== undefined) updateData.isActive = isActive;
     if (order !== undefined) updateData.order = order;
     if (status !== undefined) updateData.status = status;
+    if (restaurantId !== undefined) updateData.restaurantId = restaurantId;
+    if (managerId !== undefined) updateData.managerId = managerId;
 
     // Update slug if name changed
     if (name) {

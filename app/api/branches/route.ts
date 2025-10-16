@@ -49,6 +49,9 @@ export async function POST(req: NextRequest) {
       name,
       nameEn,
       address,
+      city,
+      country,
+      timezone,
       phone,
       email,
       location,
@@ -59,7 +62,9 @@ export async function POST(req: NextRequest) {
       isMainBranch,
       isActive,
       order,
-      status
+      status,
+      restaurantId,
+      managerId
     } = body;
 
     // Validation
@@ -103,6 +108,9 @@ export async function POST(req: NextRequest) {
       nameEn,
       slug,
       address,
+      city,
+      country,
+      timezone: timezone || 'Asia/Riyadh',
       phone,
       email,
       location,
@@ -114,6 +122,8 @@ export async function POST(req: NextRequest) {
       isActive: isActive !== undefined ? isActive : true,
       order: order || 0,
       status: status || 'active',
+      restaurantId,
+      managerId,
     });
 
     return NextResponse.json({
