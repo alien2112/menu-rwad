@@ -1,0 +1,259 @@
+"use client";
+
+import { useState, useEffect, lazy, Suspense } from "react";
+import { motion } from "framer-motion";
+import { OptimizedImage } from "./OptimizedImage";
+import { TemplateId } from "@/lib/types/MenuTemplate";
+
+// Dynamically import template layouts
+const ClassicLayout = lazy(() => import("./templates/ClassicLayout").then(m => ({ default: m.ClassicLayout })));
+const ModernLayout = lazy(() => import("./templates/ModernLayout").then(m => ({ default: m.ModernLayout })));
+const MinimalLayout = lazy(() => import("./templates/MinimalLayout").then(m => ({ default: m.MinimalLayout })));
+const ElegantLayout = lazy(() => import("./templates/ElegantLayout").then(m => ({ default: m.ElegantLayout })));
+
+interface MenuItem {
+  _id: string;
+  name: string;
+  nameEn?: string;
+  description?: string;
+  price: number;
+  discountPrice?: number;
+  image?: string;
+  calories?: number;
+  preparationTime?: number;
+  categoryId: string;
+  averageRating?: number;
+  reviewCount?: number;
+}
+
+interface DynamicMenuItemsListProps {
+  items: MenuItem[];
+  onAddToCart: (itemId: string) => void;
+  categories?: Array<{
+    _id: string;
+    name: string;
+    nameEn?: string;
+    color: string;
+  }>;
+  showGrouped?: boolean;
+  selectedCategory?: string | null;
+  viewMode?: 'list' | 'grid';
+}
+
+// Loading skeleton for template items
+const TemplateItemSkeleton = () => (
+  <div className="bg-card/50 rounded-xl p-4 animate-pulse">
+    <div className="h-32 bg-white/10 rounded-lg mb-3"></div>
+    <div className="h-4 bg-white/10 rounded w-3/4 mb-2"></div>
+    <div className="h-3 bg-white/10 rounded w-1/2"></div>
+  </div>
+);
+
+export const DynamicMenuItemsList = ({
+  items,
+  onAddToCart,
+  categories = [],
+  showGrouped = false,
+  selectedCategory,
+  viewMode = 'list'
+}: DynamicMenuItemsListProps) => {
+  const [layoutTemplate, setLayoutTemplate] = useState<TemplateId>('classic');
+  const [loading, setLoading] = useState(true);
+
+  // Fetch the current template from the API
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      try {
+        const response = await fetch('/api/menu-template');
+        const data = await response.json();
+
+        if (data.success && data.currentTemplate) {
+          setLayoutTemplate(data.currentTemplate);
+        }
+      } catch (error) {
+        console.error('Error fetching template:', error);
+        // Fallback to classic if fetch fails
+        setLayoutTemplate('classic');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplate();
+  }, []);
+
+  // Get the appropriate template component
+  const getTemplateComponent = (templateId: TemplateId) => {
+    switch (templateId) {
+      case 'modern':
+        return ModernLayout;
+      case 'minimal':
+        return MinimalLayout;
+      case 'elegant':
+        return ElegantLayout;
+      case 'classic':
+      default:
+        return ClassicLayout;
+    }
+  };
+
+  const TemplateComponent = getTemplateComponent(layoutTemplate);
+
+  // Special handling for offers category
+  if (selectedCategory === 'offers') {
+    const offersItems = items.filter(item => item.discountPrice && item.discountPrice < item.price);
+
+    if (offersItems.length === 0) {
+      return (
+        <div className="px-4 text-center py-8">
+          <p className="text-white/60 text-lg">لا توجد عروض متاحة حالياً</p>
+          <p className="text-white/40 text-sm mt-2">تحقق مرة أخرى لاحقاً</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="px-4 pb-24">
+        {/* Offers Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 border border-white/30">
+            <OptimizedImage
+              src="/special offer.png"
+              alt="العروض الخاصة"
+              width="100%"
+              height="100%"
+              objectFit="cover"
+              placeholderColor="rgba(255,255,255,0.1)"
+            />
+          </div>
+          <h2 className="text-white text-xl font-bold">العروض الخاصة</h2>
+          <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
+          <span className="text-white/60 text-sm">{offersItems.length} عرض</span>
+        </div>
+
+        {/* Offers Items */}
+        <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-4'}>
+          {loading ? (
+            // Show skeleton while loading template
+            Array.from({ length: 4 }).map((_, i) => (
+              <TemplateItemSkeleton key={i} />
+            ))
+          ) : (
+            offersItems.map((item) => (
+              <Suspense key={item._id} fallback={<TemplateItemSkeleton />}>
+                <TemplateComponent item={item} onAddToCart={onAddToCart} />
+              </Suspense>
+            ))
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="px-4 text-center py-8">
+        <p className="text-white/60 text-lg">لا توجد عناصر في هذه الفئة</p>
+        <p className="text-white/40 text-sm mt-2">جرب اختيار فئة أخرى</p>
+      </div>
+    );
+  }
+
+  // If not showing grouped or no categories provided, show simple list/grid
+  if (!showGrouped || categories.length === 0) {
+    return (
+      <motion.div
+        className={viewMode === 'grid' ? 'px-4 grid grid-cols-2 gap-4 pb-24' : 'px-4 space-y-4 pb-24'}
+        initial="hidden"
+        animate="show"
+        variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
+      >
+        {loading ? (
+          // Show skeleton while loading template
+          Array.from({ length: 6 }).map((_, i) => (
+            <TemplateItemSkeleton key={i} />
+          ))
+        ) : (
+          items.map((item) => (
+            <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+              <Suspense fallback={<TemplateItemSkeleton />}>
+                <TemplateComponent item={item} onAddToCart={onAddToCart} />
+              </Suspense>
+            </motion.div>
+          ))
+        )}
+      </motion.div>
+    );
+  }
+
+  // Group items by category
+  const groupedItems = items.reduce((acc, item) => {
+    const category = categories.find(cat => cat._id === item.categoryId);
+    if (category) {
+      if (!acc[category._id]) {
+        acc[category._id] = {
+          category,
+          items: []
+        };
+      }
+      acc[category._id].items.push(item);
+    }
+    return acc;
+  }, {} as Record<string, { category: any; items: MenuItem[] }>);
+
+  // Sort categories by their order
+  const sortedCategories = Object.values(groupedItems).sort((a, b) => {
+    const aOrder = categories.find(cat => cat._id === a.category._id)?.order || 0;
+    const bOrder = categories.find(cat => cat._id === b.category._id)?.order || 0;
+    return aOrder - bOrder;
+  });
+
+  return (
+    <motion.div className="px-4 pb-24" initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
+      {sortedCategories.map(({ category, items: categoryItems }) => (
+        <motion.div key={category._id} className="mb-8" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
+          {/* Category Header */}
+          <motion.div className="flex items-center gap-3 mb-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: "easeOut" }}>
+            <div
+              className="w-8 h-8 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: `${category.color}40` }}
+            >
+              <span className="text-white text-sm font-bold">
+                {category.name.charAt(0)}
+              </span>
+            </div>
+            <h2 className="text-foreground text-xl font-bold">{category.name}</h2>
+            {category.nameEn && (
+              <span className="text-foreground/60 text-sm">({category.nameEn})</span>
+            )}
+            <div className="flex-1 h-px bg-gradient-to-r from-white/20 to-transparent"></div>
+            <span className="text-white/60 text-sm">{categoryItems.length} عنصر</span>
+          </motion.div>
+
+          {/* Category Items */}
+          <motion.div
+            className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-4'}
+            initial="hidden"
+            animate="show"
+            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}
+          >
+            {loading ? (
+              // Show skeleton while loading template
+              Array.from({ length: Math.min(4, categoryItems.length) }).map((_, i) => (
+                <TemplateItemSkeleton key={i} />
+              ))
+            ) : (
+              categoryItems.map((item) => (
+                <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+                  <Suspense fallback={<TemplateItemSkeleton />}>
+                    <TemplateComponent item={item} onAddToCart={onAddToCart} />
+                  </Suspense>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};

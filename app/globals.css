@@ -127,29 +127,30 @@
 
   /* High-contrast admin theme overrides */
   .admin-theme {
-    color: rgba(255,255,255,0.95);
+    color: rgba(255,255,255,1);
+    transition: all 0.2s ease-in-out;
   }
   .admin-theme h1, .admin-theme h2, .admin-theme h3, .admin-theme h4, .admin-theme h5, .admin-theme h6 {
-    color: rgba(255,255,255,0.98);
+    color: rgba(255,255,255,1);
   }
   .admin-theme a { color: #fff; }
-  .admin-theme .text-white\/70 { color: rgba(255,255,255,0.85) !important; }
-  .admin-theme .text-white\/80 { color: rgba(255,255,255,0.9) !important; }
-  .admin-theme .text-white\/60 { color: rgba(255,255,255,0.8) !important; }
-  .admin-theme .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.12) !important; }
-  .admin-theme .glass-effect { border-color: rgba(255,255,255,0.25); }
+  .admin-theme .text-white\/70 { color: rgba(255,255,255,0.9) !important; }
+  .admin-theme .text-white\/80 { color: rgba(255,255,255,0.95) !important; }
+  .admin-theme .text-white\/60 { color: rgba(255,255,255,0.85) !important; }
+  .admin-theme .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.15) !important; }
+  .admin-theme .glass-effect { border-color: rgba(255,255,255,0.3); }
   .admin-theme input, .admin-theme select, .admin-theme textarea {
     color: #fff;
-    background-color: rgba(255,255,255,0.08);
-    border-color: rgba(255,255,255,0.25);
+    background-color: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.3);
   }
   .admin-theme input::placeholder, .admin-theme textarea::placeholder {
-    color: rgba(255,255,255,0.7);
+    color: rgba(255,255,255,0.75);
   }
   .admin-theme .btn, .admin-theme button {
     color: #fff;
   }
-  .admin-theme .glass-sidebar { border-color: rgba(255,255,255,0.2); }
+  .admin-theme .glass-sidebar { border-color: rgba(255,255,255,0.25); }
   /* Ensure text on white cards stays dark for readability */
   .admin-theme .bg-white,
   .admin-theme .bg-white * {

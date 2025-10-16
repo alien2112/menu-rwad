@@ -4,8 +4,10 @@ import { useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ReviewModal } from "@/components/ReviewModal";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -37,7 +39,7 @@ export default function Contact() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
           >
-            تواصل معنا
+            {t('contact.title')}
           </motion.h1>
 
           <motion.div
@@ -53,9 +55,9 @@ export default function Contact() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
             >
-              <h3 className="text-white text-lg font-bold mb-4">أوقات العمل</h3>
-              <p className="text-white text-sm mb-2">مفتوح 24 ساعة</p>
-              <p className="text-white text-sm">جميع ايام الاسبوع</p>
+              <h3 className="text-white text-lg font-bold mb-4">{t('contact.workingHours')}</h3>
+              <p className="text-white text-sm mb-2">{t('contact.workingHours.open')}</p>
+              <p className="text-white text-sm">{t('contact.workingHours.days')}</p>
             </motion.div>
 
             <motion.div
@@ -64,8 +66,8 @@ export default function Contact() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4, ease: 'easeOut', delay: 0.05 }}
             >
-              <h3 className="text-white text-lg font-bold mb-4">الموقع</h3>
-              <p className="text-white text-sm">المدينة المنورة - حي النبلاء</p>
+              <h3 className="text-white text-lg font-bold mb-4">{t('contact.location')}</h3>
+              <p className="text-white text-sm">{t('contact.location.address')}</p>
             </motion.div>
 
             <motion.div
@@ -74,8 +76,8 @@ export default function Contact() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
             >
-              <h3 className="text-white text-lg font-bold mb-4">تواصل معنا</h3>
-              <p className="text-white text-sm">966567833138+</p>
+              <h3 className="text-white text-lg font-bold mb-4">{t('contact.contactUs')}</h3>
+              <p className="text-white text-sm">{t('contact.phone')}</p>
             </motion.div>
 
             <motion.div
@@ -145,9 +147,9 @@ export default function Contact() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.2 }}
               >
-                <h3 className="text-white text-lg font-bold mb-4">آراء الزبائن وإضافة مراجعة</h3>
+                <h3 className="text-white text-lg font-bold mb-4">{t('contact.reviews.title')}</h3>
                 <p className="text-white/80 text-sm text-center">
-                  اضغط هنا لعرض المراجعات السابقة وإضافة مراجعتك الخاصة
+                  {t('contact.reviews.description')}
                 </p>
               </motion.div>
             </ReviewModal>

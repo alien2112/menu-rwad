@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useTaxSettings } from '@/hooks/useTaxSettings';
-import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
+import { ShoppingCart, X, Plus, Minus, Trash2, Tag, Loader2 } from 'lucide-react';
 import { OrderConfirmationModal } from './OrderConfirmationModal';
+import { AlertDialog } from '@/components/AlertDialog';
 import { generateWhatsAppMessage, getWhatsAppUrl } from '@/lib/whatsapp-utils';
+import { Skeleton } from '@/components/SkeletonLoader';
 
 export function CartIcon() {
   const { state, dispatch } = useCart();
@@ -26,12 +28,73 @@ export function CartIcon() {
 }
 
 export function CartModal() {
-  const { state, dispatch } = useCart();
+  const { state, dispatch, applyPromotion, removePromotion } = useCart();
   const { calculateTax, formatPrice, settings } = useTaxSettings();
   const [tableNumber, setTableNumber] = useState<string>('');
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
   const [pendingOrder, setPendingOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [applyingPromo, setApplyingPromo] = useState(false);
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
+
+  const handleApplyPromoCode = async () => {
+    if (!promoCode.trim()) {
+      showAlert('خطأ', 'يرجى إدخال كود الخصم');
+      return;
+    }
+
+    setApplyingPromo(true);
+
+    try {
+      const response = await fetch('/api/promotions/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: promoCode.trim(),
+          cartItems: state.items,
+          cartTotal: state.subtotal,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        applyPromotion({
+          promotionId: data.data.promotionId,
+          code: data.data.code,
+          name: data.data.name,
+          type: 'discount-code',
+          discountAmount: data.data.discountAmount,
+          discountType: data.data.discountType,
+          discountValue: data.data.discountValue,
+        });
+        showAlert('نجح', data.message || 'تم تطبيق الكود بنجاح');
+        setPromoCode('');
+      } else {
+        showAlert('خطأ', data.message || data.error || 'الكود غير صحيح');
+      }
+    } catch (error) {
+      console.error('Error applying promo code:', error);
+      showAlert('خطأ', 'حدث خطأ أثناء تطبيق الكود');
+    } finally {
+      setApplyingPromo(false);
+    }
+  };
+
+  const handleRemovePromoCode = () => {
+    removePromotion();
+    setPromoCode('');
+    showAlert('تم', 'تم إزالة كود الخصم');
+  };
 
   if (!state.isOpen) return null;
 
@@ -120,7 +183,7 @@ export function CartModal() {
     } catch (error) {
       console.error('Error saving order:', error);
       // Show error message (you can add a toast notification here)
-      alert('حدث خطأ في حفظ الطلب. حاول مرة أخرى.');
+      showAlert('خطأ', 'حدث خطأ في حفظ الطلب. حاول مرة أخرى.');
     } finally {
       setIsLoading(false);
     }
@@ -176,24 +239,87 @@ export function CartModal() {
                 />
               </div>
 
-              {/* Tax Breakdown */}
-              {showTaxBreakdown && (
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-white/70">المجموع الفرعي:</span>
-                    <span className="text-white">{formatPrice(cartTaxCalculation.breakdown.subtotal)}</span>
+              {/* Promo Code Section */}
+              <div className="space-y-2">
+                {!state.appliedPromotion ? (
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Tag className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                        onKeyPress={(e) => e.key === 'Enter' && handleApplyPromoCode()}
+                        placeholder="أدخل كود الخصم"
+                        className="w-full pr-10 pl-3 py-2 rounded-lg bg-white/10 text-white placeholder-white/40 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 uppercase"
+                        disabled={applyingPromo}
+                      />
+                    </div>
+                    <button
+                      onClick={handleApplyPromoCode}
+                      disabled={applyingPromo || !promoCode.trim()}
+                      className="px-4 py-2 bg-coffee-gold hover:bg-coffee-gold/90 disabled:bg-white/10 disabled:text-white/30 text-white rounded-lg font-medium transition-colors flex items-center gap-2 whitespace-nowrap"
+                    >
+                      {applyingPromo ? (
+                        <Skeleton className="h-5 w-20" />
+                      ) : (
+                        'تطبيق'
+                      )}
+                    </button>
                   </div>
+                ) : (
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/20 border border-green-500/30">
+                    <div className="flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-green-400" />
+                      <div>
+                        <p className="text-green-400 font-medium text-sm">
+                          {state.appliedPromotion.code}
+                        </p>
+                        <p className="text-green-400/70 text-xs">
+                          خصم {state.appliedPromotion.discountType === 'percent'
+                            ? `${state.appliedPromotion.discountValue}%`
+                            : `${state.appliedPromotion.discountValue} ر.س`}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemovePromoCode}
+                      className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Price Breakdown */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-white/70">المجموع الفرعي:</span>
+                  <span className="text-white">{formatPrice(state.subtotal)}</span>
+                </div>
+
+                {/* Show Discount */}
+                {state.appliedPromotion && state.appliedPromotion.discountAmount > 0 && (
+                  <div className="flex justify-between text-green-400">
+                    <span>الخصم:</span>
+                    <span>- {formatPrice(state.appliedPromotion.discountAmount)}</span>
+                  </div>
+                )}
+
+                {/* Tax Breakdown */}
+                {showTaxBreakdown && (
                   <div className="flex justify-between">
                     <span className="text-white/70">الضريبة ({cartTaxCalculation.breakdown.taxRate}%):</span>
                     <span className="text-white">{formatPrice(cartTaxCalculation.breakdown.taxAmount)}</span>
                   </div>
-                </div>
-              )}
-              
+                )}
+              </div>
+
               <div className="flex justify-between items-center mb-4 border-t border-white/20 pt-3">
                 <span className="text-white font-semibold">المجموع الكلي:</span>
                 <span className="text-coffee-gold font-bold text-xl">
-                  {formatPrice(cartTaxCalculation.finalPrice)}
+                  {formatPrice(state.finalTotal || cartTaxCalculation.finalPrice)}
                 </span>
               </div>
             </div>
@@ -227,6 +353,12 @@ export function CartModal() {
         onConfirm={confirmOrder}
         orderData={pendingOrder}
         isLoading={isLoading}
+      />
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
       />
     </div>
   );

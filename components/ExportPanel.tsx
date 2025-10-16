@@ -16,6 +16,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import { Skeleton } from '@/components/SkeletonLoader';
 
 interface ExportOptions {
   format: 'csv' | 'pdf' | 'excel' | 'json';
@@ -380,7 +381,7 @@ export default function ExportPanel({ dataType, onExport, onPreview, loading = f
                 className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
               >
                 {isExporting ? (
-                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <Skeleton className="h-5 w-20" />
                 ) : (
                   <Download className="w-4 h-4" />
                 )}

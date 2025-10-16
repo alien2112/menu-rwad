@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { X, Star, Send } from "lucide-react";
+import { AlertDialog } from "@/components/AlertDialog";
+import { Skeleton } from "@/components/SkeletonLoader";
 
 interface Review {
   _id: string;
@@ -31,6 +33,15 @@ export function MenuItemReviewModal({
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [isTextareaExpanded, setIsTextareaExpanded] = useState(true);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   // Form state
   const [formData, setFormData] = useState({
@@ -102,16 +113,16 @@ export function MenuItemReviewModal({
         });
 
         // Show success message
-        alert('تم إرسال المراجعة بنجاح! سيتم عرضها بعد الموافقة عليها.');
+        showAlert('نجاح', 'تم إرسال المراجعة بنجاح! سيتم عرضها بعد الموافقة عليها.');
 
         // Switch to view tab
         setActiveTab('view');
       } else {
-        alert('حدث خطأ أثناء إرسال المراجعة');
+        showAlert('خطأ', 'حدث خطأ أثناء إرسال المراجعة');
       }
     } catch (error) {
       console.error('Error submitting review:', error);
-      alert('حدث خطأ أثناء إرسال المراجعة');
+      showAlert('خطأ', 'حدث خطأ أثناء إرسال المراجعة');
     } finally {
       setSubmitting(false);
     }
@@ -190,8 +201,22 @@ export function MenuItemReviewModal({
           {activeTab === 'view' ? (
             <div className="space-y-4">
               {loading ? (
-                <div className="flex items-center justify-center h-32">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#c59a6c]"></div>
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="bg-muted/50 rounded-xl p-4 border border-border">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <Skeleton className="h-5 w-32 mb-2" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                        <div className="flex">
+                          <Skeleton className="h-5 w-24" />
+                        </div>
+                      </div>
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4 mt-2" />
+                    </div>
+                  ))}
                 </div>
               ) : reviews.length === 0 ? (
                 <div className="text-center py-12">
@@ -319,6 +344,12 @@ export function MenuItemReviewModal({
           )}
         </div>
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

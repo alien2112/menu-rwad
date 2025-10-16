@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AdminAuth } from '@/components/AdminAuth';
 import { Plus, Edit, Trash2, Upload, Eye, EyeOff } from 'lucide-react';
+import { AlertDialog } from '@/components/AlertDialog';
 import { IPageBackground } from '@/lib/models/PageBackground';
 
 const MENU_PAGE_OPTION = { route: '/menu', name: 'قائمة الطعام (المنيو)' };
@@ -20,6 +21,15 @@ export default function PageBackgroundsPage() {
     backgroundImageId: '',
     status: 'active' as 'active' | 'inactive',
   });
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   useEffect(() => {
     fetchBackgrounds();
@@ -137,13 +147,13 @@ export default function PageBackgroundsPage() {
 
       if (data.success) {
         setFormData(prev => ({ ...prev, backgroundImageId: data.data.id }));
-        alert('تم رفع الصورة بنجاح!');
+        showAlert('نجاح', 'تم رفع الصورة بنجاح!');
       } else {
-        alert('فشل في رفع الصورة: ' + data.error);
+        showAlert('خطأ', 'فشل في رفع الصورة: ' + data.error);
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert('حدث خطأ أثناء رفع الصورة');
+      showAlert('خطأ', 'حدث خطأ أثناء رفع الصورة');
     } finally {
       setUploading(false);
     }
@@ -375,6 +385,12 @@ export default function PageBackgroundsPage() {
           </div>
         )}
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </AdminAuth>
   );
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Eye, EyeOff } from "lucide-react";
+import { AlertDialog } from "@/components/AlertDialog";
+import { Skeleton } from "@/components/SkeletonLoader";
 
 interface AdminAuthProps {
   children: React.ReactNode;
@@ -13,7 +15,16 @@ export function AdminAuth({ children }: AdminAuthProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
   const router = useRouter();
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   // Admin password - in production, this should be stored securely
   const ADMIN_PASSWORD = "mwal2024admin";
@@ -34,7 +45,7 @@ export function AdminAuth({ children }: AdminAuthProps) {
       setIsAuthenticated(true);
       localStorage.setItem("admin_authenticated", "true");
     } else {
-      alert("كلمة المرور غير صحيحة");
+      showAlert("خطأ", "كلمة المرور غير صحيحة");
       setPassword("");
     }
   };
@@ -47,8 +58,18 @@ export function AdminAuth({ children }: AdminAuthProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-coffee-primary flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="glass-notification rounded-3xl p-8 w-full max-w-md">
+          <div className="text-center mb-8">
+            <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4" />
+            <Skeleton className="h-8 w-48 mx-auto mb-2" />
+            <Skeleton className="h-4 w-64 mx-auto" />
+          </div>
+          <div className="space-y-6">
+            <Skeleton className="h-12 w-full rounded-xl" />
+            <Skeleton className="h-12 w-full rounded-xl" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -122,6 +143,12 @@ export function AdminAuth({ children }: AdminAuthProps) {
       <div className="p-6">
         {children}
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

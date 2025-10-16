@@ -8,14 +8,24 @@ import { ICategory } from '@/lib/models/Category';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
 
+interface Modifier {
+  _id: string;
+  name: string;
+  nameEn?: string;
+  type: 'single' | 'multiple';
+  required: boolean;
+  status: 'active' | 'inactive';
+}
+
 export default function ItemsPage() {
   const [items, setItems] = useState<IMenuItem[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
+  const [modifiers, setModifiers] = useState<Modifier[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<IMenuItem | null>(null);
-  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'ingredients' | 'more' | 'settings'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'ingredients' | 'modifiers' | 'more' | 'settings'>('basic');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -47,21 +57,24 @@ export default function ItemsPage() {
 
   const fetchData = async () => {
     try {
-      const [itemsRes, categoriesRes, ingredientsRes] = await Promise.all([
+      const [itemsRes, categoriesRes, ingredientsRes, modifiersRes] = await Promise.all([
         fetch('/api/items?admin=true', { headers: { 'Cache-Control': 'no-store' } }),
         fetch('/api/categories'),
         fetch('/api/ingredients'),
+        fetch('/api/modifiers'),
       ]);
 
-      const [itemsData, categoriesData, ingredientsData] = await Promise.all([
+      const [itemsData, categoriesData, ingredientsData, modifiersData] = await Promise.all([
         itemsRes.json(),
         categoriesRes.json(),
         ingredientsRes.json(),
+        modifiersRes.json(),
       ]);
 
       if (itemsData.success) setItems(itemsData.data);
       if (categoriesData.success) setCategories(categoriesData.data);
       if (ingredientsData.success) setIngredients(ingredientsData.data);
+      if (modifiersData.success) setModifiers(modifiersData.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -417,6 +430,7 @@ export default function ItemsPage() {
                   { key: 'basic', label: 'الأساسي' },
                   { key: 'images', label: 'الصور' },
                   { key: 'ingredients', label: 'المكونات' },
+                  { key: 'modifiers', label: 'المعدلات' },
                   { key: 'more', label: 'معلومات إضافية' },
                   { key: 'settings', label: 'الإعدادات' },
                 ].map(tab => (
@@ -617,6 +631,109 @@ export default function ItemsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+              )}
+
+              {/* Modifiers */}
+              {activeTab === 'modifiers' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">المعدلات والإضافات</h3>
+                  <a
+                    href="/admin/modifiers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 glass-effect rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
+                  >
+                    <Plus size={16} />
+                    إدارة المعدلات
+                  </a>
+                </div>
+
+                <p className="text-white/70 text-sm">
+                  اختر المعدلات التي ترغب في إضافتها لهذا المنتج (مثل الحجم، الإضافات، الخيارات)
+                </p>
+
+                {modifiers.length === 0 ? (
+                  <div className="glass-effect rounded-xl p-8 text-center">
+                    <p className="text-white/50">لا توجد معدلات متاحة</p>
+                    <p className="text-white/30 text-sm mt-2">
+                      قم بإنشاء معدلات أولاً من صفحة إدارة المعدلات
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {modifiers.map((modifier) => {
+                      const isSelected = formData.modifiers?.includes(modifier._id) || false;
+
+                      return (
+                        <button
+                          key={modifier._id}
+                          type="button"
+                          onClick={() => {
+                            const current = formData.modifiers || [];
+                            const updated = isSelected
+                              ? current.filter(id => id !== modifier._id)
+                              : [...current, modifier._id];
+                            setFormData({ ...formData, modifiers: updated });
+                          }}
+                          className={`glass-effect rounded-xl p-4 text-right transition-all ${
+                            isSelected
+                              ? 'border-2 border-coffee-green bg-coffee-green/20'
+                              : 'border border-white/20 hover:border-white/40'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                              <h4 className="text-white font-semibold mb-1">
+                                {modifier.name}
+                                {modifier.required && (
+                                  <span className="text-red-400 mr-1">*</span>
+                                )}
+                              </h4>
+                              {modifier.nameEn && (
+                                <p className="text-white/50 text-xs mb-2">{modifier.nameEn}</p>
+                              )}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                  modifier.type === 'single'
+                                    ? 'bg-blue-500/20 text-blue-300'
+                                    : 'bg-purple-500/20 text-purple-300'
+                                }`}>
+                                  {modifier.type === 'single' ? 'اختيار واحد' : 'اختيار متعدد'}
+                                </span>
+                                {modifier.status === 'active' && (
+                                  <span className="text-xs px-2 py-1 rounded bg-green-500/20 text-green-300">
+                                    نشط
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
+                              isSelected
+                                ? 'border-coffee-green bg-coffee-green'
+                                : 'border-white/30'
+                            }`}>
+                              {isSelected && (
+                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {formData.modifiers && formData.modifiers.length > 0 && (
+                  <div className="glass-effect rounded-xl p-4">
+                    <p className="text-white/70 text-sm">
+                      تم اختيار {formData.modifiers.length} معدل/معدلات
+                    </p>
+                  </div>
+                )}
               </div>
               )}
 

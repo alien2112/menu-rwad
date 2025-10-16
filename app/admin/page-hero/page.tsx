@@ -2,6 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import { AlertDialog } from '@/components/AlertDialog';
 
 type Hero = {
   _id: string;
@@ -25,6 +26,15 @@ export default function PageHeroAdmin() {
   });
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   // Branding (Logo) controls
   const [logoUrl, setLogoUrl] = useState<string>("");
@@ -89,7 +99,7 @@ export default function PageHeroAdmin() {
       setForm({ pageRoute: '/menu', mediaType: 'image', status: 'active' });
       setFile(null);
     } catch (e: any) {
-      alert(e.message);
+      showAlert('Error', e.message);
     } finally {
       setUploading(false);
     }
@@ -139,7 +149,7 @@ export default function PageHeroAdmin() {
       if (!json.success) throw new Error(json.error || 'Failed to delete');
       await fetchHeroes();
     } catch (e: any) {
-      alert(e.message);
+      showAlert('Error', e.message);
     }
   };
 
@@ -312,6 +322,12 @@ export default function PageHeroAdmin() {
           </div>
         )}
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

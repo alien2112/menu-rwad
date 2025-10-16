@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { TrendingDown, Plus, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
 import { RoleBasedAuth } from "@/components/RoleBasedAuth";
+import { AlertDialog } from "@/components/AlertDialog";
 
 interface InventoryItem {
   _id: string;
@@ -47,6 +48,15 @@ export default function InventoryConsumptionPage() {
   const [notes, setNotes] = useState<string>('');
   const [filterReason, setFilterReason] = useState<string>('all');
   const [currentUser, setCurrentUser] = useState<string>('admin');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   useEffect(() => {
     fetchInventoryItems();
@@ -94,13 +104,13 @@ export default function InventoryConsumptionPage() {
     e.preventDefault();
     
     if (!selectedItem || !quantity || !reason) {
-      alert('يرجى ملء جميع الحقول المطلوبة');
+      showAlert('خطأ', 'يرجى ملء جميع الحقول المطلوبة');
       return;
     }
 
     const selectedInventoryItem = inventoryItems.find(item => item._id === selectedItem);
     if (!selectedInventoryItem) {
-      alert('لم يتم العثور على المكون المحدد');
+      showAlert('خطأ', 'لم يتم العثور على المكون المحدد');
       return;
     }
 
@@ -136,13 +146,13 @@ export default function InventoryConsumptionPage() {
         fetchInventoryItems();
         fetchConsumptionRecords();
         
-        alert('تم تسجيل الاستهلاك بنجاح');
+        showAlert('نجاح', 'تم تسجيل الاستهلاك بنجاح');
       } else {
-        alert(data.error || 'حدث خطأ أثناء تسجيل الاستهلاك');
+        showAlert('خطأ', data.error || 'حدث خطأ أثناء تسجيل الاستهلاك');
       }
     } catch (error) {
       console.error('Error adding consumption:', error);
-      alert('حدث خطأ أثناء تسجيل الاستهلاك');
+      showAlert('خطأ', 'حدث خطأ أثناء تسجيل الاستهلاك');
     }
   };
 
@@ -396,6 +406,12 @@ export default function InventoryConsumptionPage() {
           )}
         </div>
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </RoleBasedAuth>
   );
 }

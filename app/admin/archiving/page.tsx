@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Download, Trash2, Archive, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { AlertDialog } from "@/components/AlertDialog";
 
 interface ArchiveLog {
   _id: string;
@@ -32,6 +33,15 @@ export default function ArchivingDashboard() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [filterType, setFilterType] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   // Create archive form state
   const [createForm, setCreateForm] = useState({
@@ -89,11 +99,11 @@ export default function ArchivingDashboard() {
         setShowCreateForm(false);
         fetchArchives(); // Refresh the list
       } else {
-        alert('Failed to create archive: ' + data.error);
+        showAlert('Error', 'Failed to create archive: ' + data.error);
       }
     } catch (error) {
       console.error('Error creating archive:', error);
-      alert('Failed to create archive');
+      showAlert('Error', 'Failed to create archive');
     }
   };
 
@@ -123,14 +133,14 @@ export default function ArchivingDashboard() {
           document.body.removeChild(link);
         });
         
-        alert(`Cleanup completed with Excel exports!\nOrders: ${data.data.ordersDeleted}\nUsage: ${data.data.usageDeleted}\nNotifications: ${data.data.notificationsDeleted}\nExcel files downloaded: ${data.data.excelFiles.length}`);
+        showAlert('Success', `Cleanup completed with Excel exports!\nOrders: ${data.data.ordersDeleted}\nUsage: ${data.data.usageDeleted}\nNotifications: ${data.data.notificationsDeleted}\nExcel files downloaded: ${data.data.excelFiles.length}`);
         fetchArchives(); // Refresh the list
       } else {
-        alert('Cleanup failed: ' + data.error);
+        showAlert('Error', 'Cleanup failed: ' + data.error);
       }
     } catch (error) {
       console.error('Error triggering cleanup:', error);
-      alert('Failed to trigger cleanup');
+      showAlert('Error', 'Failed to trigger cleanup');
     }
   };
 
@@ -327,7 +337,7 @@ export default function ArchivingDashboard() {
                       variant="outline"
                       onClick={() => {
                         // For now, show a message that file was downloaded during creation
-                        alert('File was downloaded when archive was created. File: ' + archive.filePath);
+                        showAlert('Info', 'File was downloaded when archive was created. File: ' + archive.filePath);
                       }}
                     >
                       <Download className="w-4 h-4 mr-1" />
@@ -407,6 +417,12 @@ export default function ArchivingDashboard() {
           </Card>
         </div>
       )}
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

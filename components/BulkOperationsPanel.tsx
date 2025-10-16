@@ -23,6 +23,7 @@ import {
   Calendar,
   BarChart3
 } from 'lucide-react';
+import { Skeleton } from '@/components/SkeletonLoader';
 
 interface BulkOperation {
   id: string;
@@ -213,6 +214,43 @@ export default function BulkOperationsPanel({
     const deptOption = departmentOptions.find(opt => opt.value === department);
     return deptOption?.color || 'gray';
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-12 w-12 rounded-xl" />
+            <div>
+              <Skeleton className="h-8 w-48 mb-2" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-10 w-10 rounded-lg" />
+            <Skeleton className="h-10 w-10 rounded-lg" />
+          </div>
+        </div>
+        <div className="glass-effect rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-8 w-32 rounded-lg" />
+          </div>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                <Skeleton className="h-5 w-5 rounded" />
+                <div className="flex-1">
+                  <Skeleton className="h-5 w-1/2 mb-1" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

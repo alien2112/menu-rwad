@@ -1,19 +1,21 @@
 "use client";
 export const dynamic = 'force-dynamic';
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingCart, List, Grid3X3 } from "lucide-react";
 import { CartIcon, CartModal } from "../../components/CartComponents";
 import { RestaurantMenuHeader } from "../../components/RestaurantMenuHeader";
 import { CategoriesSection } from "../../components/CategoriesSection";
-import { MenuItemsList } from "../../components/MenuItemsList";
+import { DynamicMenuItemsList } from "../../components/DynamicMenuItemsList";
 import { MenuPageSkeleton } from "../../components/SkeletonLoader";
 import { AdvancedSearchFilter } from "../../components/AdvancedSearchFilter";
 import ErrorBoundary from "../../components/ErrorBoundary";
 import { useCart } from "../../contexts/CartContext";
 import { useCachedFetch } from "../../hooks/useCachedFetch";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { motion } from "framer-motion";
+import { BranchSwitcher } from "../../components/BranchSwitcher";
 
 
 interface PageBackground {
@@ -77,13 +79,17 @@ interface MenuItem {
 
 export default function Menu() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { dispatch } = useCart();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([]);
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
   const [hero, setHero] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
   const [siteTheme, setSiteTheme] = useState<Record<string, string> | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [qrTracked, setQrTracked] = useState(false);
 
   // Use cached fetch for categories
   const { 
@@ -128,7 +134,7 @@ export default function Menu() {
     console.log('Items data:', itemsData);
     console.log('Categories length:', categories.length);
     console.log('Menu items length:', menuItems.length);
-    
+
     if (categoriesCached) {
       console.log('Categories loaded from cache');
     }
@@ -136,6 +142,50 @@ export default function Menu() {
       console.log('Menu items loaded from cache');
     }
   }, [categoriesCached, itemsCached, categoriesData, itemsData, categories.length, menuItems.length]);
+
+  // Track QR code scan on page load
+  useEffect(() => {
+    const qrToken = searchParams?.get('qr');
+    const branchParam = searchParams?.get('branch');
+    const categoryParam = searchParams?.get('category');
+    const tableParam = searchParams?.get('table');
+
+    // Only track once per session
+    if (qrToken && !qrTracked) {
+      const trackQRScan = async () => {
+        try {
+          const response = await fetch('/api/qrcodes/scan', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              token: qrToken,
+            }),
+          });
+
+          if (response.ok) {
+            console.log('QR code scan tracked successfully');
+            setQrTracked(true);
+
+            // Auto-select branch if provided
+            if (branchParam) {
+              setSelectedBranch(branchParam);
+            }
+
+            // Auto-select category if provided
+            if (categoryParam) {
+              setSelectedCategory(categoryParam);
+            }
+          }
+        } catch (error) {
+          console.error('Error tracking QR code scan:', error);
+        }
+      };
+
+      trackQRScan();
+    }
+  }, [searchParams, qrTracked]);
 
   useEffect(() => {
     // Fetch background asynchronously without blocking main content
@@ -336,15 +386,15 @@ export default function Menu() {
       ) : categoriesError || itemsError ? (
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center text-foreground">
-            <h2 className="text-xl font-bold mb-2">خطأ في تحميل البيانات</h2>
+            <h2 className="text-xl font-bold mb-2">{t('menu.error.loading')}</h2>
             <p className="text-foreground/70 mb-4">
-              {categoriesError ? 'فشل في تحميل الفئات' : 'فشل في تحميل عناصر القائمة'}
+              {categoriesError ? t('menu.error.categories') : t('menu.error.items')}
             </p>
             <button 
               onClick={() => window.location.reload()} 
               className="bg-secondary text-secondary-foreground px-4 py-2 rounded-full hover:bg-secondary/90 transition-colors"
             >
-              إعادة المحاولة
+              {t('menu.retry')}
             </button>
           </div>
         </div>
@@ -365,11 +415,24 @@ export default function Menu() {
               <RestaurantMenuHeader hero={hero || undefined} />
             </motion.div>
 
-            {/* Advanced Search & Filter */}
+            {/* Branch Switcher */}
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.45, ease: 'easeOut', delay: 0.05 }}
+              className="px-4 mb-4"
+            >
+              <BranchSwitcher
+                selectedBranchId={selectedBranch || undefined}
+                onBranchChange={(branchId) => setSelectedBranch(branchId)}
+              />
+            </motion.div>
+
+            {/* Advanced Search & Filter */}
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.45, ease: 'easeOut', delay: 0.08 }}
             >
               <AdvancedSearchFilter
                 items={categoryFilteredItems}
@@ -402,7 +465,7 @@ export default function Menu() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-foreground/70 text-sm">عرض:</span>
+                  <span className="text-foreground/70 text-sm">{t('menu.view')}</span>
                   <div className="flex bg-white/10 rounded-lg p-1">
                     <button
                       onClick={() => setViewMode('list')}
@@ -413,7 +476,7 @@ export default function Menu() {
                       }`}
                     >
                       <List className="w-4 h-4" />
-                      قائمة
+                      {t('menu.list')}
                     </button>
                     <button
                       onClick={() => setViewMode('grid')}
@@ -424,7 +487,7 @@ export default function Menu() {
                       }`}
                     >
                       <Grid3X3 className="w-4 h-4" />
-                      شبكة
+                      {t('menu.grid')}
                     </button>
                   </div>
                 </div>
@@ -438,7 +501,7 @@ export default function Menu() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, ease: 'easeOut', delay: 0.1 }}
             >
-              <MenuItemsList
+              <DynamicMenuItemsList
                 items={filteredMenuItems}
                 onAddToCart={handleItemClick}
                 categories={categories}

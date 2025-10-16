@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { CheckCircle, XCircle, Star, User, Mail, Phone, Calendar, MessageSquare, Package } from "lucide-react";
 import Link from "next/link";
+import { Skeleton } from "@/components/SkeletonLoader";
 
 interface Review {
   _id: string;
@@ -113,8 +114,39 @@ export function AdminReviewsPanel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center flex-wrap gap-4">
+          <Skeleton className="h-8 w-64" />
+          <div className="flex gap-3 flex-wrap">
+            <Skeleton className="h-10 w-32 rounded-lg" />
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-24 rounded-lg" />
+              <Skeleton className="h-10 w-24 rounded-lg" />
+              <Skeleton className="h-10 w-24 rounded-lg" />
+            </div>
+          </div>
+        </div>
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="glass-notification rounded-3xl p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div>
+                    <Skeleton className="h-6 w-32 mb-2" />
+                    <Skeleton className="h-4 w-48" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-24 rounded-lg" />
+                  <Skeleton className="h-8 w-24 rounded-lg" />
+                </div>
+              </div>
+              <Skeleton className="h-4 w-full mb-2" />
+              <Skeleton className="h-4 w-3/4" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

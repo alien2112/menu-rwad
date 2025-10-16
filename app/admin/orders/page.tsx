@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ChefHat, Coffee, Wind, Clock, CheckCircle, AlertCircle, Package, Printer } from "lucide-react";
+import { AlertDialog } from "@/components/AlertDialog";
 
 interface OrderItem {
   menuItemId: string;
@@ -47,6 +48,15 @@ export default function AdminDashboard() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [departmentFilter, setDepartmentFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -86,13 +96,13 @@ export default function AdminDashboard() {
       const data = await response.json();
       
       if (data.success) {
-        alert('تم إرسال الطلب للطباعة بنجاح');
+        showAlert('نجاح', 'تم إرسال الطلب للطباعة بنجاح');
       } else {
-        alert('فشل في إرسال الطلب للطباعة: ' + data.error);
+        showAlert('خطأ', 'فشل في إرسال الطلب للطباعة: ' + data.error);
       }
     } catch (error) {
       console.error('Error printing order:', error);
-      alert('خطأ في إرسال الطلب للطباعة');
+      showAlert('خطأ', 'خطأ في إرسال الطلب للطباعة');
     }
   };
 
@@ -439,6 +449,12 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
       )}
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

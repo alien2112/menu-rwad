@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { X, ShoppingCart, Clock, User, MapPin, Phone } from "lucide-react";
 import { OrderReceipt } from "./OrderReceipt";
+import { Skeleton } from "@/components/SkeletonLoader";
 
 interface OrderItem {
   menuItemId: string;
@@ -245,10 +246,7 @@ export const OrderConfirmationModal = ({
               disabled={isLoading}
             >
               {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>جاري الحفظ...</span>
-                </>
+                <Skeleton className="h-5 w-20" />
               ) : (
                 <>
                   <ShoppingCart className="w-4 h-4" />

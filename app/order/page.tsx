@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, ShoppingCart, CheckCircle, Clock } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { AlertDialog } from "@/components/AlertDialog";
 
 interface MenuItem {
   _id: string;
@@ -39,6 +40,15 @@ export default function OrderPage() {
   const [submitting, setSubmitting] = useState(false);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   // Customer information form
   const [customerInfo, setCustomerInfo] = useState({
@@ -83,12 +93,12 @@ export default function OrderPage() {
     e.preventDefault();
     
     if (cartItems.length === 0) {
-      alert('Your cart is empty');
+      showAlert('Cart Empty', 'Your cart is empty');
       return;
     }
 
     if (!customerInfo.name || !customerInfo.phone) {
-      alert('Please fill in your name and phone number');
+      showAlert('Missing Information', 'Please fill in your name and phone number');
       return;
     }
 
@@ -118,11 +128,11 @@ export default function OrderPage() {
         setOrderSubmitted(true);
         clearCart();
       } else {
-        alert('Failed to submit order: ' + data.error);
+        showAlert('Order Failed', 'Failed to submit order: ' + data.error);
       }
     } catch (error) {
       console.error('Error submitting order:', error);
-      alert('Failed to submit order');
+      showAlert('Order Failed', 'Failed to submit order');
     } finally {
       setSubmitting(false);
     }
@@ -343,6 +353,12 @@ export default function OrderPage() {
           </div>
         </div>
       </div>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

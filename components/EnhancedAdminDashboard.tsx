@@ -17,6 +17,7 @@ import {
 import SSENotificationCenter from '@/components/WebSocketNotificationCenter';
 import ColorPicker from '@/components/admin/ColorPicker';
 import { Skeleton } from '@/components/SkeletonLoader';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardStats {
   totalOrders: number;
@@ -167,20 +168,27 @@ export default function EnhancedAdminDashboard() {
     color: string;
     trend?: string;
   }) => (
-    <div className="glass-effect rounded-lg border border-white/10 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-white/80">{title}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
-          {trend && (
-            <p className="text-xs text-green-300 mt-1">{trend}</p>
-          )}
+    <motion.div
+      whileHover={{ scale: 1.05, y: -5 }}
+      whileTap={{ scale: 0.95 }}
+      className="glass-effect rounded-lg border border-white/10 p-6"
+      style={{ perspective: 800 }}
+    >
+      <motion.div style={{ transformStyle: "preserve-3d" }}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-white/80">{title}</p>
+            <p className="text-2xl font-bold text-white">{value}</p>
+            {trend && (
+              <p className="text-xs text-green-300 mt-1">{trend}</p>
+            )}
+          </div>
+          <div className={`p-3 rounded-full ${color}`}>
+            <Icon className="h-6 w-6 text-white" />
+          </div>
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          <Icon className="h-6 w-6 text-white" />
-        </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 
   const QuickActionButton = ({ title, icon: Icon, onClick, color }: {
@@ -189,13 +197,15 @@ export default function EnhancedAdminDashboard() {
     onClick: () => void;
     color: string;
   }) => (
-    <button
+    <motion.button
       onClick={onClick}
+      whileHover={{ scale: 1.05, y: -3 }}
+      whileTap={{ scale: 0.95 }}
       className={`flex items-center space-x-3 p-4 rounded-lg border border-white/10 hover:bg-white/10 transition-shadow text-white ${color}`}
     >
       <Icon className="h-5 w-5" />
       <span className="font-medium">{title}</span>
-    </button>
+    </motion.button>
   );
 
   if (loading) {
@@ -365,7 +375,7 @@ export default function EnhancedAdminDashboard() {
             <QuickActionButton
               title="عرض التقارير"
               icon={BarChart3}
-              onClick={() => window.open('/api/admin/reports/sales?type=summary', '_blank')}
+              onClick={() => window.location.href = '/admin/reports/summary'}
               color="hover:bg-blue-50"
             />
             <QuickActionButton
@@ -383,7 +393,7 @@ export default function EnhancedAdminDashboard() {
             <QuickActionButton
               title="تصدير البيانات"
               icon={Download}
-              onClick={() => window.open('/api/admin/reports/sales?type=summary&format=excel', '_blank')}
+              onClick={() => window.location.href = '/api/admin/reports/sales?type=summary&format=excel'}
               color="hover:bg-purple-50"
             />
                 </div>
@@ -396,11 +406,17 @@ export default function EnhancedAdminDashboard() {
             {recentActivities.length === 0 && (
               <p className="text-white/70 text-sm">لا توجد أنشطة حديثة</p>
             )}
-            {recentActivities.map((act) => {
+            {recentActivities.map((act, index) => {
               const type = act.type as string;
               const iconColor = type === 'inventory' ? 'text-orange-500' : type === 'order' ? 'text-blue-500' : type === 'staff' ? 'text-emerald-500' : 'text-purple-500';
               return (
-                <div key={act.id} className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg">
+                <motion.div
+                  key={act.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg"
+                >
                   {type === 'inventory' ? (
                     <AlertTriangle className={`h-5 w-5 ${iconColor}`} />
                   ) : type === 'order' ? (
@@ -414,302 +430,325 @@ export default function EnhancedAdminDashboard() {
                     <p className="text-sm font-medium text-white">{act.message}</p>
                     <p className="text-xs text-white/70">{new Date(act.timestamp).toLocaleString()}</p>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
         </div>
       </div>
-      {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowSettings(false)}></div>
-          <div className="relative glass-effect border border-white/10 rounded-2xl w-full max-w-2xl mx-4 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-white">إعدادات الإدارة</h3>
-              <button className="text-white/80 hover:text-white" onClick={() => setShowSettings(false)}>✕</button>
-            </div>
-            <div className="flex gap-2 mb-6">
-              <button onClick={() => setSettingsTab('place')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='place' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>اسم المكان</button>
-              <button onClick={() => setSettingsTab('password')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='password' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>تغيير كلمة المرور</button>
-              <button onClick={() => setSettingsTab('user')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='user' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>إضافة مستخدم</button>
-              <button onClick={() => setSettingsTab('theme')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='theme' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>ألوان القائمة</button>
-            </div>
-
-            {settingsTab === 'place' && (
-              <div className="space-y-4">
-                <label className="block text-white/90">اسم المكان</label>
-                <input value={placeName} onChange={(e) => setPlaceName(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/60" placeholder="اكتب اسم المكان" />
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      try {
-                        localStorage.setItem('admin_place_name', placeName);
-                        window.dispatchEvent(new StorageEvent('storage', { key: 'admin_place_name', newValue: placeName } as any));
-                        setPlaceSaveMessage('تم حفظ اسم المكان بنجاح');
-                      } catch {
-                        setPlaceSaveMessage('تعذر الحفظ محليًا');
-                      }
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  >حفظ</button>
-                </div>
-                {placeSaveMessage && <p className="text-green-300 text-sm">{placeSaveMessage}</p>}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowSettings(false)}></div>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative glass-effect border border-white/10 rounded-2xl w-full max-w-2xl mx-4 p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-white">إعدادات الإدارة</h3>
+                <button className="text-white/80 hover:text-white" onClick={() => setShowSettings(false)}>✕</button>
               </div>
-            )}
-
-            {settingsTab === 'password' && (
-              <div className="space-y-4">
-                <label className="block text-white/90">كلمة مرور جديدة</label>
-                <input type="password" value={passwordValue} onChange={(e) => setPasswordValue(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/60" placeholder="*****" />
-                <div className="flex justify-end">
-                  <button
-                    onClick={async () => {
-                      setPasswordMessage('');
-                      if (!currentUserId) {
-                        setPasswordMessage('غير مسجل الدخول');
-                        return;
-                      }
-                      if (!passwordValue || passwordValue.length < 6) {
-                        setPasswordMessage('الحد الأدنى 6 أحرف');
-                        return;
-                      }
-                      try {
-                        const res = await fetch(`/api/staff/${currentUserId}`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ password: passwordValue })
-                        });
-                        const data = await res.json();
-                        if (res.ok && data?.success !== false) {
-                          setPasswordMessage('تم تحديث كلمة المرور');
-                          setPasswordValue('');
-                        } else {
-                          setPasswordMessage(data?.error || 'فشل التحديث');
-                        }
-                      } catch (e) {
-                        setPasswordMessage('حدث خطأ أثناء التحديث');
-                      }
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  >تحديث</button>
-                </div>
-                {passwordMessage && <p className="text-green-300 text-sm">{passwordMessage}</p>}
+              <div className="flex gap-2 mb-6">
+                <button onClick={() => setSettingsTab('place')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='place' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>اسم المكان</button>
+                <button onClick={() => setSettingsTab('password')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='password' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>تغيير كلمة المرور</button>
+                <button onClick={() => setSettingsTab('user')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='user' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>إضافة مستخدم</button>
+                <button onClick={() => setSettingsTab('theme')} className={`px-4 py-2 rounded-lg transition-colors ${settingsTab==='theme' ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/80 hover:bg-white/20'}`}>ألوان القائمة</button>
               </div>
-            )}
 
-            {settingsTab === 'user' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-white/90 mb-1">الدور</label>
-                    <select value={newUserRole} onChange={(e) => setNewUserRole(e.target.value as any)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
-                      <option value="kitchen">المطبخ</option>
-                      <option value="barista">البارستا</option>
-                      <option value="shisha">الشيشة</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-white/90 mb-1">اسم المستخدم</label>
-                    <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="username" />
-                  </div>
-                  <div>
-                    <label className="block text-white/90 mb-1">الاسم</label>
-                    <input value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="الاسم" />
-                  </div>
-                  <div>
-                    <label className="block text-white/90 mb-1">كلمة المرور</label>
-                    <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="*****" />
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={async () => {
-                      setCreateUserMessage('');
-                      if (!newUsername || !newName || !newPassword) {
-                        setCreateUserMessage('يرجى تعبئة جميع الحقول');
-                        return;
-                      }
-                      try {
-                        const res = await fetch('/api/staff', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ username: newUsername, name: newName, password: newPassword, role: newUserRole, isActive: true })
-                        });
-                        const data = await res.json();
-                        if (res.ok && data?.success !== false) {
-                          setCreateUserMessage('تم إنشاء المستخدم بنجاح');
-                          setNewUsername('');
-                          setNewName('');
-                          setNewPassword('');
-                        } else {
-                          setCreateUserMessage(data?.error || 'فشل إنشاء المستخدم');
-                        }
-                      } catch (e) {
-                        setCreateUserMessage('حدث خطأ أثناء الإنشاء');
-                      }
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  >إضافة</button>
-                </div>
-                {createUserMessage && <p className="text-green-300 text-sm">{createUserMessage}</p>}
-              </div>
-            )}
-
-            {settingsTab === 'theme' && (
-              <div className="space-y-6">
-                <p className="text-white/80 text-sm">تحكم كامل بألوان صفحة القائمة. القيم الحالية تتبع الوضع الافتراضي إذا تركت الحقل فارغًا.</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <ColorPicker
-                    label="الخلفية (background)"
-                    value={localTheme.background || contextTheme?.background || '#F6EEDF'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, background: val })}
-                  />
-                  <ColorPicker
-                    label="النص (foreground)"
-                    value={localTheme.foreground || contextTheme?.foreground || '#4F3500'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, foreground: val })}
-                  />
-                  <ColorPicker
-                    label="أساسي (primary)"
-                    value={localTheme.primary || contextTheme?.primary || '#9C6B1E'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, primary: val })}
-                  />
-                  <ColorPicker
-                    label="ثانوي (secondary)"
-                    value={localTheme.secondary || contextTheme?.secondary || '#D3A34C'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, secondary: val })}
-                  />
-                  <ColorPicker
-                    label="لهجة (accent)"
-                    value={localTheme.accent || contextTheme?.accent || '#1EA55E'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, accent: val })}
-                  />
-                  <ColorPicker
-                    label="البطاقة (card)"
-                    value={localTheme.card || contextTheme?.card || '#4F3500'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, card: val })}
-                  />
-                  <ColorPicker
-                    label="نص البطاقة (card-foreground)"
-                    value={localTheme['card-foreground'] || contextTheme?.['card-foreground'] || '#FFFFFF'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, 'card-foreground': val })}
-                  />
-                  <ColorPicker
-                    label="هادئ (muted)"
-                    value={localTheme.muted || contextTheme?.muted || 'rgba(0,0,0,0.12)'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, muted: val })}
-                  />
-                  <ColorPicker
-                    label="نص هادئ (muted-foreground)"
-                    value={localTheme['muted-foreground'] || contextTheme?.['muted-foreground'] || 'rgba(18,15,6,0.7)'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, 'muted-foreground': val })}
-                  />
-                  <ColorPicker
-                    label="الحلقة (ring)"
-                    value={localTheme.ring || contextTheme?.ring || '#D3A34C'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, ring: val })}
-                  />
-                  <ColorPicker
-                    label="بداية التمرير (scroll-thumb-start)"
-                    value={localTheme['scroll-thumb-start'] || contextTheme?.['scroll-thumb-start'] || '#1EA55E'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-thumb-start': val })}
-                  />
-                  <ColorPicker
-                    label="نهاية التمرير (scroll-thumb-end)"
-                    value={localTheme['scroll-thumb-end'] || contextTheme?.['scroll-thumb-end'] || '#D3A34C'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-thumb-end': val })}
-                  />
-                  <ColorPicker
-                    label="مسار التمرير (scroll-track)"
-                    value={localTheme['scroll-track'] || contextTheme?.['scroll-track'] || 'rgba(0,0,0,0.25)'}
-                    onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-track': val })}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={async () => {
-                      setThemeMessage('');
-                      // Filter out empty values from localTheme
-                      const filteredTheme: Record<string, string> = {};
-                      Object.entries(localTheme).forEach(([key, value]) => {
-                        if (value && value.trim()) {
-                          filteredTheme[key] = value.trim();
-                        }
-                      });
-
-                      const success = await updateTheme(filteredTheme);
-                      if (success) {
-                        setThemeMessage('تم حفظ الألوان بنجاح ✓');
-                        // Update local theme with saved values
-                        setLocalTheme((prev) => ({ ...prev, ...filteredTheme }));
-                      } else {
-                        setThemeMessage('فشل حفظ الإعدادات');
-                      }
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                    disabled={themeLoading}
-                  >
-                    {themeLoading ? 'جاري الحفظ...' : 'حفظ'}
-                  </button>
-
-                  <button
-                    onClick={async () => {
-                      setThemeMessage('');
-                      const success = await resetThemeContext();
-                      if (success) {
-                        setLocalTheme({
-                          background: '',
-                          foreground: '',
-                          primary: '',
-                          secondary: '',
-                          accent: '',
-                          card: '',
-                          'card-foreground': '',
-                          muted: '',
-                          'muted-foreground': '',
-                          ring: '',
-                          'scroll-thumb-start': '',
-                          'scroll-thumb-end': '',
-                          'scroll-track': '',
-                        });
-                        setThemeMessage('تمت استعادة الإعدادات الافتراضية ✓');
-                      } else {
-                        setThemeMessage('فشل الاستعادة');
-                      }
-                    }}
-                    className="bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20"
-                    disabled={themeLoading}
-                  >
-                    {themeLoading ? 'جاري الاستعادة...' : 'استعادة الافتراضي'}
-                  </button>
-                </div>
-
-                {themeMessage && <p className="text-green-300 text-sm">{themeMessage}</p>}
-
-                {/* Live preview */}
-                <div className="mt-4">
-                  <p className="text-white/80 text-sm mb-2">معاينة مباشرة:</p>
-                  <div className="rounded-xl p-4 border border-white/10" style={{
-                    background: localTheme.background || contextTheme?.background || undefined,
-                    color: localTheme.foreground || contextTheme?.foreground || undefined,
-                  }}>
-                    <div className="rounded-lg p-4" style={{
-                      background: localTheme.card || contextTheme?.card || undefined,
-                      color: localTheme['card-foreground'] || contextTheme?.['card-foreground'] || undefined,
-                    }}>
-                      <p className="font-semibold">معاينة البطاقة</p>
-                      <button className="mt-3 px-3 py-2 rounded-md text-white" style={{ background: localTheme.primary || contextTheme?.primary || undefined }}>زر أساسي</button>
-                      <button className="mt-3 ml-2 px-3 py-2 rounded-md text-white" style={{ background: localTheme.secondary || contextTheme?.secondary || undefined }}>زر ثانوي</button>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={settingsTab}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {settingsTab === 'place' && (
+                    <div className="space-y-4">
+                      <label className="block text-white/90">اسم المكان</label>
+                      <input value={placeName} onChange={(e) => setPlaceName(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/60" placeholder="اكتب اسم المكان" />
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => {
+                            try {
+                              localStorage.setItem('admin_place_name', placeName);
+                              window.dispatchEvent(new StorageEvent('storage', { key: 'admin_place_name', newValue: placeName } as any));
+                              setPlaceSaveMessage('تم حفظ اسم المكان بنجاح');
+                            } catch {
+                              setPlaceSaveMessage('تعذر الحفظ محليًا');
+                            }
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        >حفظ</button>
+                      </div>
+                      {placeSaveMessage && <p className="text-green-300 text-sm">{placeSaveMessage}</p>}
                     </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                  )}
+
+                  {settingsTab === 'password' && (
+                    <div className="space-y-4">
+                      <label className="block text-white/90">كلمة مرور جديدة</label>
+                      <input type="password" value={passwordValue} onChange={(e) => setPasswordValue(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder:text-white/60" placeholder="*****" />
+                      <div className="flex justify-end">
+                        <button
+                          onClick={async () => {
+                            setPasswordMessage('');
+                            if (!currentUserId) {
+                              setPasswordMessage('غير مسجل الدخول');
+                              return;
+                            }
+                            if (!passwordValue || passwordValue.length < 6) {
+                              setPasswordMessage('الحد الأدنى 6 أحرف');
+                              return;
+                            }
+                            try {
+                              const res = await fetch(`/api/staff/${currentUserId}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ password: passwordValue })
+                              });
+                              const data = await res.json();
+                              if (res.ok && data?.success !== false) {
+                                setPasswordMessage('تم تحديث كلمة المرور');
+                                setPasswordValue('');
+                              } else {
+                                setPasswordMessage(data?.error || 'فشل التحديث');
+                              }
+                            } catch (e) {
+                              setPasswordMessage('حدث خطأ أثناء التحديث');
+                            }
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        >تحديث</button>
+                      </div>
+                      {passwordMessage && <p className="text-green-300 text-sm">{passwordMessage}</p>}
+                    </div>
+                  )}
+
+                  {settingsTab === 'user' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-white/90 mb-1">الدور</label>
+                          <select value={newUserRole} onChange={(e) => setNewUserRole(e.target.value as any)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white">
+                            <option value="kitchen">المطبخ</option>
+                            <option value="barista">البارستا</option>
+                            <option value="shisha">الشيشة</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-white/90 mb-1">اسم المستخدم</label>
+                          <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="username" />
+                        </div>
+                        <div>
+                          <label className="block text-white/90 mb-1">الاسم</label>
+                          <input value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="الاسم" />
+                        </div>
+                        <div>
+                          <label className="block text-white/90 mb-1">كلمة المرور</label>
+                          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white" placeholder="*****" />
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={async () => {
+                            setCreateUserMessage('');
+                            if (!newUsername || !newName || !newPassword) {
+                              setCreateUserMessage('يرجى تعبئة جميع الحقول');
+                              return;
+                            }
+                            try {
+                              const res = await fetch('/api/staff', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ username: newUsername, name: newName, password: newPassword, role: newUserRole, isActive: true })
+                              });
+                              const data = await res.json();
+                              if (res.ok && data?.success !== false) {
+                                setCreateUserMessage('تم إنشاء المستخدم بنجاح');
+                                setNewUsername('');
+                                setNewName('');
+                                setNewPassword('');
+                              } else {
+                                setCreateUserMessage(data?.error || 'فشل إنشاء المستخدم');
+                              }
+                            } catch (e) {
+                              setCreateUserMessage('حدث خطأ أثناء الإنشاء');
+                            }
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                        >إضافة</button>
+                      </div>
+                      {createUserMessage && <p className="text-green-300 text-sm">{createUserMessage}</p>}
+                    </div>
+                  )}
+
+                  {settingsTab === 'theme' && (
+                    <div className="space-y-6">
+                      <p className="text-white/80 text-sm">تحكم كامل بألوان صفحة القائمة. القيم الحالية تتبع الوضع الافتراضي إذا تركت الحقل فارغًا.</p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ColorPicker
+                          label="الخلفية (background)"
+                          value={localTheme.background || contextTheme?.background || '#F6EEDF'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, background: val })}
+                        />
+                        <ColorPicker
+                          label="النص (foreground)"
+                          value={localTheme.foreground || contextTheme?.foreground || '#4F3500'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, foreground: val })}
+                        />
+                        <ColorPicker
+                          label="أساسي (primary)"
+                          value={localTheme.primary || contextTheme?.primary || '#9C6B1E'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, primary: val })}
+                        />
+                        <ColorPicker
+                          label="ثانوي (secondary)"
+                          value={localTheme.secondary || contextTheme?.secondary || '#D3A34C'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, secondary: val })}
+                        />
+                        <ColorPicker
+                          label="لهجة (accent)"
+                          value={localTheme.accent || contextTheme?.accent || '#1EA55E'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, accent: val })}
+                        />
+                        <ColorPicker
+                          label="البطاقة (card)"
+                          value={localTheme.card || contextTheme?.card || '#4F3500'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, card: val })}
+                        />
+                        <ColorPicker
+                          label="نص البطاقة (card-foreground)"
+                          value={localTheme['card-foreground'] || contextTheme?.['card-foreground'] || '#FFFFFF'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, 'card-foreground': val })}
+                        />
+                        <ColorPicker
+                          label="هادئ (muted)"
+                          value={localTheme.muted || contextTheme?.muted || 'rgba(0,0,0,0.12)'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, muted: val })}
+                        />
+                        <ColorPicker
+                          label="نص هادئ (muted-foreground)"
+                          value={localTheme['muted-foreground'] || contextTheme?.['muted-foreground'] || 'rgba(18,15,6,0.7)'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, 'muted-foreground': val })}
+                        />
+                        <ColorPicker
+                          label="الحلقة (ring)"
+                          value={localTheme.ring || contextTheme?.ring || '#D3A34C'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, ring: val })}
+                        />
+                        <ColorPicker
+                          label="بداية التمرير (scroll-thumb-start)"
+                          value={localTheme['scroll-thumb-start'] || contextTheme?.['scroll-thumb-start'] || '#1EA55E'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-thumb-start': val })}
+                        />
+                        <ColorPicker
+                          label="نهاية التمرير (scroll-thumb-end)"
+                          value={localTheme['scroll-thumb-end'] || contextTheme?.['scroll-thumb-end'] || '#D3A34C'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-thumb-end': val })}
+                        />
+                        <ColorPicker
+                          label="مسار التمرير (scroll-track)"
+                          value={localTheme['scroll-track'] || contextTheme?.['scroll-track'] || 'rgba(0,0,0,0.25)'}
+                          onChange={(val) => setLocalTheme({ ...localTheme, 'scroll-track': val })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <button
+                          onClick={async () => {
+                            setThemeMessage('');
+                            // Filter out empty values from localTheme
+                            const filteredTheme: Record<string, string> = {};
+                            Object.entries(localTheme).forEach(([key, value]) => {
+                              if (value && value.trim()) {
+                                filteredTheme[key] = value.trim();
+                              }
+                            });
+
+                            const success = await updateTheme(filteredTheme);
+                            if (success) {
+                              setThemeMessage('تم حفظ الألوان بنجاح ✓');
+                              // Update local theme with saved values
+                              setLocalTheme((prev) => ({ ...prev, ...filteredTheme }));
+                            } else {
+                              setThemeMessage('فشل حفظ الإعدادات');
+                            }
+                          }}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                          disabled={themeLoading}
+                        >
+                          {themeLoading ? 'جاري الحفظ...' : 'حفظ'}
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            setThemeMessage('');
+                            const success = await resetThemeContext();
+                            if (success) {
+                              setLocalTheme({
+                                background: '',
+                                foreground: '',
+                                primary: '',
+                                secondary: '',
+                                accent: '',
+                                card: '',
+                                'card-foreground': '',
+                                muted: '',
+                                'muted-foreground': '',
+                                ring: '',
+                                'scroll-thumb-start': '',
+                                'scroll-thumb-end': '',
+                                'scroll-track': '',
+                              });
+                              setThemeMessage('تمت استعادة الإعدادات الافتراضية ✓');
+                            } else {
+                              setThemeMessage('فشل الاستعادة');
+                            }
+                          }}
+                          className="bg-white/10 text-white px-4 py-2 rounded-lg hover:bg-white/20"
+                          disabled={themeLoading}
+                        >
+                          {themeLoading ? 'جاري الاستعادة...' : 'استعادة الافتراضي'}
+                        </button>
+                      </div>
+
+                      {themeMessage && <p className="text-green-300 text-sm">{themeMessage}</p>}
+
+                      {/* Live preview */}
+                      <div className="mt-4">
+                        <p className="text-white/80 text-sm mb-2">معاينة مباشرة:</p>
+                        <div className="rounded-xl p-4 border border-white/10" style={{
+                          background: localTheme.background || contextTheme?.background || undefined,
+                          color: localTheme.foreground || contextTheme?.foreground || undefined,
+                        }}>
+                          <div className="rounded-lg p-4" style={{
+                            background: localTheme.card || contextTheme?.card || undefined,
+                            color: localTheme['card-foreground'] || contextTheme?.['card-foreground'] || undefined,
+                          }}>
+                            <p className="font-semibold">معاينة البطاقة</p>
+                            <button className="mt-3 px-3 py-2 rounded-md text-white" style={{ background: localTheme.primary || contextTheme?.primary || undefined }}>زر أساسي</button>
+                            <button className="mt-3 ml-2 px-3 py-2 rounded-md text-white" style={{ background: localTheme.secondary || contextTheme?.secondary || undefined }}>زر ثانوي</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

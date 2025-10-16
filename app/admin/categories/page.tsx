@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Search, Eye, EyeOff } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
+import { AlertDialog } from '@/components/AlertDialog';
 import { ICategory } from '@/lib/models/Category';
 
 export default function CategoriesPage() {
@@ -19,6 +20,15 @@ export default function CategoriesPage() {
     order: 0,
     status: 'active',
   });
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title: string, message: string) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setIsAlertOpen(true);
+  };
 
   useEffect(() => {
     fetchCategories();
@@ -75,11 +85,11 @@ export default function CategoriesPage() {
         handleCloseModal();
       } else {
         console.error('API Error:', data.error);
-        alert(`خطأ: ${data.error}`);
+        showAlert('خطأ', data.error);
       }
     } catch (error) {
       console.error('Error saving category:', error);
-      alert('حدث خطأ أثناء الحفظ');
+      showAlert('خطأ', 'حدث خطأ أثناء الحفظ');
     }
   };
 
@@ -363,6 +373,12 @@ export default function CategoriesPage() {
           </div>
         </div>
       )}
+      <AlertDialog
+        isOpen={isAlertOpen}
+        onClose={() => setIsAlertOpen(false)}
+        title={alertTitle}
+        message={alertMessage}
+      />
     </div>
   );
 }

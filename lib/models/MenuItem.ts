@@ -49,6 +49,7 @@ export interface IMenuItem {
   sizeOptions?: IMenuItemSizeOption[];
   addonOptions?: IMenuItemAddonOption[];
   dietaryModifications?: string[];
+  modifiers?: string[]; // Array of Modifier IDs
   rating?: number;
   reviewCount?: number;
   createdAt?: Date;
@@ -204,6 +205,10 @@ const MenuItemSchema = new Schema<IMenuItem>(
     }],
     dietaryModifications: [{
       type: String,
+    }],
+    modifiers: [{
+      type: String,
+      ref: 'Modifier',
     }],
     rating: {
       type: Number,
