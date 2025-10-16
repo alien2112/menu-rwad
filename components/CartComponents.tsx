@@ -109,8 +109,10 @@ export function CartModal() {
     return `#${timestamp}${random}`;
   };
 
-  const handleWhatsAppOrder = () => {
+  const handlePlaceOrder = async () => {
     if (state.items.length === 0) return;
+
+    setIsLoading(true);
 
     // Generate order data
     const orderData = {
@@ -125,7 +127,8 @@ export function CartModal() {
         customizations: item.customization,
       })),
       totalAmount: cartTaxCalculation.finalPrice,
-      discountAmount: 0,
+      discountAmount: state.appliedPromotion?.discountAmount || 0,
+      promotionId: state.appliedPromotion?.promotionId,
       taxInfo: settings?.enableTaxHandling ? {
         subtotal: cartTaxCalculation.breakdown.subtotal,
         taxRate: cartTaxCalculation.breakdown.taxRate,
@@ -137,11 +140,41 @@ export function CartModal() {
         phone: '',
         address: '',
       },
+      tableNumber: tableNumber.trim() || undefined,
       notes: tableNumber.trim() ? `رقم الطاولة: ${tableNumber.trim()}` : 'تيك أواي',
+      source: 'website' as const,
     };
 
-    setPendingOrder(orderData);
-    setShowOrderConfirmation(true);
+    try {
+      // Save order to database
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to place order');
+      }
+
+      // Clear cart and close modal
+      dispatch({ type: 'CLEAR_CART' });
+      dispatch({ type: 'SET_CART_OPEN', payload: false });
+      setTableNumber('');
+
+      // Show success message
+      showAlert('نجح!', `تم إرسال الطلب بنجاح! رقم الطلب: ${orderData.orderNumber}`);
+
+    } catch (error: any) {
+      console.error('Error placing order:', error);
+      showAlert('خطأ', error.message || 'حدث خطأ في إرسال الطلب. حاول مرة أخرى.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const confirmOrder = async () => {
@@ -217,7 +250,7 @@ export function CartModal() {
             </div>
           ) : (
             state.items.map((item) => (
-              <CartItem key={item.id} item={item} />
+              <CartItem key={item.menuItemId} item={item} />
             ))
           )}
         </div>
@@ -326,18 +359,27 @@ export function CartModal() {
 
             <div className="space-y-3">
               <button
-                onClick={handleWhatsAppOrder}
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                onClick={handlePlaceOrder}
+                disabled={isLoading}
+                className="w-full bg-coffee-green hover:bg-coffee-green/90 disabled:bg-coffee-green/50 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488"/>
-                </svg>
-                {tableNumber.trim() ? `اطلب عبر واتساب (طاولة رقم ${tableNumber.trim()})` : 'اطلب عبر واتساب (تيك أواي)'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    جاري إرسال الطلب...
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5" />
+                    {tableNumber.trim() ? `أرسل الطلب (طاولة ${tableNumber.trim()})` : 'أرسل الطلب (تيك أواي)'}
+                  </>
+                )}
               </button>
-              
+
               <button
                 onClick={() => dispatch({ type: 'CLEAR_CART' })}
-                className="w-full glass-effect text-white hover:bg-white/20 py-3 px-6 rounded-xl transition-colors"
+                disabled={isLoading}
+                className="w-full glass-effect text-white hover:bg-white/20 disabled:opacity-50 py-3 px-6 rounded-xl transition-colors"
               >
                 مسح السلة
               </button>
@@ -447,21 +489,21 @@ function CartItem({ item }: { item: any }) {
           <button
             onClick={() => dispatch({
               type: 'UPDATE_QUANTITY',
-              payload: { menuItemId: item.menuItemId || item.id, quantity: item.quantity - 1 }
+              payload: { menuItemId: item.menuItemId, quantity: item.quantity - 1 }
             })}
             className="p-1 hover:bg-white/20 rounded-lg transition-colors"
           >
             <Minus size={16} className="text-white" />
           </button>
-          
+
           <span className="text-white font-semibold min-w-[2rem] text-center">
             {item.quantity}
           </span>
-          
+
           <button
             onClick={() => dispatch({
               type: 'UPDATE_QUANTITY',
-              payload: { menuItemId: item.menuItemId || item.id, quantity: item.quantity + 1 }
+              payload: { menuItemId: item.menuItemId, quantity: item.quantity + 1 }
             })}
             className="p-1 hover:bg-white/20 rounded-lg transition-colors"
           >
@@ -471,7 +513,7 @@ function CartItem({ item }: { item: any }) {
 
         {/* Remove Button */}
         <button
-          onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.menuItemId || item.id })}
+          onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: item.menuItemId })}
           className="p-1 hover:bg-red-500/20 rounded-lg transition-colors"
         >
           <Trash2 size={16} className="text-red-400" />

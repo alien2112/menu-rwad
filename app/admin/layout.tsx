@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   FolderOpen,
@@ -65,6 +65,7 @@ export default function AdminLayout({
   const [placeName, setPlaceName] = useState<string>('مركش');
   const [placeTagline, setPlaceTagline] = useState<string>('نظام إدارة المطاعم');
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     // Get user from localStorage
@@ -76,6 +77,9 @@ export default function AdminLayout({
       } catch (error) {
         console.error("Error parsing user data:", error);
       }
+    } else {
+      // Redirect unauthenticated users to login
+      router.push('/login');
     }
     // Load place settings
     try {

@@ -8,6 +8,7 @@ export interface ICategory {
   image?: string;
   color: string;
   icon?: string;
+  department?: 'kitchen' | 'barista' | 'shisha'; // Department for routing orders
   order: number;
   featured?: boolean;
   featuredOrder?: number;
@@ -40,6 +41,11 @@ const CategorySchema = new Schema<ICategory>(
     },
     icon: {
       type: String,
+    },
+    department: {
+      type: String,
+      enum: ['kitchen', 'barista', 'shisha'],
+      default: 'kitchen',
     },
     order: {
       type: Number,

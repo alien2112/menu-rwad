@@ -21,28 +21,15 @@ function generateOrderNumber(): string {
 }
 
 // Helper function to determine department based on category
-function getDepartmentFromCategory(categoryId: string): 'kitchen' | 'barista' | 'shisha' {
-  // This mapping should be based on your actual category structure
-  // You can enhance this by storing department info in categories
-  const categoryToDepartment: { [key: string]: 'kitchen' | 'barista' | 'shisha' } = {
-    // Food categories -> Kitchen
-    'pizza': 'kitchen',
-    'sandwiches': 'kitchen',
-    'manakish': 'kitchen',
-    'desserts': 'kitchen',
-    
-    // Beverage categories -> Barista
-    'hot-coffee': 'barista',
-    'cold-coffee': 'barista',
-    'tea': 'barista',
-    'cocktails': 'barista',
-    'natural-juices': 'barista',
-    
-    // Shisha category -> Shisha
-    'shisha': 'shisha'
-  };
-  
-  return categoryToDepartment[categoryId] || 'kitchen';
+async function getDepartmentFromCategoryId(categoryId: string): Promise<'kitchen' | 'barista' | 'shisha'> {
+  try {
+    const Category = (await import('@/lib/models/Category')).default;
+    const category = await Category.findById(categoryId);
+    return category?.department || 'kitchen';
+  } catch (error) {
+    console.error('Error fetching category department:', error);
+    return 'kitchen';
+  }
 }
 
 // Validate inventory availability before processing order
@@ -230,11 +217,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!orderData.customerInfo || !orderData.customerInfo.name || !orderData.customerInfo.phone) {
-      return NextResponse.json(
-        { success: false, error: 'Customer information (name and phone) is required' },
-        { status: 400 }
-      );
+    // Customer info is optional for website orders (can be anonymous/table orders)
+    if (!orderData.customerInfo) {
+      orderData.customerInfo = {
+        name: orderData.tableNumber ? `طاولة ${orderData.tableNumber}` : 'عميل',
+        phone: '',
+        address: ''
+      };
     }
 
     // Validate inventory availability before processing order
@@ -291,21 +280,16 @@ export async function POST(request: NextRequest) {
     for (const item of orderData.items) {
       // Get menu item details to determine department
       const menuItem = await MenuItem.findById(item.menuItemId);
-      const department = menuItem ? getDepartmentFromCategory(menuItem.categoryId) : 'kitchen';
-      
+      const department = menuItem ? await getDepartmentFromCategoryId(menuItem.categoryId) : 'kitchen';
+
       const processedItem = {
         ...item,
         department,
         departmentStatus: 'pending' as const,
         estimatedPrepTime: menuItem?.preparationTime || 15
       };
-      
+
       processedItems.push(processedItem);
-      
-      // Update department status if this department has items
-      if (departmentStatuses[department] === 'pending') {
-        departmentStatuses[department] = 'pending';
-      }
     }
 
     // Create order

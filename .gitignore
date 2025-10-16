@@ -1,3 +1,5 @@
+\# Ignore Windows reserved filename accidentally created
+nul
 # Dependencies
 node_modules/
 npm-debug.log*

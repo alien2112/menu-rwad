@@ -318,10 +318,13 @@ export default function Menu() {
       dispatch({
         type: 'ADD_ITEM',
         payload: {
-          id: item._id,
-          name: item.name,
-          nameEn: item.nameEn,
-          price: actualPrice,
+          menuItemId: item._id,
+          menuItemName: item.name,
+          menuItemNameEn: item.nameEn,
+          quantity: 1,
+          unitPrice: actualPrice,
+          basePrice: item.price,
+          totalPrice: actualPrice,
           image: item.image,
         }
       });
