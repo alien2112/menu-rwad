@@ -11,7 +11,7 @@ export default function AnalyticsPage() {
   const [currentUser, setCurrentUser] = useState<string>('admin');
 
   return (
-    <RoleBasedAuth>
+    <RoleBasedAuth embedded>
       <div className="space-y-6">
         {/* Tab Navigation */}
         <div className="flex gap-2 justify-center">

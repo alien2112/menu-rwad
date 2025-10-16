@@ -322,7 +322,7 @@ export default function ComprehensiveAnalyticsDashboard() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-blue-500/20 rounded-xl">
             <BarChart3 className="w-6 h-6 text-blue-400" />
@@ -333,7 +333,7 @@ export default function ComprehensiveAnalyticsDashboard() {
           </div>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Period Selector */}
           <select
             value={period}

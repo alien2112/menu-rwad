@@ -7,6 +7,7 @@ import { Lock, Eye, EyeOff, ChefHat, Coffee, Wind, Shield, LayoutDashboard, Fold
 
 interface RoleBasedAuthProps {
   children: React.ReactNode;
+  embedded?: boolean; // when true, render children without internal sidebar/header layout
 }
 
 interface User {
@@ -62,7 +63,7 @@ const allNavigation = [
   { name: 'وسائط الصفحة', href: '/admin/page-hero', icon: Monitor, roles: ['admin'] },
 ];
 
-export function RoleBasedAuth({ children }: RoleBasedAuthProps) {
+export function RoleBasedAuth({ children, embedded = false }: RoleBasedAuthProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -260,6 +261,15 @@ export function RoleBasedAuth({ children }: RoleBasedAuthProps) {
             </button>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // In embedded mode, simply gate access and render children without internal chrome
+  if (embedded) {
+    return (
+      <div className="min-h-screen">
+        {children}
       </div>
     );
   }

@@ -226,7 +226,7 @@ export default function TaxComplianceSettings() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-blue-500/20 rounded-xl">
             <Settings className="w-6 h-6 text-blue-400" />
@@ -238,7 +238,7 @@ export default function TaxComplianceSettings() {
         </div>
         
         {/* Tab Navigation */}
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2 justify-center flex-wrap">
           <button
             onClick={() => setActiveTab('settings')}
             className={`px-4 py-2 rounded-lg transition-colors ${

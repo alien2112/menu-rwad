@@ -5,7 +5,7 @@ import TaxComplianceSettings from "@/components/TaxComplianceSettings";
 
 export default function TaxCompliancePage() {
   return (
-    <RoleBasedAuth>
+    <RoleBasedAuth embedded>
       <TaxComplianceSettings />
     </RoleBasedAuth>
   );
