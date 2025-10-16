@@ -137,6 +137,18 @@
   .admin-theme .text-white\/70 { color: rgba(255,255,255,0.9) !important; }
   .admin-theme .text-white\/80 { color: rgba(255,255,255,0.95) !important; }
   .admin-theme .text-white\/60 { color: rgba(255,255,255,0.85) !important; }
+  /* Force dark utility text colors to white within admin theme for better contrast */
+  .admin-theme .text-black,
+  .admin-theme .text-gray-900,
+  .admin-theme .text-slate-900 { color: rgba(255,255,255,1) !important; }
+  .admin-theme .text-gray-800,
+  .admin-theme .text-slate-800 { color: rgba(255,255,255,0.98) !important; }
+  .admin-theme .text-gray-700,
+  .admin-theme .text-slate-700 { color: rgba(255,255,255,0.95) !important; }
+  .admin-theme .text-gray-600,
+  .admin-theme .text-slate-600 { color: rgba(255,255,255,0.9) !important; }
+  .admin-theme .text-gray-500,
+  .admin-theme .text-slate-500 { color: rgba(255,255,255,0.85) !important; }
   .admin-theme .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.15) !important; }
   .admin-theme .glass-effect { border-color: rgba(255,255,255,0.3); }
   .admin-theme input, .admin-theme select, .admin-theme textarea {
