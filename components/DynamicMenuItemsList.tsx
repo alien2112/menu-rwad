@@ -10,6 +10,12 @@ const ClassicLayout = lazy(() => import("./templates/ClassicLayout").then(m => (
 const ModernLayout = lazy(() => import("./templates/ModernLayout").then(m => ({ default: m.ModernLayout })));
 const MinimalLayout = lazy(() => import("./templates/MinimalLayout").then(m => ({ default: m.MinimalLayout })));
 const ElegantLayout = lazy(() => import("./templates/ElegantLayout").then(m => ({ default: m.ElegantLayout })));
+const LuxeLayout = lazy(() => import("./templates/LuxeLayout").then(m => ({ default: m.LuxeLayout })));
+const VintageLayout = lazy(() => import("./templates/VintageLayout").then(m => ({ default: m.VintageLayout })));
+const ArtisticLayout = lazy(() => import("./templates/ArtisticLayout").then(m => ({ default: m.ArtisticLayout })));
+const CompactLayout = lazy(() => import("./templates/CompactLayout").then(m => ({ default: m.CompactLayout })));
+const FuturisticLayout = lazy(() => import("./templates/FuturisticLayout").then(m => ({ default: m.FuturisticLayout })));
+const NaturalLayout = lazy(() => import("./templates/NaturalLayout").then(m => ({ default: m.NaturalLayout })));
 
 interface MenuItem {
   _id: string;
@@ -60,15 +66,31 @@ export const DynamicMenuItemsList = ({
   const [layoutTemplate, setLayoutTemplate] = useState<TemplateId>('classic');
   const [loading, setLoading] = useState(true);
 
+  // Debug logging
+  console.log('DynamicMenuItemsList - Items received:', items.length);
+  console.log('DynamicMenuItemsList - Items data:', items);
+  console.log('DynamicMenuItemsList - Categories:', categories.length);
+  console.log('DynamicMenuItemsList - Selected category:', selectedCategory);
+  console.log('DynamicMenuItemsList - Show grouped:', showGrouped);
+  console.log('DynamicMenuItemsList - View mode:', viewMode);
+  console.log('DynamicMenuItemsList - Layout template:', layoutTemplate);
+  console.log('DynamicMenuItemsList - Loading:', loading);
+
   // Fetch the current template from the API
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
+        console.log('Fetching template from API...');
         const response = await fetch('/api/menu-template');
         const data = await response.json();
+        console.log('Template API response:', data);
 
         if (data.success && data.currentTemplate) {
+          console.log('Setting template to:', data.currentTemplate);
           setLayoutTemplate(data.currentTemplate);
+        } else {
+          console.log('No template found, using classic');
+          setLayoutTemplate('classic');
         }
       } catch (error) {
         console.error('Error fetching template:', error);
@@ -76,6 +98,7 @@ export const DynamicMenuItemsList = ({
         setLayoutTemplate('classic');
       } finally {
         setLoading(false);
+        console.log('Template loading completed');
       }
     };
 
@@ -91,6 +114,18 @@ export const DynamicMenuItemsList = ({
         return MinimalLayout;
       case 'elegant':
         return ElegantLayout;
+      case 'luxe':
+        return LuxeLayout;
+      case 'vintage':
+        return VintageLayout;
+      case 'artistic':
+        return ArtisticLayout;
+      case 'compact':
+        return CompactLayout;
+      case 'futuristic':
+        return FuturisticLayout;
+      case 'natural':
+        return NaturalLayout;
       case 'classic':
       default:
         return ClassicLayout;
@@ -98,6 +133,7 @@ export const DynamicMenuItemsList = ({
   };
 
   const TemplateComponent = getTemplateComponent(layoutTemplate);
+  console.log('Selected TemplateComponent:', TemplateComponent);
 
   // Special handling for offers category
   if (selectedCategory === 'offers') {
@@ -113,7 +149,7 @@ export const DynamicMenuItemsList = ({
     }
 
     return (
-      <div className="px-4 pb-24">
+      <div className="px-4 pb-24 relative z-20">
         {/* Offers Header */}
         <div className="flex items-center gap-3 mb-6">
           <div className="w-8 h-8 rounded-full overflow-hidden bg-white/10 border border-white/30">
@@ -153,17 +189,19 @@ export const DynamicMenuItemsList = ({
   if (items.length === 0) {
     return (
       <div className="px-4 text-center py-8">
-        <p className="text-white/60 text-lg">لا توجد عناصر في هذه الفئة</p>
-        <p className="text-white/40 text-sm mt-2">جرب اختيار فئة أخرى</p>
+        <p className="text-foreground/60 text-lg">لا توجد عناصر في هذه الفئة</p>
+        <p className="text-foreground/40 text-sm mt-2">جرب اختيار فئة أخرى</p>
       </div>
     );
   }
 
   // If not showing grouped or no categories provided, show simple list/grid
   if (!showGrouped || categories.length === 0) {
+    console.log('Rendering items list - count:', items.length, 'loading:', loading);
+
     return (
       <motion.div
-        className={viewMode === 'grid' ? 'px-4 grid grid-cols-2 gap-4 pb-24' : 'px-4 space-y-4 pb-24'}
+        className={viewMode === 'grid' ? 'px-4 grid grid-cols-2 gap-4 pb-24 relative z-20' : 'px-4 space-y-4 pb-24 relative z-20'}
         initial="hidden"
         animate="show"
         variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } } }}
@@ -175,11 +213,7 @@ export const DynamicMenuItemsList = ({
           ))
         ) : (
           items.map((item) => (
-            <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-              <Suspense fallback={<TemplateItemSkeleton />}>
-                <TemplateComponent item={item} onAddToCart={onAddToCart} />
-              </Suspense>
-            </motion.div>
+            <TemplateComponent key={item._id} item={item} onAddToCart={onAddToCart} />
           ))
         )}
       </motion.div>
@@ -209,7 +243,7 @@ export const DynamicMenuItemsList = ({
   });
 
   return (
-    <motion.div className="px-4 pb-24" initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
+    <motion.div className="px-4 pb-24 relative z-20" initial="hidden" animate="show" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
       {sortedCategories.map(({ category, items: categoryItems }) => (
         <motion.div key={category._id} className="mb-8" variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}>
           {/* Category Header */}
@@ -232,7 +266,7 @@ export const DynamicMenuItemsList = ({
 
           {/* Category Items */}
           <motion.div
-            className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-4'}
+            className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4 relative z-20' : 'space-y-4 relative z-20'}
             initial="hidden"
             animate="show"
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}

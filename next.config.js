@@ -15,6 +15,15 @@ const nextConfig = {
     contentDispositionType: 'attachment',
     // Keep a minimal CSP for the images loader context; full CSP set in middleware
     contentSecurityPolicy: "default-src 'self';",
+    domains: ['picsum.photos'],
+    // Allow external images (fixes next/image unconfigured host error)
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+        pathname: '/**',
+      },
+    ],
   },
 
   // Compression and optimization

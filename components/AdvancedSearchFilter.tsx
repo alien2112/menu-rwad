@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Search, X, Filter, ChevronDown, ChevronUp, Star, Clock, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -76,6 +76,7 @@ export const AdvancedSearchFilter = ({ items, onFilteredItems, categories }: Adv
 
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const isUpdatingPriceRange = useRef(false);
 
   // Calculate price range from items
   const priceBounds = useMemo(() => {
@@ -86,11 +87,25 @@ export const AdvancedSearchFilter = ({ items, onFilteredItems, categories }: Adv
 
   // Update price range when items change
   useEffect(() => {
+    if (isUpdatingPriceRange.current) return;
+    
+    isUpdatingPriceRange.current = true;
     setPriceRange(priceBounds);
-    setFilters(prev => ({
-      ...prev,
-      priceRange: priceBounds,
-    }));
+    setFilters(prev => {
+      // Only update if the price bounds have actually changed
+      if (prev.priceRange[0] !== priceBounds[0] || prev.priceRange[1] !== priceBounds[1]) {
+        return {
+          ...prev,
+          priceRange: priceBounds,
+        };
+      }
+      return prev;
+    });
+    
+    // Reset the flag after a short delay
+    setTimeout(() => {
+      isUpdatingPriceRange.current = false;
+    }, 0);
   }, [priceBounds]);
 
   // Filter and sort items

@@ -38,13 +38,13 @@ export async function PUT(req: NextRequest) {
     const { layoutTemplate } = body;
 
     // Validate template ID
-    const validTemplates: TemplateId[] = ['classic', 'modern', 'minimal', 'elegant'];
-    if (!layoutTemplate || !validTemplates.includes(layoutTemplate)) {
+    const validTemplateIds = MENU_TEMPLATES.map(t => t.id);
+    if (!layoutTemplate || !validTemplateIds.includes(layoutTemplate)) {
       return NextResponse.json(
         {
           success: false,
           error: 'Invalid template ID',
-          validTemplates
+          validTemplateIds
         },
         { status: 400 }
       );

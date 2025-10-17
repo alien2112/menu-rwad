@@ -46,7 +46,7 @@ export const ModernLayout = ({ item, onAddToCart }: ModernLayoutProps) => {
   return (
     <>
       <motion.div
-        className="bg-card text-card-foreground rounded-2xl overflow-hidden transition-all duration-300 shadow-xl hover:shadow-2xl restaurant-menu-item"
+        className="relative z-30 bg-card text-card-foreground rounded-2xl overflow-hidden transition-all duration-300 shadow-xl hover:shadow-2xl restaurant-menu-item"
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}

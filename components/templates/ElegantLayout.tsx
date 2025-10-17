@@ -46,7 +46,7 @@ export const ElegantLayout = ({ item, onAddToCart }: ElegantLayoutProps) => {
   return (
     <>
       <motion.div
-        className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md text-card-foreground rounded-2xl overflow-hidden transition-all duration-500 border border-white/10 shadow-2xl hover:shadow-3xl restaurant-menu-item relative"
+        className="relative z-30 bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-md text-card-foreground rounded-2xl overflow-hidden transition-all duration-500 border border-white/10 shadow-2xl hover:shadow-3xl restaurant-menu-item"
         initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}

@@ -46,7 +46,7 @@ export const MinimalLayout = ({ item, onAddToCart }: MinimalLayoutProps) => {
   return (
     <>
       <motion.div
-        className="bg-card/50 backdrop-blur-sm text-card-foreground rounded-lg overflow-hidden transition-all duration-200 border border-white/5 hover:border-white/10 restaurant-menu-item"
+        className="relative z-30 bg-card/50 backdrop-blur-sm text-card-foreground rounded-lg overflow-hidden transition-all duration-200 border border-white/5 hover:border-white/10 restaurant-menu-item"
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}

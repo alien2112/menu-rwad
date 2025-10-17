@@ -46,7 +46,7 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
   return (
     <>
       <motion.div
-        className="bg-card text-card-foreground rounded-3xl p-5 transition-all duration-300 restaurant-menu-item"
+        className="relative z-30 bg-card text-card-foreground rounded-3xl p-5 transition-all duration-300 restaurant-menu-item"
         initial={{ opacity: 0, y: 12, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.35, ease: "easeOut" }}

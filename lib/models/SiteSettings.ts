@@ -3,7 +3,7 @@ import mongoose, { Schema, Model, Document } from 'mongoose';
 export interface SiteSettingsDocument extends Document {
   logoUrl: string;
   logoPosition: 'left' | 'center' | 'right';
-  layoutTemplate?: 'classic' | 'modern' | 'minimal' | 'elegant';
+  layoutTemplate?: 'classic' | 'modern' | 'minimal' | 'elegant' | 'luxe' | 'vintage' | 'artistic' | 'compact' | 'futuristic' | 'natural';
   theme?: {
     background?: string;
     foreground?: string;
@@ -35,7 +35,7 @@ const SiteSettingsSchema = new Schema<SiteSettingsDocument>({
   },
   layoutTemplate: {
     type: String,
-    enum: ['classic', 'modern', 'minimal', 'elegant'],
+    enum: ['classic', 'modern', 'minimal', 'elegant', 'luxe', 'vintage', 'artistic', 'compact', 'futuristic', 'natural'],
     default: 'classic',
   },
   theme: {

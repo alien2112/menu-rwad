@@ -317,14 +317,12 @@ export default function EnhancedAdminDashboard() {
             value={stats?.totalOrders || 0}
             icon={ShoppingCart}
             color="bg-blue-500"
-            trend="+12% من الأسبوع الماضي"
           />
           <StatCard
             title="إجمالي الإيرادات"
             value={`${stats?.totalRevenue || 0} ر.س`}
             icon={TrendingUp}
             color="bg-green-500"
-            trend="+8% من الأسبوع الماضي"
           />
           <StatCard
             title="الطلبات المعلقة"

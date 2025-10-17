@@ -1,4 +1,4 @@
-export type TemplateId = 'classic' | 'modern' | 'minimal' | 'elegant';
+export type TemplateId = 'classic' | 'modern' | 'minimal' | 'elegant' | 'luxe' | 'vintage' | 'artistic' | 'compact' | 'futuristic' | 'natural';
 
 export interface MenuTemplate {
   id: TemplateId;
@@ -98,6 +98,138 @@ export const MENU_TEMPLATES: MenuTemplate[] = [
       'مسافات مميزة',
       'رسوم متحركة متطورة',
       'الأفضل للمطاعم الفاخرة'
+    ]
+  },
+  {
+    id: 'luxe',
+    name: 'Luxe',
+    nameAr: 'فخم',
+    description: 'Premium dark theme with gold accents, marble textures, and sophisticated animations. Ultimate luxury experience.',
+    descriptionAr: 'ثيم داكن فاخر مع لمسات ذهبية وخامات رخامية ورسوم متحركة راقية. تجربة فخامة مطلقة.',
+    thumbnail: '/templates/luxe-preview.png',
+    features: [
+      'Dark luxury theme',
+      'Gold accent colors',
+      'Marble-inspired textures',
+      'Premium micro-interactions',
+      'Best for high-end establishments'
+    ],
+    featuresAr: [
+      'ثيم فاخر داكن',
+      'ألوان ذهبية لامعة',
+      'خامات مستوحاة من الرخام',
+      'تفاعلات دقيقة راقية',
+      'الأفضل للمطاعم الراقية جداً'
+    ]
+  },
+  {
+    id: 'vintage',
+    name: 'Vintage',
+    nameAr: 'تراثي',
+    description: 'Classic retro design with warm sepia tones, ornate borders, and nostalgic typography. Perfect for traditional cafes.',
+    descriptionAr: 'تصميم كلاسيكي أصيل بألوان دافئة وحدود مزخرفة وطباعة حنينية. مثالي للمقاهي التراثية.',
+    thumbnail: '/templates/vintage-preview.png',
+    features: [
+      'Retro-inspired layout',
+      'Warm color palette',
+      'Decorative borders',
+      'Classic serif fonts',
+      'Best for heritage venues'
+    ],
+    featuresAr: [
+      'تخطيط مستوحى من الماضي',
+      'لوحة ألوان دافئة',
+      'حدود مزخرفة',
+      'خطوط كلاسيكية أنيقة',
+      'الأفضل للأماكن التراثية'
+    ]
+  },
+  {
+    id: 'artistic',
+    name: 'Artistic',
+    nameAr: 'فني',
+    description: 'Creative asymmetric layout with vibrant gradients, artistic shapes, and bold visuals. For contemporary fusion concepts.',
+    descriptionAr: 'تخطيط غير متماثل إبداعي مع تدرجات حيوية وأشكال فنية ومرئيات جريئة. لمفاهيم الدمج المعاصرة.',
+    thumbnail: '/templates/artistic-preview.png',
+    features: [
+      'Asymmetric creative layout',
+      'Vibrant color gradients',
+      'Unique card shapes',
+      'Artistic visual effects',
+      'Best for fusion restaurants'
+    ],
+    featuresAr: [
+      'تخطيط إبداعي غير متماثل',
+      'تدرجات ألوان نابضة',
+      'أشكال بطاقات فريدة',
+      'تأثيرات بصرية فنية',
+      'الأفضل لمطاعم الدمج'
+    ]
+  },
+  {
+    id: 'compact',
+    name: 'Compact',
+    nameAr: 'مضغوط',
+    description: 'Dense information layout with small cards, efficient spacing, and quick scanning. Ideal for extensive menus.',
+    descriptionAr: 'تخطيط معلومات كثيف ببطاقات صغيرة ومسافات فعالة وسهولة تصفح سريع. مثالي للقوائم الواسعة.',
+    thumbnail: '/templates/compact-preview.png',
+    features: [
+      'High-density layout',
+      'Compact card design',
+      'Efficient information display',
+      'Quick navigation',
+      'Best for large menus'
+    ],
+    featuresAr: [
+      'تخطيط عالي الكثافة',
+      'تصميم بطاقة مضغوط',
+      'عرض معلومات فعال',
+      'تنقل سريع',
+      'الأفضل للقوائم الكبيرة'
+    ]
+  },
+  {
+    id: 'futuristic',
+    name: 'Futuristic',
+    nameAr: 'مستقبلي',
+    description: 'Sleek, futuristic design with a dark theme, glowing elements, and sharp angles. Features a horizontal card layout.',
+    descriptionAr: 'تصميم مستقبلي أنيق مع سمة داكنة وعناصر متوهجة وزوايا حادة. يتميز بتصميم بطاقة أفقي.',
+    thumbnail: '/templates/futuristic-preview.png',
+    features: [
+      'Horizontal card layout',
+      'Dark theme with glowing accents',
+      'Expandable details section',
+      'Cyberpunk-inspired aesthetics',
+      'Best for modern, tech-focused venues'
+    ],
+    featuresAr: [
+      'تصميم بطاقة أفقي',
+      'سمة داكنة مع لمسات متوهجة',
+      'قسم تفاصيل قابل للتوسيع',
+      'جماليات مستوحاة من السايبربانك',
+      'الأفضل للأماكن الحديثة والتقنية'
+    ]
+  },
+  {
+    id: 'natural',
+    name: 'Natural',
+    nameAr: 'طبيعي',
+    description: 'Light and airy design with a focus on natural textures and colors. Features a clean, simple layout and an ingredients list.',
+    descriptionAr: 'تصميم خفيف ومتجدد مع التركيز على الخامات والألوان الطبيعية. يتميز بتصميم نظيف وبسيط وقائمة مكونات.',
+    thumbnail: '/templates/natural-preview.png',
+    features: [
+      'Light, airy design',
+      'Focus on natural textures',
+      'Clean and simple layout',
+      'Displays key ingredients',
+      'Best for health-focused or organic restaurants'
+    ],
+    featuresAr: [
+      'تصميم خفيف ومتجدد',
+      'التركيز على الخامات الطبيعية',
+      'تصميم نظيف وبسيط',
+      'عرض المكونات الرئيسية',
+      'الأفضل للمطاعم الصحية أو العضوية'
     ]
   }
 ];

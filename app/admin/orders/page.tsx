@@ -165,15 +165,17 @@ export default function AdminDashboard() {
     return matchesStatus && matchesDepartment && matchesSearch;
   });
 
-  // Calculate statistics
+  // Calculate statistics (item-level to match station dashboards)
   const totalOrders = orders.length;
-  const pendingOrders = orders.filter(o => o.status === 'pending').length;
-  const preparingOrders = orders.filter(o => o.status === 'preparing').length;
-  const readyOrders = orders.filter(o => o.status === 'ready').length;
+  const allItems = orders.flatMap(o => o.items);
+  const pendingOrders = allItems.filter(item => item.departmentStatus === 'pending').length;
+  const preparingOrders = allItems.filter(item => item.departmentStatus === 'in_progress').length;
+  const readyOrders = allItems.filter(item => item.departmentStatus === 'ready').length;
 
-  const kitchenPending = orders.filter(o => o.departmentStatuses.kitchen === 'pending').length;
-  const baristaPending = orders.filter(o => o.departmentStatuses.barista === 'pending').length;
-  const shishaPending = orders.filter(o => o.departmentStatuses.shisha === 'pending').length;
+  // Pending ITEMS per department (to align with per-station views)
+  const kitchenPending = allItems.filter(item => item.department === 'kitchen' && item.departmentStatus === 'pending').length;
+  const baristaPending = allItems.filter(item => item.department === 'barista' && item.departmentStatus === 'pending').length;
+  const shishaPending = allItems.filter(item => item.department === 'shisha' && item.departmentStatus === 'pending').length;
 
   if (loading) {
     return (
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{kitchenPending}</div>
-            <p className="text-xs text-muted-foreground">Pending orders</p>
+            <p className="text-xs text-muted-foreground">Pending items</p>
           </CardContent>
         </Card>
 
@@ -262,7 +264,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{baristaPending}</div>
-            <p className="text-xs text-muted-foreground">Pending orders</p>
+            <p className="text-xs text-muted-foreground">Pending items</p>
           </CardContent>
         </Card>
 
@@ -273,7 +275,7 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">{shishaPending}</div>
-            <p className="text-xs text-muted-foreground">Pending orders</p>
+            <p className="text-xs text-muted-foreground">Pending items</p>
           </CardContent>
         </Card>
       </div>

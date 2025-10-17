@@ -8,6 +8,12 @@ import { ClassicLayout } from "@/components/templates/ClassicLayout";
 import { ModernLayout } from "@/components/templates/ModernLayout";
 import { MinimalLayout } from "@/components/templates/MinimalLayout";
 import { ElegantLayout } from "@/components/templates/ElegantLayout";
+import { LuxeLayout } from "@/components/templates/LuxeLayout";
+import { VintageLayout } from "@/components/templates/VintageLayout";
+import { ArtisticLayout } from "@/components/templates/ArtisticLayout";
+import { CompactLayout } from "@/components/templates/CompactLayout";
+import { FuturisticLayout } from "@/components/templates/FuturisticLayout";
+import { NaturalLayout } from "@/components/templates/NaturalLayout";
 import { Skeleton } from "@/components/SkeletonLoader";
 
 // Sample menu item for preview
@@ -92,9 +98,21 @@ export default function MenuTemplatePage() {
       modern: ModernLayout,
       minimal: MinimalLayout,
       elegant: ElegantLayout,
+      luxe: LuxeLayout,
+      vintage: VintageLayout,
+      artistic: ArtisticLayout,
+      compact: CompactLayout,
+      futuristic: FuturisticLayout,
+      natural: NaturalLayout,
     }[templateId];
 
-    return <TemplateComponent item={SAMPLE_ITEM} onAddToCart={() => {}} />;
+    // All templates now have components, render them
+    if (TemplateComponent) {
+      return <TemplateComponent item={SAMPLE_ITEM} onAddToCart={() => {}} />;
+    }
+
+    // Fallback (should not reach here)
+    return <div className="text-white p-8">Template not found</div>;
   };
 
   if (loading) {

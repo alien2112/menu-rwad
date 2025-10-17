@@ -229,11 +229,22 @@ export async function POST(request: NextRequest) {
     // Validate inventory availability before processing order
     const inventoryValidation = await validateInventoryAvailability(orderData.items);
     if (!inventoryValidation.valid) {
+      // Create a user-friendly error message in Arabic
+      const errorDetails = inventoryValidation.errors.map(err => {
+        // Extract ingredient name from error message
+        const match = err.match(/Insufficient stock for (.+?):/);
+        const ingredientName = match ? match[1] : 'أحد المكونات';
+        return `• ${ingredientName}: ${err.includes('available') ? 'المخزون غير كافٍ' : 'غير متوفر في المخزون'}`;
+      }).join('\n');
+
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Insufficient inventory for order',
-          details: inventoryValidation.errors
+        {
+          success: false,
+          error: 'عذراً، لا يمكن إتمام الطلب',
+          message: `بعض المكونات غير متوفرة بالكمية المطلوبة:\n\n${errorDetails}\n\nيرجى تعديل طلبك أو التواصل مع الإدارة`,
+          userFriendlyMessage: 'عذراً، بعض المكونات في طلبك غير متوفرة حالياً. يرجى اختيار منتجات أخرى أو التواصل معنا',
+          details: inventoryValidation.errors,
+          arabicDetails: errorDetails
         },
         { status: 400 }
       );

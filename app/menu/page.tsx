@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { ShoppingCart, List, Grid3X3 } from "lucide-react";
 import { CartIcon, CartModal } from "../../components/CartComponents";
 import { RestaurantMenuHeader } from "../../components/RestaurantMenuHeader";
@@ -83,7 +83,7 @@ export default function Menu() {
   const { dispatch } = useCart();
   const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [filteredMenuItems, setFilteredMenuItems] = useState<MenuItem[]>([]);
+  const [searchFilteredItems, setSearchFilteredItems] = useState<MenuItem[] | null>(null);
   const [pageBackground, setPageBackground] = useState<PageBackground | null>(null);
   const [hero, setHero] = useState<any | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
@@ -108,7 +108,7 @@ export default function Menu() {
     loading: itemsLoading, 
     error: itemsError,
     isCached: itemsCached 
-  } = useCachedFetch<MenuItem[]>('/api/items', {
+  } = useCachedFetch<MenuItem[]>(`/api/items?limit=1000`, {
     cacheKey: 'menu_items_cache_v1',
     cacheTTL: 10 * 60 * 1000 // 10 minutes
   });
@@ -332,31 +332,26 @@ export default function Menu() {
   };
 
 
-  const handleFilteredItems = (items: MenuItem[]) => {
-    setFilteredMenuItems(items);
-  };
+  const handleFilteredItems = useCallback((items: MenuItem[]) => {
+    setSearchFilteredItems(items);
+  }, []);
 
   const backgroundImageUrl = getBackgroundImage();
-  
-  // Filter menu items by selected category
-  const categoryFilteredItems = (() => {
+
+  // Filter menu items by selected category - use useMemo to avoid recalculation
+  const categoryFilteredItems = useMemo(() => {
     let items = menuItems;
-    
+
     // Filter by category if selected
     if (selectedCategory && selectedCategory !== 'offers') {
       items = items.filter(item => item.categoryId === selectedCategory);
     }
-    
-    return items;
-  })();
 
-  // Ensure we show items even before AdvancedSearchFilter emits
-  useEffect(() => {
-    if (filteredMenuItems.length === 0 && categoryFilteredItems.length > 0) {
-      setFilteredMenuItems(categoryFilteredItems);
-    }
-    // Only react to the counts to avoid unnecessary re-renders
-  }, [categoryFilteredItems.length, filteredMenuItems.length]);
+    return items;
+  }, [menuItems, selectedCategory]);
+
+  // Final filtered items - use search filter if available, otherwise use category filter
+  const filteredMenuItems = searchFilteredItems !== null ? searchFilteredItems : categoryFilteredItems;
 
   // Calculate offers count
   const offersCount = menuItems.filter(item => item.discountPrice && item.discountPrice < item.price).length;
@@ -365,6 +360,8 @@ export default function Menu() {
   console.log('All menu items:', menuItems.length);
   console.log('Category filtered items:', categoryFilteredItems.length);
   console.log('Final filtered items:', filteredMenuItems.length);
+  console.log('Menu items data:', menuItems);
+  console.log('Categories data:', categories);
 
   return (
     <div
@@ -508,7 +505,7 @@ export default function Menu() {
                 items={filteredMenuItems}
                 onAddToCart={handleItemClick}
                 categories={categories}
-                showGrouped={selectedCategory === null}
+                showGrouped={false}
                 selectedCategory={selectedCategory}
                 viewMode={viewMode}
               />

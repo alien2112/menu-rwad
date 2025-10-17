@@ -19,6 +19,7 @@ export default function CategoriesPage() {
     image: '',
     order: 0,
     status: 'active',
+    department: 'kitchen',
   });
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -125,6 +126,7 @@ export default function CategoriesPage() {
       image: '',
       order: 0,
       status: 'active',
+      department: 'kitchen',
     });
   };
 
@@ -260,7 +262,25 @@ export default function CategoriesPage() {
               </span>
             </div>
 
-            {/* Featured display removed */}
+            {/* Department Badge */}
+            <div className="mt-3">
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  category.department === 'kitchen'
+                    ? 'bg-orange-500/20 text-orange-300'
+                    : category.department === 'barista'
+                    ? 'bg-blue-500/20 text-blue-300'
+                    : category.department === 'shisha'
+                    ? 'bg-purple-500/20 text-purple-300'
+                    : 'bg-gray-500/20 text-gray-300'
+                }`}
+              >
+                {category.department === 'kitchen' && '🍳 مطبخ'}
+                {category.department === 'barista' && '☕ مشروبات'}
+                {category.department === 'shisha' && '💨 شيشة'}
+                {!category.department && '❓ غير محدد'}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -326,7 +346,22 @@ export default function CategoriesPage() {
                 value={formData.image}
                 onChange={(image) => setFormData({ ...formData, image })}
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-semibold text-white mb-2 block">
+                    القسم *
+                  </label>
+                  <select
+                    value={formData.department || 'kitchen'}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value as 'kitchen' | 'barista' | 'shisha' })}
+                    className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                  >
+                    <option value="kitchen">🍳 مطبخ (Kitchen)</option>
+                    <option value="barista">☕ مشروبات (Barista)</option>
+                    <option value="shisha">💨 شيشة (Shisha)</option>
+                  </select>
+                </div>
+
                 <div>
                   <label className="text-sm font-semibold text-white mb-2 block">
                     الترتيب

@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 
     // Use lean() for better performance + select only needed fields
     let q = Category.find(query)
-      .select('name nameEn description image color icon order featured featuredOrder status')
+      .select('name nameEn description image color icon department order featured featuredOrder status')
       .sort(sort)
       .lean();
 
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     const rawBody = await request.json();
 
     // Sanitize category data
-    const allowedKeys = ['name', 'nameEn', 'description', 'image', 'color', 'icon', 'order', 'featured', 'featuredOrder', 'status'];
+    const allowedKeys = ['name', 'nameEn', 'description', 'image', 'color', 'icon', 'department', 'order', 'featured', 'featuredOrder', 'status'];
     const sanitizedBody = sanitizeObject(rawBody, allowedKeys);
 
     console.log('Creating category with data:', sanitizedBody);

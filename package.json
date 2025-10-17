@@ -18,7 +18,9 @@
     "postbuild": "echo 'Build completed successfully'",
     "websocket": "node scripts/websocket-server.js",
     "dev:full": "concurrently \"npm run dev\" \"npm run websocket\"",
-    "dev:ws": "concurrently \"npm run dev\" \"npm run start:ws\""
+    "dev:ws": "concurrently \"npm run dev\" \"npm run start:ws\"",
+    "seed:db": "node scripts/seedDatabase.js",
+    "seed:test": "MONGODB_URI=mongodb://localhost:27017/maraksh_test node scripts/seedDatabase.js"
   },
   "dependencies": {
     "@next/swc-wasm-nodejs": "^15.5.4",

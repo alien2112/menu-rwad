@@ -467,6 +467,8 @@ html[data-scrolling="true"] *::-webkit-scrollbar-thumb,
 /* Restaurant menu item hover effects */
 .restaurant-menu-item {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; /* ensure z-index applies */
+  z-index: 20; /* float above page overlays */
 }
 
 .restaurant-menu-item:hover {

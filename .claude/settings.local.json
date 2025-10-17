@@ -8,7 +8,10 @@
       "Bash(tasklist)",
       "Bash(findstr /I \"18656\")",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(git stash:*)"
     ],
     "deny": [],
     "ask": []
