@@ -135,18 +135,26 @@ export function RoleBasedAuth({ children, embedded = false }: RoleBasedAuthProps
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Important: include cookies
         body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        setUser(data.data);
+        const userData = data.data.user;
+        setUser(userData);
         setIsAuthenticated(true);
-        localStorage.setItem("user_auth", JSON.stringify(data.data));
+
+        // Store token in localStorage as backup (cookies are primary)
+        if (data.data.accessToken) {
+          localStorage.setItem("auth_token", data.data.accessToken);
+        }
+        localStorage.setItem("user_auth", JSON.stringify(userData));
+
         setUsername("");
         setPassword("");
-        
+
         // Redirect to appropriate dashboard based on role
         const roleRoutes = {
           admin: '/admin',
@@ -154,20 +162,33 @@ export function RoleBasedAuth({ children, embedded = false }: RoleBasedAuthProps
           barista: '/admin/barista',
           shisha: '/admin/shisha'
         };
-        router.push(roleRoutes[data.data.role] || '/admin');
+        router.push(roleRoutes[userData.role] || '/admin');
       } else {
         setError(data.error || "فشل في تسجيل الدخول");
       }
     } catch (error) {
+      console.error('Login error:', error);
       setError("خطأ في الاتصال بالخادم");
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    localStorage.removeItem("user_auth");
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear cookies
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    } finally {
+      // Clear local state and storage regardless of API result
+      setIsAuthenticated(false);
+      setUser(null);
+      localStorage.removeItem("user_auth");
+      localStorage.removeItem("auth_token");
+      router.push("/");
+    }
   };
 
   if (isLoading) {
