@@ -16,6 +16,7 @@ const ArtisticLayout = lazy(() => import("./templates/ArtisticLayout").then(m =>
 const CompactLayout = lazy(() => import("./templates/CompactLayout").then(m => ({ default: m.CompactLayout })));
 const FuturisticLayout = lazy(() => import("./templates/FuturisticLayout").then(m => ({ default: m.FuturisticLayout })));
 const NaturalLayout = lazy(() => import("./templates/NaturalLayout").then(m => ({ default: m.NaturalLayout })));
+const OriginalLayout = lazy(() => import("./templates/OriginalLayout").then(m => ({ default: m.OriginalLayout })));
 
 interface MenuItem {
   _id: string;
@@ -133,6 +134,8 @@ export const DynamicMenuItemsList = ({
         return FuturisticLayout;
       case 'natural':
         return NaturalLayout;
+      case 'original':
+        return OriginalLayout;
       case 'classic':
       default:
         return ClassicLayout;
@@ -195,7 +198,7 @@ export const DynamicMenuItemsList = ({
           ) : (
             offersItems.map((item) => (
               <Suspense key={item._id} fallback={<TemplateItemSkeleton />}>
-                <TemplateComponent item={item} onAddToCart={onAddToCart} />
+                <TemplateComponent item={item} onAddToCart={onAddToCart} viewMode={viewMode} />
               </Suspense>
             ))
           )}
@@ -231,7 +234,7 @@ export const DynamicMenuItemsList = ({
           ))
         ) : (
           items.map((item) => (
-            <TemplateComponent key={item._id} item={item} onAddToCart={onAddToCart} />
+            <TemplateComponent key={item._id} item={item} onAddToCart={onAddToCart} viewMode={viewMode} />
           ))
         )}
       </motion.div>
@@ -314,7 +317,7 @@ export const DynamicMenuItemsList = ({
           <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4 relative z-20' : 'space-y-4 relative z-20'}>
             {categoryItems.map((item) => (
               <Suspense key={item._id} fallback={<TemplateItemSkeleton />}>
-                <TemplateComponent item={item} onAddToCart={onAddToCart} />
+                <TemplateComponent item={item} onAddToCart={onAddToCart} viewMode={viewMode} />
               </Suspense>
             ))}
           </div>

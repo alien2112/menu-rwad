@@ -1,4 +1,4 @@
-export type TemplateId = 'classic' | 'modern' | 'minimal' | 'elegant' | 'luxe' | 'vintage' | 'artistic' | 'compact' | 'futuristic' | 'natural';
+export type TemplateId = 'classic' | 'modern' | 'minimal' | 'elegant' | 'luxe' | 'vintage' | 'artistic' | 'compact' | 'futuristic' | 'natural' | 'original';
 
 export interface MenuTemplate {
   id: TemplateId;
@@ -230,6 +230,28 @@ export const MENU_TEMPLATES: MenuTemplate[] = [
       'تصميم نظيف وبسيط',
       'عرض المكونات الرئيسية',
       'الأفضل للمطاعم الصحية أو العضوية'
+    ]
+  },
+  {
+    id: 'original',
+    name: 'Original',
+    nameAr: 'الأصلي',
+    description: 'Classic maraksh design with glassmorphism effects, circular images in list view, and rectangular cards in grid view. The original restaurant menu style.',
+    descriptionAr: 'تصميم مرقش الكلاسيكي مع تأثيرات زجاجية، صور دائرية في عرض القائمة، وبطاقات مستطيلة في عرض الشبكة. التصميم الأصلي لقائمة المطعم.',
+    thumbnail: '/templates/original-preview.png',
+    features: [
+      'Glassmorphism backdrop blur',
+      'Circular images in list view',
+      'Rectangular cards in grid view',
+      'Different layouts per view mode',
+      'Best for traditional restaurant menus'
+    ],
+    featuresAr: [
+      'تأثيرات زجاجية مع ضبابية',
+      'صور دائرية في عرض القائمة',
+      'بطاقات مستطيلة في عرض الشبكة',
+      'تخطيطات مختلفة لكل وضع عرض',
+      'الأفضل لقوائم المطاعم التقليدية'
     ]
   }
 ];
