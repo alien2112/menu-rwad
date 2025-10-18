@@ -8,7 +8,7 @@ import { Label } from "@/components/admin/Label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
 import { Textarea } from "@/components/admin/Textarea";
 import { Badge } from "@/components/admin/Badge";
-import { TrendingDown, Plus, Trash2, AlertTriangle, CheckCircle } from "lucide-react";
+import { TrendingDown, Plus, AlertTriangle, CheckCircle } from "lucide-react";
 import { RoleBasedAuth } from "@/components/RoleBasedAuth";
 import { AlertDialog } from "@/components/admin/AlertDialog";
 

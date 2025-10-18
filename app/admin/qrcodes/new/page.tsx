@@ -15,7 +15,7 @@ import {
   Palette,
   ImageIcon,
 } from "lucide-react";
-import QRCodeCanvas from "qrcode.react";
+import { QRCodeCanvas } from "qrcode.react";
 import { Skeleton } from "@/components/SkeletonLoader";
 
 interface Branch {

@@ -7,7 +7,7 @@ import { Badge } from "@/components/admin/Badge";
 import { Input } from "@/components/admin/Input";
 import { Label } from "@/components/admin/Label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
-import { Calendar, Download, Trash2, Archive, AlertCircle, CheckCircle, Clock } from "lucide-react";
+import { Download, Trash2, Archive, AlertCircle, CheckCircle, Clock } from "lucide-react";
 import { AlertDialog } from "@/components/admin/AlertDialog";
 import { useAlert, useConfirmation } from "@/components/ui/alerts";
 

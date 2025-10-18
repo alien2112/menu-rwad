@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/SkeletonLoader";
 
 export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState<'analytics' | 'waste'>('analytics');
-  const [currentUser, setCurrentUser] = useState<string>('admin');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

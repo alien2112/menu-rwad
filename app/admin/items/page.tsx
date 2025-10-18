@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Plus, Edit2, Trash2, Search, Eye, EyeOff, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IMenuItem, IMenuItemIngredient } from '@/lib/models/MenuItem';
 import { ICategory } from '@/lib/models/Category';

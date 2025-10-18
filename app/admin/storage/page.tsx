@@ -43,12 +43,26 @@ export default function StorageManagementDashboard() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // New material form state
+  const [newMaterial, setNewMaterial] = useState({
+    name: '',
+    nameEn: '',
+    unit: 'kg',
+    currentQuantity: 0,
+    minLimit: 0,
+    alertLimit: 0,
+    costPerUnit: 0,
+    category: 'food' as const,
+    supplier: '',
+    notes: '',
+    ingredientId: ''
+  });
 
   useEffect(() => {
     fetchMaterials();
@@ -107,27 +121,6 @@ export default function StorageManagementDashboard() {
       </div>
     );
   }
-
-  // New material form state
-  const [newMaterial, setNewMaterial] = useState({
-    name: '',
-    nameEn: '',
-    unit: 'kg',
-    currentQuantity: 0,
-    minLimit: 0,
-    alertLimit: 0,
-    costPerUnit: 0,
-    category: 'food' as const,
-    supplier: '',
-    notes: '',
-    ingredientId: ''
-  });
-
-  useEffect(() => {
-    fetchMaterials();
-    fetchIngredients();
-    fetchNotifications();
-  }, []);
 
   const fetchMaterials = async () => {
     try {

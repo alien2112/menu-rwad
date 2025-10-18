@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AdminAuth } from '@/components/AdminAuth';
-import { Plus, Edit, Trash2, Upload, Eye, EyeOff, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X } from 'lucide-react';
 import { AlertDialog } from '@/components/AlertDialog';
 import { IPageBackground } from '@/lib/models/PageBackground';
 
