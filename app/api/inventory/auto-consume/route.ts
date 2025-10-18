@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { InventoryItem, InventoryConsumption } from '@/lib/models/Inventory';
 import MenuItem from '@/lib/models/MenuItem';
+import Ingredient from '@/lib/models/Ingredient';
 import { sendLowStockNotification, sendOutOfStockNotification } from '@/lib/notificationUtils';
 import { autoDisableMenuItems } from '@/lib/menuItemStatusManager';
+import { convertUnit } from '@/lib/unitConversion';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,13 +36,33 @@ export async function POST(request: NextRequest) {
       // Process each ingredient in the menu item
       for (const ingredient of menuItem.ingredients) {
         const { ingredientId, portion } = ingredient;
-        const totalConsumption = portion * quantity;
+
+        // Get ingredient to know its unit
+        const ingredientData = await Ingredient.findById(ingredientId);
+        if (!ingredientData) {
+          console.warn(`Ingredient not found: ${ingredientId}`);
+          continue;
+        }
 
         // Find inventory item
         const inventoryItem = await InventoryItem.findOne({ ingredientId });
         if (!inventoryItem) {
           console.warn(`Inventory item not found for ingredient: ${ingredientId}`);
           continue;
+        }
+
+        // Convert portion to inventory unit if needed
+        let totalConsumption = portion * quantity;
+
+        if (ingredientData.unit !== inventoryItem.unit) {
+          const converted = convertUnit(totalConsumption, ingredientData.unit, inventoryItem.unit);
+          if (converted !== null) {
+            console.log(`Converting ${totalConsumption}${ingredientData.unit} to ${converted}${inventoryItem.unit} for ${ingredientData.name}`);
+            totalConsumption = converted;
+          } else {
+            console.warn(`Cannot convert ${ingredientData.unit} to ${inventoryItem.unit} - skipping consumption`);
+            continue;
+          }
         }
 
         // Check if there's enough stock

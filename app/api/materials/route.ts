@@ -4,6 +4,7 @@ import Material from '@/lib/models/Material';
 import MaterialUsage from '@/lib/models/MaterialUsage';
 import Notification from '@/lib/models/Notification';
 import InventoryItem from '@/lib/models/Inventory';
+import { convertUnit } from '@/lib/unitConversion';
 
 // GET /api/materials - Get all materials with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -255,7 +256,7 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Helper function to sync material stock with inventory
+// Helper function to sync material stock with inventory (with unit conversion)
 async function syncMaterialToInventory(material: any) {
   try {
     if (!material.ingredientId) return;
@@ -264,8 +265,22 @@ async function syncMaterialToInventory(material: any) {
     const inventoryItem = await InventoryItem.findOne({ ingredientId: material.ingredientId });
 
     if (inventoryItem) {
-      // Update inventory stock to match material quantity
-      inventoryItem.currentStock = material.currentQuantity;
+      // Convert material quantity to inventory unit if needed
+      let convertedQuantity = material.currentQuantity;
+
+      if (material.unit !== inventoryItem.unit) {
+        const converted = convertUnit(material.currentQuantity, material.unit, inventoryItem.unit);
+        if (converted !== null) {
+          convertedQuantity = converted;
+          console.log(`Converted ${material.currentQuantity}${material.unit} to ${convertedQuantity}${inventoryItem.unit}`);
+        } else {
+          console.warn(`Cannot convert ${material.unit} to ${inventoryItem.unit} - incompatible units`);
+          return; // Don't sync if units are incompatible
+        }
+      }
+
+      // Update inventory stock with converted quantity
+      inventoryItem.currentStock = convertedQuantity;
 
       // Update status based on stock levels
       if (inventoryItem.currentStock <= 0) {
@@ -279,7 +294,7 @@ async function syncMaterialToInventory(material: any) {
       inventoryItem.lastUpdated = new Date();
       await inventoryItem.save();
 
-      console.log(`Synced Material ${material.name} to Inventory ${inventoryItem.ingredientName}`);
+      console.log(`Synced Material ${material.name} (${material.currentQuantity}${material.unit}) to Inventory ${inventoryItem.ingredientName} (${inventoryItem.currentStock}${inventoryItem.unit})`);
     }
   } catch (error) {
     console.error('Error syncing material to inventory:', error);

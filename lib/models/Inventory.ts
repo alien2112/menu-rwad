@@ -1,11 +1,12 @@
 import mongoose, { Schema, Model } from 'mongoose';
+import { UnitType } from '../unitConversion';
 
 export interface IInventoryItem {
   _id?: string;
   ingredientId: string;
   ingredientName: string;
   currentStock: number;
-  unit: string;
+  unit: UnitType | string; // Use UnitType enum
   minStockLevel: number;
   maxStockLevel: number;
   lastUpdated: Date;
@@ -19,7 +20,7 @@ export interface IInventoryConsumption {
   ingredientId: string;
   ingredientName: string;
   quantityConsumed: number;
-  unit: string;
+  unit: UnitType | string; // Use UnitType enum
   reason: 'order' | 'waste' | 'spoilage' | 'manual_adjustment' | 'other';
   orderId?: string; // If consumption is due to an order
   menuItemId?: string; // If consumption is due to a specific menu item
@@ -50,7 +51,8 @@ const InventoryItemSchema = new Schema<IInventoryItem>(
     unit: {
       type: String,
       required: [true, 'Please provide a unit'],
-      default: 'g',
+      enum: Object.values(UnitType),
+      default: UnitType.GRAM,
     },
     minStockLevel: {
       type: Number,
@@ -98,7 +100,8 @@ const InventoryConsumptionSchema = new Schema<IInventoryConsumption>(
     unit: {
       type: String,
       required: [true, 'Please provide a unit'],
-      default: 'g',
+      enum: Object.values(UnitType),
+      default: UnitType.GRAM,
     },
     reason: {
       type: String,

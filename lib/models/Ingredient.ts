@@ -1,4 +1,5 @@
 import mongoose, { Schema, Model } from 'mongoose';
+import { UnitType } from '../unitConversion';
 
 export interface IIngredient {
   _id?: string;
@@ -6,7 +7,7 @@ export interface IIngredient {
   nameEn?: string;
   description?: string;
   image?: string;
-  unit: string; // e.g., 'g', 'ml', 'piece', 'cup'
+  unit: UnitType | string; // Use UnitType enum
   defaultPortion: number;
   minPortion?: number;
   maxPortion?: number;
@@ -39,7 +40,8 @@ const IngredientSchema = new Schema<IIngredient>(
     unit: {
       type: String,
       required: [true, 'Please provide a unit'],
-      default: 'g',
+      enum: Object.values(UnitType),
+      default: UnitType.GRAM,
     },
     defaultPortion: {
       type: Number,

@@ -1,11 +1,12 @@
 import mongoose, { Schema, Model } from 'mongoose';
+import { UnitType } from '../unitConversion';
 
 export interface IMaterial {
   _id?: string;
   name: string;
   nameEn?: string;
   description?: string;
-  unit: string; // e.g., 'kg', 'liter', 'piece', 'box'
+  unit: UnitType | string; // Use UnitType enum
   currentQuantity: number;
   minLimit: number;
   alertLimit: number;
@@ -40,7 +41,8 @@ const MaterialSchema = new Schema<IMaterial>(
     unit: {
       type: String,
       required: [true, 'Please provide a unit'],
-      default: 'kg',
+      enum: Object.values(UnitType),
+      default: UnitType.KILOGRAM,
     },
     currentQuantity: {
       type: Number,
