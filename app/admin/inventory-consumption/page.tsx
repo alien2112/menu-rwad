@@ -195,12 +195,93 @@ export default function InventoryConsumptionPage() {
   if (loading) {
     return (
       <RoleBasedAuth>
-        <div className="p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 rounded w-1/4"></div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="h-32 rounded"></div>
+        <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="p-3 admin-card rounded-xl">
+                <div className="h-6 w-6 rounded animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-8 w-48 rounded animate-pulse" />
+                <div className="h-4 w-64 rounded animate-pulse" />
+              </div>
+            </div>
+            <div className="h-10 w-48 rounded-lg animate-pulse" />
+          </div>
+
+          {/* Low Stock Alert Skeleton */}
+          <div className="admin-card rounded-xl p-6 border-yellow-500/50 bg-yellow-500/10">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-5 w-5 rounded animate-pulse" />
+              <div className="h-6 w-32 rounded animate-pulse" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between p-2 bg-yellow-500/20 rounded">
+                  <div className="h-4 w-24 rounded animate-pulse" />
+                  <div className="h-4 w-16 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Add Consumption Form Skeleton */}
+          <div className="admin-card rounded-xl p-6">
+            <div className="h-6 w-48 rounded animate-pulse mb-4" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="h-4 w-16 rounded animate-pulse" />
+                  <div className="h-10 w-full rounded-lg animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 rounded animate-pulse" />
+                  <div className="h-10 w-full rounded-lg animate-pulse" />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="h-4 w-20 rounded animate-pulse" />
+                  <div className="h-10 w-full rounded-lg animate-pulse" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 rounded animate-pulse" />
+                  <div className="h-20 w-full rounded-lg animate-pulse" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-10 w-32 rounded-lg animate-pulse" />
+                <div className="h-10 w-20 rounded-lg animate-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Filter */}
+          <div className="flex gap-4 items-center">
+            <div className="h-10 w-48 rounded-lg animate-pulse" />
+          </div>
+
+          {/* Consumption Records */}
+          <div className="space-y-4">
+            <div className="h-6 w-32 rounded animate-pulse" />
+            <div className="space-y-3">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="admin-card rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="space-y-1">
+                        <div className="h-5 w-32 rounded animate-pulse" />
+                        <div className="h-4 w-24 rounded animate-pulse" />
+                      </div>
+                      <div className="h-6 w-16 rounded-full animate-pulse" />
+                    </div>
+                    <div className="text-right space-y-1">
+                      <div className="h-4 w-24 rounded animate-pulse" />
+                      <div className="h-4 w-32 rounded animate-pulse" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

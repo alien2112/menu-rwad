@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AdminPageWrapper } from "@/components/AdminPageWrapper";
@@ -9,6 +9,59 @@ import { Shield, ChefHat, Coffee, Wind } from "lucide-react";
 export default function SeedUsersPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate initial loading
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <AdminPageWrapper>
+        <div className="p-6 space-y-6">
+          <div>
+            <div className="h-8 w-80 rounded animate-pulse" />
+            <div className="h-4 w-96 rounded mt-2 animate-pulse" />
+          </div>
+
+          <div className="admin-card rounded-2xl p-6">
+            <div className="h-6 w-48 rounded animate-pulse mb-4" />
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
+                  <div className="w-12 h-12 rounded-lg animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 w-32 rounded animate-pulse" />
+                    <div className="h-4 w-24 rounded animate-pulse" />
+                    <div className="h-4 w-28 rounded animate-pulse" />
+                    <div className="h-4 w-36 rounded animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-card rounded-2xl p-6">
+            <div className="h-6 w-40 rounded animate-pulse mb-4" />
+            <div className="h-12 w-full rounded-lg animate-pulse" />
+          </div>
+
+          <div className="admin-card rounded-2xl p-6">
+            <div className="h-6 w-48 rounded animate-pulse mb-4" />
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-4 w-full rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </AdminPageWrapper>
+    );
+  }
 
   const seedUsers = async () => {
     setLoading(true);

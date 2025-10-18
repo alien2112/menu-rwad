@@ -8,6 +8,7 @@ export default function BrandingPage() {
   const [logoPosition, setLogoPosition] = useState<'left' | 'center' | 'right'>('center');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,6 +22,8 @@ export default function BrandingPage() {
         }
       } catch (e) {
         setMessage('فشل تحميل إعدادات الموقع');
+      } finally {
+        setLoading(false);
       }
     };
     load();
@@ -67,6 +70,44 @@ export default function BrandingPage() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <RoleBasedAuth>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="h-8 w-64 rounded animate-pulse" />
+          </div>
+
+          <div className="glass-effect rounded-2xl p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="h-4 w-24 rounded animate-pulse" />
+                <div className="h-10 w-full rounded-lg animate-pulse" />
+                <div className="space-y-2">
+                  <div className="h-4 w-20 rounded animate-pulse" />
+                  <div className="h-10 w-full rounded-lg animate-pulse" />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="h-4 w-24 rounded animate-pulse" />
+                <div className="h-10 w-full rounded-lg animate-pulse" />
+                <div className="pt-4">
+                  <div className="h-4 w-16 rounded animate-pulse mb-2" />
+                  <div className="h-40 w-full rounded-xl animate-pulse" />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <div className="h-10 w-32 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </RoleBasedAuth>
+    );
+  }
 
   return (
     <RoleBasedAuth>

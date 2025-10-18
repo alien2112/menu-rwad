@@ -314,7 +314,18 @@ export default function PageHeroAdmin() {
       <div className="admin-card rounded-2xl p-4 max-h-96 overflow-auto">
         <h2 className="font-semibold mb-3">السجلات</h2>
         {loading ? (
-          <p>جار التحميل...</p>
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between admin-card rounded-xl p-3">
+                <div className="space-y-1">
+                  <div className="h-5 w-48 rounded animate-pulse" />
+                  <div className="h-4 w-64 rounded animate-pulse" />
+                  <div className="h-4 w-16 rounded animate-pulse" />
+                </div>
+                <div className="h-8 w-16 rounded-lg animate-pulse" />
+              </div>
+            ))}
+          </div>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : (

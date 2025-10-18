@@ -37,7 +37,39 @@ export default function SummaryReportPage() {
   }, []);
 
   if (loading) {
-    return <div className="p-8">Loading report...</div>;
+    return (
+      <div className="p-8 space-y-6">
+        <div className="h-8 w-64 rounded animate-pulse" />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="admin-card p-6 rounded-lg">
+              <div className="h-6 w-32 rounded animate-pulse mb-2" />
+              <div className="h-8 w-24 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="admin-card p-6 rounded-lg">
+            <div className="h-6 w-48 rounded animate-pulse mb-4" />
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex justify-between items-center admin-card p-3 rounded-md">
+                  <div className="h-4 w-32 rounded animate-pulse" />
+                  <div className="h-4 w-16 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="admin-card p-6 rounded-lg">
+            <div className="h-6 w-40 rounded animate-pulse mb-4" />
+            <div className="h-72 w-full rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
