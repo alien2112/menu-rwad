@@ -1,0 +1,49 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F3500;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2A1F00;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#C2914A;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8853F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bg)"/>
+
+  <!-- Title -->
+  <text x="200" y="30" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="white" text-anchor="middle">Original Template</text>
+
+  <!-- List View Card -->
+  <g transform="translate(20, 50)">
+    <rect width="360" height="90" rx="15" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <circle cx="45" cy="45" r="30" fill="rgba(194,145,74,0.3)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <text x="90" y="35" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">Menu Item Name</text>
+    <text x="90" y="55" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.6)">Description of the item</text>
+    <rect x="90" y="65" width="80" height="15" rx="7" fill="url(#gold)"/>
+    <text x="100" y="76" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="white">25 ريال</text>
+  </g>
+
+  <!-- Grid View Cards -->
+  <g transform="translate(20, 160)">
+    <!-- Card 1 -->
+    <rect width="170" height="120" rx="10" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+    <rect x="10" y="10" width="150" height="60" rx="8" fill="rgba(194,145,74,0.3)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+    <text x="85" y="85" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Item 1</text>
+    <rect x="50" y="95" width="70" height="15" rx="7" fill="url(#gold)"/>
+
+    <!-- Card 2 -->
+    <g transform="translate(190, 0)">
+      <rect width="170" height="120" rx="10" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <rect x="10" y="10" width="150" height="60" rx="8" fill="rgba(194,145,74,0.3)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+      <text x="85" y="85" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">Item 2</text>
+      <rect x="50" y="95" width="70" height="15" rx="7" fill="url(#gold)"/>
+    </g>
+  </g>
+
+  <!-- Label -->
+  <text x="200" y="295" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.5)" text-anchor="middle">Circular List • Square Grid</text>
+</svg>

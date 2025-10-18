@@ -238,7 +238,7 @@ export const MENU_TEMPLATES: MenuTemplate[] = [
     nameAr: 'الأصلي',
     description: 'Classic maraksh design with glassmorphism effects, circular images in list view, and rectangular cards in grid view. The original restaurant menu style.',
     descriptionAr: 'تصميم مرقش الكلاسيكي مع تأثيرات زجاجية، صور دائرية في عرض القائمة، وبطاقات مستطيلة في عرض الشبكة. التصميم الأصلي لقائمة المطعم.',
-    thumbnail: '/templates/original-preview.png',
+    thumbnail: '/templates/original-preview.svg',
     features: [
       'Glassmorphism backdrop blur',
       'Circular images in list view',
