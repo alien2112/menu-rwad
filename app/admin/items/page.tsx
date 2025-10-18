@@ -605,7 +605,7 @@ export default function ItemsPage() {
                             <option value="">اختر المكون</option>
                             {ingredients.map((ingredient) => (
                               <option key={ingredient._id} value={ingredient._id}>
-                                {ingredient.name}
+                                {ingredient.name} ({ingredient.unit})
                               </option>
                             ))}
                           </select>
@@ -617,7 +617,7 @@ export default function ItemsPage() {
                             step="0.1"
                             value={ing.portion}
                             onChange={(e) => updateIngredient(index, 'portion', parseFloat(e.target.value))}
-                            placeholder="الكمية"
+                            placeholder={`الكمية${ing.ingredientId ? ` (${ingredients.find(i => i._id === ing.ingredientId)?.unit || ''})` : ''}`}
                             className="w-full px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-coffee-green focus:outline-none"
                           />
                         </div>

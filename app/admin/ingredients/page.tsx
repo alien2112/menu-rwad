@@ -5,8 +5,7 @@ import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
-
-const UNITS = ['g', 'ml', 'piece', 'cup', 'tbsp', 'tsp', 'kg', 'L'];
+import { UnitType, UNIT_LABELS } from '@/lib/unitConversion';
 
 export default function IngredientsPage() {
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
@@ -347,11 +346,23 @@ export default function IngredientsPage() {
                       onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                       className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
                     >
-                      {UNITS.map((unit) => (
-                        <option key={unit} value={unit}>
-                          {unit}
-                        </option>
-                      ))}
+                      <optgroup label="وزن (Weight)">
+                        <option value={UnitType.GRAM}>{UNIT_LABELS[UnitType.GRAM].ar} (g)</option>
+                        <option value={UnitType.KILOGRAM}>{UNIT_LABELS[UnitType.KILOGRAM].ar} (kg)</option>
+                        <option value={UnitType.MILLIGRAM}>{UNIT_LABELS[UnitType.MILLIGRAM].ar} (mg)</option>
+                      </optgroup>
+                      <optgroup label="حجم (Volume)">
+                        <option value={UnitType.MILLILITER}>{UNIT_LABELS[UnitType.MILLILITER].ar} (ml)</option>
+                        <option value={UnitType.LITER}>{UNIT_LABELS[UnitType.LITER].ar} (l)</option>
+                        <option value={UnitType.CUP}>{UNIT_LABELS[UnitType.CUP].ar} (cup)</option>
+                        <option value={UnitType.TABLESPOON}>{UNIT_LABELS[UnitType.TABLESPOON].ar} (tbsp)</option>
+                        <option value={UnitType.TEASPOON}>{UNIT_LABELS[UnitType.TEASPOON].ar} (tsp)</option>
+                      </optgroup>
+                      <optgroup label="عدد (Count)">
+                        <option value={UnitType.PIECE}>{UNIT_LABELS[UnitType.PIECE].ar} (piece)</option>
+                        <option value={UnitType.UNIT}>{UNIT_LABELS[UnitType.UNIT].ar} (unit)</option>
+                        <option value={UnitType.DOZEN}>{UNIT_LABELS[UnitType.DOZEN].ar} (dozen)</option>
+                      </optgroup>
                     </select>
                   </div>
 

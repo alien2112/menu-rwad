@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
 import { IIngredient } from '@/lib/models/Ingredient';
+import { UnitType, UNIT_LABELS } from '@/lib/unitConversion';
 
 interface Material {
   _id: string;
@@ -406,12 +407,12 @@ export default function StorageManagementDashboard() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="kg">kg</SelectItem>
-                        <SelectItem value="g">g</SelectItem>
-                        <SelectItem value="liter">liter</SelectItem>
-                        <SelectItem value="ml">ml</SelectItem>
-                        <SelectItem value="piece">piece</SelectItem>
-                        <SelectItem value="box">box</SelectItem>
+                        <SelectItem value={UnitType.KILOGRAM}>{UNIT_LABELS[UnitType.KILOGRAM].ar} (kg)</SelectItem>
+                        <SelectItem value={UnitType.GRAM}>{UNIT_LABELS[UnitType.GRAM].ar} (g)</SelectItem>
+                        <SelectItem value={UnitType.LITER}>{UNIT_LABELS[UnitType.LITER].ar} (l)</SelectItem>
+                        <SelectItem value={UnitType.MILLILITER}>{UNIT_LABELS[UnitType.MILLILITER].ar} (ml)</SelectItem>
+                        <SelectItem value={UnitType.PIECE}>{UNIT_LABELS[UnitType.PIECE].ar} (piece)</SelectItem>
+                        <SelectItem value={UnitType.UNIT}>{UNIT_LABELS[UnitType.UNIT].ar} (unit)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -484,14 +485,14 @@ export default function StorageManagementDashboard() {
                 <div>
                   <Label htmlFor="ingredientId">Link to Ingredient (Optional)</Label>
                   <Select
-                    value={newMaterial.ingredientId}
-                    onValueChange={(value) => setNewMaterial({...newMaterial, ingredientId: value})}
+                    value={newMaterial.ingredientId || "none"}
+                    onValueChange={(value) => setNewMaterial({...newMaterial, ingredientId: value === "none" ? "" : value})}
                   >
                     <SelectTrigger id="ingredientId">
                       <SelectValue placeholder="Select ingredient to sync stock" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">None (Storage only)</SelectItem>
+                      <SelectItem value="none">None (Storage only)</SelectItem>
                       {ingredients.map((ing) => (
                         <SelectItem key={ing._id} value={ing._id!}>
                           {ing.name} ({ing.unit})
