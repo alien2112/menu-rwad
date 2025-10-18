@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Loader2, Eye, X, Palette, RotateCcw } from "lucide-react";
+import { Check, Loader2, Eye, X, Palette, RotateCcw, Grid3X3, List } from "lucide-react";
 import { MENU_TEMPLATES, TemplateId } from "@/lib/types/MenuTemplate";
 import { clearCachePattern } from "@/lib/cacheInvalidation";
 import { ClassicLayout } from "@/components/templates/ClassicLayout";
@@ -15,6 +15,7 @@ import { ArtisticLayout } from "@/components/templates/ArtisticLayout";
 import { CompactLayout } from "@/components/templates/CompactLayout";
 import { FuturisticLayout } from "@/components/templates/FuturisticLayout";
 import { NaturalLayout } from "@/components/templates/NaturalLayout";
+import { OriginalLayout } from "@/components/templates/OriginalLayout";
 import { Skeleton } from "@/components/SkeletonLoader";
 import ColorPicker from "@/components/admin/ColorPicker";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -40,6 +41,7 @@ export default function MenuTemplatePage() {
   const [currentTemplate, setCurrentTemplate] = useState<TemplateId>("classic");
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>("classic");
   const [previewTemplate, setPreviewTemplate] = useState<TemplateId | null>(null);
+  const [previewViewMode, setPreviewViewMode] = useState<'list' | 'grid'>('list');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -145,7 +147,7 @@ export default function MenuTemplatePage() {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const renderPreview = (templateId: TemplateId) => {
+  const renderPreview = (templateId: TemplateId, viewMode: 'list' | 'grid' = 'list') => {
     const TemplateComponent = {
       classic: ClassicLayout,
       modern: ModernLayout,
@@ -157,10 +159,15 @@ export default function MenuTemplatePage() {
       compact: CompactLayout,
       futuristic: FuturisticLayout,
       natural: NaturalLayout,
+      original: OriginalLayout,
     }[templateId];
 
     // All templates now have components, render them
     if (TemplateComponent) {
+      // Pass viewMode prop for templates that support it (like OriginalLayout)
+      if (templateId === 'original') {
+        return <TemplateComponent item={SAMPLE_ITEM} onAddToCart={() => {}} viewMode={viewMode} />;
+      }
       return <TemplateComponent item={SAMPLE_ITEM} onAddToCart={() => {}} />;
     }
 
@@ -289,10 +296,29 @@ export default function MenuTemplatePage() {
                                 الحالي
                               </span>
                             )}
+                            {/* Theme Color Management Badge */}
+                            {['classic', 'modern', 'minimal', 'elegant', 'compact', 'original'].includes(template.id) && (
+                              <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full border border-blue-500/30 flex items-center gap-1">
+                                <Palette className="w-3 h-3" />
+                                يدعم الألوان
+                              </span>
+                            )}
                           </div>
                           <p className="text-sm leading-relaxed">
                             {template.descriptionAr}
                           </p>
+                          {/* Theme Support Notice */}
+                          {['classic', 'modern', 'minimal', 'elegant', 'compact', 'original'].includes(template.id) && (
+                            <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                              <div className="flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
+                                <Palette className="w-3 h-3" />
+                                <span className="font-medium">يدعم نظام إدارة الألوان المتقدم</span>
+                              </div>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                                يمكنك تخصيص جميع الألوان من تبويب "ألوان القائمة"
+                              </p>
+                            </div>
+                          )}
                         </div>
 
                         {selectedTemplate === template.id && (
@@ -321,6 +347,7 @@ export default function MenuTemplatePage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setPreviewTemplate(template.id);
+                          setPreviewViewMode('list'); // Reset to list view for new preview
                         }}
                         className="admin-button w-full mt-4"
                       >
@@ -473,25 +500,63 @@ export default function MenuTemplatePage() {
                 {/* Modal Header */}
                 <div className="sticky top-0 admin-card border-b p-6 flex items-center justify-between z-10">
                   <div>
-                    <h2 className="text-2xl font-bold">
-                      معاينة: {MENU_TEMPLATES.find(t => t.id === previewTemplate)?.nameAr}
-                    </h2>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h2 className="text-2xl font-bold">
+                        معاينة: {MENU_TEMPLATES.find(t => t.id === previewTemplate)?.nameAr}
+                      </h2>
+                      {/* Theme Support Badge in Modal */}
+                      {previewTemplate && ['classic', 'modern', 'minimal', 'elegant', 'compact', 'original'].includes(previewTemplate) && (
+                        <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-full border border-blue-500/30 flex items-center gap-1">
+                          <Palette className="w-3 h-3" />
+                          يدعم الألوان
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm mt-1">
                       هذا مثال توضيحي لكيفية ظهور عناصر القائمة
                     </p>
                   </div>
-                  <button
-                    onClick={() => setPreviewTemplate(null)}
-                    className="admin-button flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {/* View Mode Switch - Only show for original template */}
+                    {previewTemplate === 'original' && (
+                      <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                        <button
+                          onClick={() => setPreviewViewMode('list')}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                            previewViewMode === 'list'
+                              ? 'bg-primary text-primary-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          <List className="w-3 h-3" />
+                          قائمة
+                        </button>
+                        <button
+                          onClick={() => setPreviewViewMode('grid')}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                            previewViewMode === 'grid'
+                              ? 'bg-primary text-primary-foreground shadow-sm'
+                              : 'text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          <Grid3X3 className="w-3 h-3" />
+                          شبكة
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => setPreviewTemplate(null)}
+                      className="admin-button flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Preview Content */}
                 <div className="p-6">
                   <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-xl p-6">
-                    {renderPreview(previewTemplate)}
+                    {renderPreview(previewTemplate, previewViewMode)}
                   </div>
                 </div>
 

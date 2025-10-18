@@ -533,15 +533,15 @@
 /* Modal button styles - Updated for Card components */
 .fixed.inset-0 .admin-card .admin-button,
 .fixed.inset-0 .Card .admin-button {
-  background-color: var(--highlight);
-  color: var(--neutral);
+  background-color: #d76b3e !important;
+  color: #ffffff !important;
 }
 
 .fixed.inset-0 .admin-card .admin-button.cancel,
 .fixed.inset-0 .Card .admin-button.cancel {
-  background-color: var(--accent);
-  color: var(--text-primary);
-  border: 1px solid var(--highlight);
+  background-color: #6b7280 !important;
+  color: #ffffff !important;
+  border: 1px solid #6b7280 !important;
 }
 
 /* Button alignment improvements */
@@ -613,14 +613,14 @@
 
 /* Button styles for Card components in modals */
 .fixed.inset-0 .Card button[type="submit"] {
-  background-color: var(--highlight) !important;
-  color: var(--neutral) !important;
+  background-color: #d76b3e !important;
+  color: #ffffff !important;
 }
 
 .fixed.inset-0 .Card button[type="button"] {
-  background-color: var(--accent) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--highlight) !important;
+  background-color: #6b7280 !important;
+  color: #ffffff !important;
+  border: 1px solid #6b7280 !important;
 }
 
 /* Enhanced Input and Form Styles with Premium Feedback */
@@ -714,9 +714,9 @@
 .fixed.inset-0 .Card input,
 .fixed.inset-0 .Card select,
 .fixed.inset-0 .Card textarea {
-  background-color: var(--accent) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--highlight) !important;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 1px solid #d1d5db !important;
 }
 
 .fixed.inset-0 .admin-card .admin-input::placeholder,
@@ -725,12 +725,12 @@
 .fixed.inset-0 .Card .admin-input::placeholder,
 .fixed.inset-0 .Card input::placeholder,
 .fixed.inset-0 .Card textarea::placeholder {
-  color: var(--text-light) !important;
+  color: #6b7280 !important;
 }
 
 /* Override any modal text colors for Card components */
 .fixed.inset-0 .Card * {
-  color: var(--neutral) !important;
+  color: #1a1a1a !important;
 }
 
 .fixed.inset-0 .Card .admin-input,
@@ -894,18 +894,18 @@
 /* Card components in modals */
 .fixed.inset-0 .admin-card .admin-card-header,
 .fixed.inset-0 .Card .CardHeader {
-  background-color: var(--primary) !important;
-  color: var(--neutral) !important;
-  border-bottom: 1px solid var(--border-color);
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .fixed.inset-0 .admin-card .admin-card-content,
 .fixed.inset-0 .Card .CardContent {
-  background-color: var(--primary) !important;
-  color: var(--neutral) !important;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
 
-/* Ensure all modal text is visible */
+/* Ensure all modal text is visible and dark */
 .fixed.inset-0 .admin-card h1,
 .fixed.inset-0 .admin-card h2,
 .fixed.inset-0 .admin-card h3,
@@ -926,7 +926,7 @@
 .fixed.inset-0 .Card span,
 .fixed.inset-0 .Card div,
 .fixed.inset-0 .Card label {
-  color: var(--neutral) !important;
+  color: #1a1a1a !important;
 }
 
 /* Modal specific styling for better appearance */
@@ -935,6 +935,8 @@
   min-width: 600px;
   max-width: 700px;
   width: 90vw;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
 
 /* Override max-w-md for storage modal */
@@ -942,6 +944,8 @@
   max-width: 700px !important;
   width: 90vw !important;
   min-height: 500px;
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
 }
 
 /* Storage modal specific improvements */
