@@ -5,6 +5,7 @@ import { Plus, Edit2, Trash2, Search, Eye, EyeOff } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { AlertDialog } from '@/components/AlertDialog';
 import { ICategory } from '@/lib/models/Category';
+import { clearMenuDataCache } from '@/lib/cacheInvalidation';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<ICategory[]>([]);
@@ -84,6 +85,8 @@ export default function CategoriesPage() {
       if (data.success) {
         fetchCategories();
         handleCloseModal();
+        // Clear public menu cache so changes appear immediately
+        clearMenuDataCache();
       } else {
         console.error('API Error:', data.error);
         showAlert('خطأ', data.error);
@@ -102,6 +105,8 @@ export default function CategoriesPage() {
       const data = await res.json();
       if (data.success) {
         fetchCategories();
+        // Clear public menu cache so deletion appears immediately
+        clearMenuDataCache();
       }
     } catch (error) {
       console.error('Error deleting category:', error);

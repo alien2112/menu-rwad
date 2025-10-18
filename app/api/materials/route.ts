@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Material from '@/lib/models/Material';
 import MaterialUsage from '@/lib/models/MaterialUsage';
 import Notification from '@/lib/models/Notification';
+import InventoryItem from '@/lib/models/Inventory';
 
 // GET /api/materials - Get all materials with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -116,6 +117,11 @@ export async function POST(request: NextRequest) {
 
     await material.save();
 
+    // Sync with Inventory if ingredientId is provided
+    if (materialData.ingredientId) {
+      await syncMaterialToInventory(material);
+    }
+
     // Check if material is low stock and create notification
     if (material.currentQuantity <= material.alertLimit) {
       await createLowStockNotification(material);
@@ -186,6 +192,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    // Sync with Inventory if ingredientId is provided and quantity changed
+    if (material.ingredientId && updateData.currentQuantity !== undefined) {
+      await syncMaterialToInventory(material);
+    }
+
     // Check for stock alerts
     if (material.currentQuantity <= material.alertLimit) {
       await createLowStockNotification(material);
@@ -241,6 +252,37 @@ export async function DELETE(request: NextRequest) {
       { success: false, error: 'Failed to delete material' },
       { status: 500 }
     );
+  }
+}
+
+// Helper function to sync material stock with inventory
+async function syncMaterialToInventory(material: any) {
+  try {
+    if (!material.ingredientId) return;
+
+    // Find or create inventory item for this ingredient
+    const inventoryItem = await InventoryItem.findOne({ ingredientId: material.ingredientId });
+
+    if (inventoryItem) {
+      // Update inventory stock to match material quantity
+      inventoryItem.currentStock = material.currentQuantity;
+
+      // Update status based on stock levels
+      if (inventoryItem.currentStock <= 0) {
+        inventoryItem.status = 'out_of_stock';
+      } else if (inventoryItem.currentStock <= inventoryItem.minStockLevel) {
+        inventoryItem.status = 'low_stock';
+      } else {
+        inventoryItem.status = 'in_stock';
+      }
+
+      inventoryItem.lastUpdated = new Date();
+      await inventoryItem.save();
+
+      console.log(`Synced Material ${material.name} to Inventory ${inventoryItem.ingredientName}`);
+    }
+  } catch (error) {
+    console.error('Error syncing material to inventory:', error);
   }
 }
 

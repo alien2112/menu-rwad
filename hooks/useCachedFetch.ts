@@ -9,6 +9,7 @@ interface UseCachedFetchOptions {
   cacheKey: string;
   cacheTTL?: number; // in milliseconds
   enabled?: boolean;
+  pollingInterval?: number; // in milliseconds, 0 to disable polling
 }
 
 interface UseCachedFetchResult<T> {
@@ -27,7 +28,7 @@ export function useCachedFetch<T>(
   url: string,
   options: UseCachedFetchOptions
 ): UseCachedFetchResult<T> {
-  const { cacheKey, cacheTTL = 600000, enabled = true } = options; // Default 10 minutes
+  const { cacheKey, cacheTTL = 600000, enabled = true, pollingInterval = 0 } = options; // Default 10 minutes
 
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -110,6 +111,18 @@ export function useCachedFetch<T>(
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Set up polling if enabled
+  useEffect(() => {
+    if (!enabled || pollingInterval <= 0) return;
+
+    const interval = setInterval(() => {
+      // Silently refetch in background without showing loading state
+      fetchData(true);
+    }, pollingInterval);
+
+    return () => clearInterval(interval);
+  }, [enabled, pollingInterval, fetchData]);
 
   return { data, loading, error, refetch, isCached };
 }

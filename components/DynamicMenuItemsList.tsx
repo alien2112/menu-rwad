@@ -76,7 +76,7 @@ export const DynamicMenuItemsList = ({
   console.log('DynamicMenuItemsList - Layout template:', layoutTemplate);
   console.log('DynamicMenuItemsList - Loading:', loading);
 
-  // Fetch the current template from the API
+  // Fetch the current template from the API with polling
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
@@ -103,6 +103,13 @@ export const DynamicMenuItemsList = ({
     };
 
     fetchTemplate();
+
+    // Poll every 30 seconds for template updates
+    const interval = setInterval(() => {
+      fetchTemplate();
+    }, 30 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   // Get the appropriate template component
@@ -220,9 +227,11 @@ export const DynamicMenuItemsList = ({
     );
   }
 
-  // Group items by category
+  // Group items by category - include ALL items, even without matching category
   const groupedItems = items.reduce((acc, item) => {
     const category = categories.find(cat => cat._id === item.categoryId);
+
+    // If category found, group normally
     if (category) {
       if (!acc[category._id]) {
         acc[category._id] = {
@@ -231,15 +240,41 @@ export const DynamicMenuItemsList = ({
         };
       }
       acc[category._id].items.push(item);
+    } else {
+      // If no category match, create an "Other" group
+      const otherId = 'other_items';
+      if (!acc[otherId]) {
+        acc[otherId] = {
+          category: {
+            _id: otherId,
+            name: 'أخرى',
+            nameEn: 'Other',
+            color: '#gray',
+            order: 9999
+          },
+          items: []
+        };
+      }
+      acc[otherId].items.push(item);
     }
     return acc;
   }, {} as Record<string, { category: any; items: MenuItem[] }>);
 
   // Sort categories by their order
   const sortedCategories = Object.values(groupedItems).sort((a, b) => {
-    const aOrder = categories.find(cat => cat._id === a.category._id)?.order || 0;
-    const bOrder = categories.find(cat => cat._id === b.category._id)?.order || 0;
+    const aOrder = a.category.order || 9999;
+    const bOrder = b.category.order || 9999;
     return aOrder - bOrder;
+  });
+
+  console.log('DynamicMenuItemsList - Grouped mode');
+  console.log('Total items passed:', items.length);
+  console.log('Categories available:', categories.length);
+  console.log('Grouped items:', Object.keys(groupedItems).length);
+  console.log('Sorted categories count:', sortedCategories.length);
+  console.log('Template loading:', loading);
+  sortedCategories.forEach(({ category, items: catItems }) => {
+    console.log(`Category: ${category.name}, Items: ${catItems.length}`);
   });
 
   return (
@@ -265,27 +300,13 @@ export const DynamicMenuItemsList = ({
           </motion.div>
 
           {/* Category Items */}
-          <motion.div
-            className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4 relative z-20' : 'space-y-4 relative z-20'}
-            initial="hidden"
-            animate="show"
-            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}
-          >
-            {loading ? (
-              // Show skeleton while loading template
-              Array.from({ length: Math.min(4, categoryItems.length) }).map((_, i) => (
-                <TemplateItemSkeleton key={i} />
-              ))
-            ) : (
-              categoryItems.map((item) => (
-                <motion.div key={item._id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
-                  <Suspense fallback={<TemplateItemSkeleton />}>
-                    <TemplateComponent item={item} onAddToCart={onAddToCart} />
-                  </Suspense>
-                </motion.div>
-              ))
-            )}
-          </motion.div>
+          <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4 relative z-20' : 'space-y-4 relative z-20'}>
+            {categoryItems.map((item) => (
+              <Suspense key={item._id} fallback={<TemplateItemSkeleton />}>
+                <TemplateComponent item={item} onAddToCart={onAddToCart} />
+              </Suspense>
+            ))}
+          </div>
         </motion.div>
       ))}
     </motion.div>

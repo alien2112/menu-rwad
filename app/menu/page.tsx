@@ -91,26 +91,28 @@ export default function Menu() {
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
   const [qrTracked, setQrTracked] = useState(false);
 
-  // Use cached fetch for categories
-  const { 
-    data: categoriesData, 
-    loading: categoriesLoading, 
+  // Use cached fetch for categories with 30-second polling
+  const {
+    data: categoriesData,
+    loading: categoriesLoading,
     error: categoriesError,
-    isCached: categoriesCached 
+    isCached: categoriesCached
   } = useCachedFetch<Category[]>('/api/categories', {
     cacheKey: 'menu_categories_cache_v1',
-    cacheTTL: 10 * 60 * 1000 // 10 minutes
+    cacheTTL: 10 * 60 * 1000, // 10 minutes cache
+    pollingInterval: 30 * 1000 // Poll every 30 seconds for updates
   });
 
-  // Use cached fetch for menu items
-  const { 
-    data: itemsData, 
-    loading: itemsLoading, 
+  // Use cached fetch for menu items with 30-second polling
+  const {
+    data: itemsData,
+    loading: itemsLoading,
     error: itemsError,
-    isCached: itemsCached 
+    isCached: itemsCached
   } = useCachedFetch<MenuItem[]>(`/api/items?limit=1000`, {
     cacheKey: 'menu_items_cache_v1',
-    cacheTTL: 10 * 60 * 1000 // 10 minutes
+    cacheTTL: 10 * 60 * 1000, // 10 minutes cache
+    pollingInterval: 30 * 1000 // Poll every 30 seconds for updates
   });
 
   // Process categories data
@@ -505,7 +507,7 @@ export default function Menu() {
                 items={filteredMenuItems}
                 onAddToCart={handleItemClick}
                 categories={categories}
-                showGrouped={false}
+                showGrouped={!selectedCategory}
                 selectedCategory={selectedCategory}
                 viewMode={viewMode}
               />

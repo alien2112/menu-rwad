@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
+import { IIngredient } from '@/lib/models/Ingredient';
 
 interface Material {
   _id: string;
@@ -24,6 +25,7 @@ interface Material {
   supplier?: string;
   lastRestocked?: string;
   expiryDate?: string;
+  ingredientId?: string;
 }
 
 interface Notification {
@@ -38,6 +40,7 @@ interface Notification {
 
 export default function StorageManagementDashboard() {
   const [materials, setMaterials] = useState<Material[]>([]);
+  const [ingredients, setIngredients] = useState<IIngredient[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -56,11 +59,13 @@ export default function StorageManagementDashboard() {
     costPerUnit: 0,
     category: 'food' as const,
     supplier: '',
-    notes: ''
+    notes: '',
+    ingredientId: ''
   });
 
   useEffect(() => {
     fetchMaterials();
+    fetchIngredients();
     fetchNotifications();
   }, []);
 
@@ -73,6 +78,18 @@ export default function StorageManagementDashboard() {
       }
     } catch (error) {
       console.error('Error fetching materials:', error);
+    }
+  };
+
+  const fetchIngredients = async () => {
+    try {
+      const response = await fetch('/api/ingredients');
+      const data = await response.json();
+      if (data.success) {
+        setIngredients(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching ingredients:', error);
     }
   };
 
@@ -112,7 +129,8 @@ export default function StorageManagementDashboard() {
           costPerUnit: 0,
           category: 'food',
           supplier: '',
-          notes: ''
+          notes: '',
+          ingredientId: ''
         });
         setShowAddForm(false);
         fetchNotifications(); // Refresh notifications
@@ -462,6 +480,28 @@ export default function StorageManagementDashboard() {
                     value={newMaterial.supplier}
                     onChange={(e) => setNewMaterial({...newMaterial, supplier: e.target.value})}
                   />
+                </div>
+                <div>
+                  <Label htmlFor="ingredientId">Link to Ingredient (Optional)</Label>
+                  <Select
+                    value={newMaterial.ingredientId}
+                    onValueChange={(value) => setNewMaterial({...newMaterial, ingredientId: value})}
+                  >
+                    <SelectTrigger id="ingredientId">
+                      <SelectValue placeholder="Select ingredient to sync stock" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None (Storage only)</SelectItem>
+                      {ingredients.map((ing) => (
+                        <SelectItem key={ing._id} value={ing._id!}>
+                          {ing.name} ({ing.unit})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Link this material to an ingredient to automatically sync stock levels
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button type="submit">Add Material</Button>

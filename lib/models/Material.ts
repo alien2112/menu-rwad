@@ -17,6 +17,7 @@ export interface IMaterial {
   expiryDate?: Date;
   image?: string;
   notes?: string;
+  ingredientId?: string; // Optional link to Ingredient/Inventory for syncing stock levels
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -93,6 +94,10 @@ const MaterialSchema = new Schema<IMaterial>(
     notes: {
       type: String,
       trim: true,
+    },
+    ingredientId: {
+      type: String,
+      index: true,
     },
   },
   {

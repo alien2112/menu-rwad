@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit2, Trash2, Search, Eye, EyeOff, X } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IMenuItem, IMenuItemIngredient } from '@/lib/models/MenuItem';
 import { ICategory } from '@/lib/models/Category';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
+import { clearMenuDataCache } from '@/lib/cacheInvalidation';
 
 interface Modifier {
   _id: string;
@@ -123,6 +124,8 @@ export default function ItemsPage() {
         fetchData();
         handleCloseModal();
         setErrorMessage('');
+        // Clear public menu cache so changes appear immediately
+        clearMenuDataCache();
       } else {
         const msg = data.error || 'حدث خطأ غير متوقع، حاول مرة أخرى';
         setErrorMessage(msg);
@@ -142,6 +145,8 @@ export default function ItemsPage() {
       const data = await res.json();
       if (data.success) {
         fetchData();
+        // Clear public menu cache so deletion appears immediately
+        clearMenuDataCache();
       }
     } catch (error) {
       console.error('Error deleting item:', error);
@@ -201,6 +206,14 @@ export default function ItemsPage() {
     const newIngredients = formData.ingredients?.filter((_, i) => i !== index);
     setFormData({ ...formData, ingredients: newIngredients });
   };
+
+  // Create category lookup map for O(1) access instead of O(n) find operations
+  const categoryMap = useMemo(() => {
+    return categories.reduce((map, cat) => {
+      map[cat._id!] = cat;
+      return map;
+    }, {} as Record<string, ICategory>);
+  }, [categories]);
 
   const filteredItems = items.filter((item) => {
     const matchesSearch =
@@ -314,7 +327,7 @@ export default function ItemsPage() {
       {/* Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.map((item) => {
-          const category = categories.find((c) => c._id === item.categoryId);
+          const category = categoryMap[item.categoryId];
           return (
             <div
               key={item._id}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, Eye, X } from "lucide-react";
 import { MENU_TEMPLATES, TemplateId } from "@/lib/types/MenuTemplate";
+import { clearCachePattern } from "@/lib/cacheInvalidation";
 import { ClassicLayout } from "@/components/templates/ClassicLayout";
 import { ModernLayout } from "@/components/templates/ModernLayout";
 import { MinimalLayout } from "@/components/templates/MinimalLayout";
