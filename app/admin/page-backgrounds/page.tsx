@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { AdminAuth } from '@/components/AdminAuth';
-import { Plus, Edit, Trash2, Upload, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, Eye, EyeOff, X } from 'lucide-react';
 import { AlertDialog } from '@/components/AlertDialog';
 import { IPageBackground } from '@/lib/models/PageBackground';
 
@@ -255,9 +255,43 @@ export default function PageBackgroundsPage() {
 
         {/* Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="glass-effect rounded-2xl p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold text-white mb-6">
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => {
+              setShowModal(false);
+              setEditingBackground(null);
+              setFormData({
+                pageRoute: '',
+                pageName: '',
+                backgroundImageId: '',
+                status: 'active',
+              });
+            }}
+          >
+            <div
+              className="glass-effect rounded-2xl p-6 w-full max-w-md relative"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowModal(false);
+                  setEditingBackground(null);
+                  setFormData({
+                    pageRoute: '',
+                    pageName: '',
+                    backgroundImageId: '',
+                    status: 'active',
+                  });
+                }}
+                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-white/10 transition-colors z-10"
+                aria-label="إغلاق"
+              >
+                <X size={20} className="text-white" />
+              </button>
+
+              <h2 className="text-2xl font-bold text-white mb-6 pr-10">
                 {editingBackground ? 'تعديل الخلفية' : 'إضافة خلفية جديدة'}
               </h2>
 

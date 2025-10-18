@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
@@ -295,9 +295,25 @@ export default function IngredientsPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="admin-card rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-bold mb-6">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="admin-card rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10"
+              aria-label="إغلاق"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 pr-10">
               {editingIngredient ? 'تعديل المكون' : 'إضافة مكون جديد'}
             </h2>
 

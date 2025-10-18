@@ -432,9 +432,25 @@ export default function ItemsPage() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
-          <div className="admin-card rounded-2xl p-6 w-full max-w-4xl my-8">
-            <h2 className="text-2xl font-bold mb-6">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto"
+          onClick={handleCloseModal}
+        >
+          <div
+            className="admin-card rounded-2xl p-6 w-full max-w-4xl my-8 relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 transition-colors z-10"
+              aria-label="إغلاق"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-2xl font-bold mb-6 pr-10">
               {editingItem ? 'تعديل المنتج' : 'إضافة منتج جديد'}
             </h2>
 
