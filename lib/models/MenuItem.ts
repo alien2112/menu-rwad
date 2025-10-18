@@ -1,7 +1,7 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
-export interface IMenuItemIngredient {
-  ingredientId: string;
+export interface IMenuItemInventoryItem {
+  inventoryItemId: string;
   portion: number;
   required: boolean;
 }
@@ -38,7 +38,7 @@ export interface IMenuItem {
   image?: string;
   images?: string[];
   color?: string;
-  ingredients: IMenuItemIngredient[];
+  inventoryItems: IMenuItemInventoryItem[];
   preparationTime?: number; // in minutes
   calories?: number;
   servingSize?: string;
@@ -114,8 +114,8 @@ const MenuItemSchema = new Schema<IMenuItem>(
       type: String,
       default: '#4F3500',
     },
-    ingredients: [{
-      ingredientId: {
+    inventoryItems: [{
+      inventoryItemId: {
         type: String,
         required: true,
       },

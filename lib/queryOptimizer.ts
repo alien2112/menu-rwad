@@ -35,21 +35,21 @@ export async function batchFetchMenuItems(menuItemIds: string[]): Promise<Map<st
 }
 
 /**
- * Batch fetch inventory items by ingredient IDs
+ * Batch fetch inventory items by IDs
  * More efficient than individual findOne calls
  */
-export async function batchFetchInventoryItems(ingredientIds: string[]): Promise<Map<string, any>> {
+export async function batchFetchInventoryItems(inventoryItemIds: string[]): Promise<Map<string, any>> {
   const startTime = Date.now();
   
   try {
     const inventoryItems = await InventoryItem.find({ 
-      ingredientId: { $in: ingredientIds } 
+      _id: { $in: inventoryItemIds } 
     }).lean().exec();
     
     const executionTime = Date.now() - startTime;
     console.log(`✅ Batch fetched ${inventoryItems.length} inventory items in ${executionTime}ms`);
     
-    return new Map(inventoryItems.map(item => [item.ingredientId, item]));
+    return new Map(inventoryItems.map(item => [item._id.toString(), item]));
   } catch (error) {
     console.error('Error batch fetching inventory items:', error);
     return new Map();
@@ -61,7 +61,7 @@ export async function batchFetchInventoryItems(ingredientIds: string[]): Promise
  * More efficient than individual save() calls
  */
 export async function batchUpdateInventoryItems(updates: Array<{
-  ingredientId: string;
+  inventoryItemId: string;
   currentStock: number;
   status: string;
   lastUpdated: Date;
@@ -72,7 +72,7 @@ export async function batchUpdateInventoryItems(updates: Array<{
     // Use bulkWrite for maximum efficiency
     const bulkOps = updates.map(update => ({
       updateOne: {
-        filter: { ingredientId: update.ingredientId },
+        filter: { _id: update.inventoryItemId },
         update: {
           $set: {
             currentStock: update.currentStock,
@@ -138,26 +138,28 @@ export async function optimizedAutoConsumeInventory(order: any): Promise<{
   let consumedItems = 0;
   
   try {
-    // Step 1: Collect all unique menu item IDs and ingredient IDs
+    // Step 1: Collect all unique menu item IDs
     const menuItemIds = [...new Set(order.items.map((item: any) => item.menuItemId))];
-    const ingredientIds = new Set<string>();
+    const inventoryItemIds = new Set<string>();
     
     // Step 2: Batch fetch menu items
     const menuItemsMap = await batchFetchMenuItems(menuItemIds);
     
-    // Step 3: Collect all ingredient IDs from menu items
+    // Step 3: Collect all inventory item IDs from menu items
     for (const menuItem of menuItemsMap.values()) {
-      menuItem.ingredients.forEach((ingredient: any) => {
-        ingredientIds.add(ingredient.ingredientId);
-      });
+      if (menuItem.inventoryItems) {
+        menuItem.inventoryItems.forEach((invItem: any) => {
+          inventoryItemIds.add(invItem.inventoryItemId);
+        });
+      }
     }
     
     // Step 4: Batch fetch inventory items
-    const inventoryMap = await batchFetchInventoryItems(Array.from(ingredientIds));
+    const inventoryMap = await batchFetchInventoryItems(Array.from(inventoryItemIds));
     
     // Step 5: Prepare batch updates and consumption records
     const inventoryUpdates: Array<{
-      ingredientId: string;
+      inventoryItemId: string;
       currentStock: number;
       status: string;
       lastUpdated: Date;
@@ -184,55 +186,57 @@ export async function optimizedAutoConsumeInventory(order: any): Promise<{
         continue;
       }
       
-      // Process each ingredient
-      for (const ingredient of menuItem.ingredients) {
-        const inventoryItem = inventoryMap.get(ingredient.ingredientId);
-        if (!inventoryItem) {
-          errors.push(`Inventory item not found for ingredient: ${ingredient.ingredientId}`);
-          continue;
+      // Process each inventory item
+      if (menuItem.inventoryItems) {
+        for (const invItem of menuItem.inventoryItems) {
+          const inventoryItem = inventoryMap.get(invItem.inventoryItemId);
+          if (!inventoryItem) {
+            errors.push(`Inventory item not found: ${invItem.inventoryItemId}`);
+            continue;
+          }
+          
+          const totalConsumption = invItem.portion * orderItem.quantity;
+          
+          // Check if there's enough stock
+          if (inventoryItem.currentStock < totalConsumption) {
+            errors.push(`Insufficient stock for ${inventoryItem.ingredientName}: ${inventoryItem.currentStock} < ${totalConsumption}`);
+            continue;
+          }
+          
+          // Prepare consumption record
+          consumptionRecords.push({
+            ingredientId: inventoryItem.ingredientId, // Keep this for backward compatibility
+            ingredientName: inventoryItem.ingredientName,
+            quantityConsumed: totalConsumption,
+            unit: inventoryItem.unit,
+            reason: 'order',
+            orderId: order._id.toString(),
+            menuItemId: orderItem.menuItemId,
+            notes: `Auto-consumption for order ${order.orderNumber}`,
+            recordedBy: 'system',
+            recordedAt: new Date()
+          });
+          
+          // Calculate new stock and status
+          const newStock = inventoryItem.currentStock - totalConsumption;
+          let newStatus = 'in_stock';
+          
+          if (newStock <= 0) {
+            newStatus = 'out_of_stock';
+          } else if (newStock <= inventoryItem.minStockLevel) {
+            newStatus = 'low_stock';
+          }
+          
+          // Prepare inventory update
+          inventoryUpdates.push({
+            inventoryItemId: invItem.inventoryItemId,
+            currentStock: newStock,
+            status: newStatus,
+            lastUpdated: new Date()
+          });
+          
+          consumedItems++;
         }
-        
-        const totalConsumption = ingredient.portion * orderItem.quantity;
-        
-        // Check if there's enough stock
-        if (inventoryItem.currentStock < totalConsumption) {
-          errors.push(`Insufficient stock for ${inventoryItem.ingredientName}: ${inventoryItem.currentStock} < ${totalConsumption}`);
-          continue;
-        }
-        
-        // Prepare consumption record
-        consumptionRecords.push({
-          ingredientId: ingredient.ingredientId,
-          ingredientName: inventoryItem.ingredientName,
-          quantityConsumed: totalConsumption,
-          unit: inventoryItem.unit,
-          reason: 'order',
-          orderId: order._id.toString(),
-          menuItemId: orderItem.menuItemId,
-          notes: `Auto-consumption for order ${order.orderNumber}`,
-          recordedBy: 'system',
-          recordedAt: new Date()
-        });
-        
-        // Calculate new stock and status
-        const newStock = inventoryItem.currentStock - totalConsumption;
-        let newStatus = 'in_stock';
-        
-        if (newStock <= 0) {
-          newStatus = 'out_of_stock';
-        } else if (newStock <= inventoryItem.minStockLevel) {
-          newStatus = 'low_stock';
-        }
-        
-        // Prepare inventory update
-        inventoryUpdates.push({
-          ingredientId: ingredient.ingredientId,
-          currentStock: newStock,
-          status: newStatus,
-          lastUpdated: new Date()
-        });
-        
-        consumedItems++;
       }
     }
     

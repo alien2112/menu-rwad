@@ -44,15 +44,17 @@ async function validateInventoryAvailability(orderItems: any[]): Promise<{ valid
     const menuItemsMap = new Map(menuItems.map(item => [item._id.toString(), item]));
     
     // Batch fetch all inventory items
-    const ingredientIds = new Set<string>();
+    const inventoryItemIds = new Set<string>();
     menuItems.forEach(item => {
-      item.ingredients.forEach(ingredient => {
-        ingredientIds.add(ingredient.ingredientId);
-      });
+      if (item.inventoryItems) {
+        item.inventoryItems.forEach(invItem => {
+          inventoryItemIds.add(invItem.inventoryItemId);
+        });
+      }
     });
     
-    const inventoryItems = await InventoryItem.find({ ingredientId: { $in: Array.from(ingredientIds) } });
-    const inventoryMap = new Map(inventoryItems.map(item => [item.ingredientId, item]));
+    const inventoryItems = await InventoryItem.find({ _id: { $in: Array.from(inventoryItemIds) } });
+    const inventoryMap = new Map(inventoryItems.map(item => [item._id.toString(), item]));
     
     // Validate each order item
     for (const orderItem of orderItems) {
@@ -62,17 +64,19 @@ async function validateInventoryAvailability(orderItems: any[]): Promise<{ valid
         continue;
       }
       
-      // Check each ingredient
-      for (const ingredient of menuItem.ingredients) {
-        const inventoryItem = inventoryMap.get(ingredient.ingredientId);
-        if (!inventoryItem) {
-          errors.push(`Inventory item not found for ingredient: ${ingredient.ingredientId}`);
-          continue;
-        }
-        
-        const requiredQuantity = ingredient.portion * orderItem.quantity;
-        if (inventoryItem.currentStock < requiredQuantity) {
-          errors.push(`Insufficient stock for ${inventoryItem.ingredientName}: ${inventoryItem.currentStock} available, ${requiredQuantity} required`);
+      // Check each inventory item
+      if (menuItem.inventoryItems) {
+        for (const invItem of menuItem.inventoryItems) {
+          const inventoryItem = inventoryMap.get(invItem.inventoryItemId);
+          if (!inventoryItem) {
+            errors.push(`Inventory item not found: ${invItem.inventoryItemId}`);
+            continue;
+          }
+          
+          const requiredQuantity = invItem.portion * orderItem.quantity;
+          if (inventoryItem.currentStock < requiredQuantity) {
+            errors.push(`Insufficient stock for ${inventoryItem.ingredientName}: ${inventoryItem.currentStock} available, ${requiredQuantity} required`);
+          }
         }
       }
     }
@@ -105,66 +109,68 @@ async function autoConsumeInventory(order: any) {
         continue;
       }
 
-      // Process each ingredient in the menu item
-      for (const ingredient of menuItem.ingredients) {
-        const { ingredientId, portion } = ingredient;
-        const totalConsumption = portion * quantity;
+      // Process each inventory item in the menu item
+      if (menuItem.inventoryItems) {
+        for (const invItem of menuItem.inventoryItems) {
+          const { inventoryItemId, portion } = invItem;
+          const totalConsumption = portion * quantity;
 
-        // Find inventory item
-        const inventoryItem = await InventoryItem.findOne({ ingredientId });
-        if (!inventoryItem) {
-          console.warn(`Inventory item not found for ingredient: ${ingredientId}`);
-          continue;
-        }
+          // Find inventory item
+          const inventoryItem = await InventoryItem.findById(inventoryItemId);
+          if (!inventoryItem) {
+            console.warn(`Inventory item not found: ${inventoryItemId}`);
+            continue;
+          }
 
-        // Check if there's enough stock
-        if (inventoryItem.currentStock < totalConsumption) {
-          console.warn(`Insufficient stock for ingredient ${ingredientId}: ${inventoryItem.currentStock} < ${totalConsumption}`);
-          continue;
-        }
+          // Check if there's enough stock
+          if (inventoryItem.currentStock < totalConsumption) {
+            console.warn(`Insufficient stock for inventory item ${inventoryItemId}: ${inventoryItem.currentStock} < ${totalConsumption}`);
+            continue;
+          }
 
-        // Create consumption record
-        const consumptionRecord = new InventoryConsumption({
-          ingredientId,
-          ingredientName: inventoryItem.ingredientName,
-          quantityConsumed: totalConsumption,
-          unit: inventoryItem.unit,
-          reason: 'order',
-          orderId: order._id.toString(),
-          menuItemId,
-          notes: `Auto-consumption for order ${order.orderNumber}`,
-          recordedBy: 'system',
-          recordedAt: new Date()
-        });
+          // Create consumption record
+          const consumptionRecord = new InventoryConsumption({
+            ingredientId: inventoryItem.ingredientId, // Keep for backward compatibility
+            ingredientName: inventoryItem.ingredientName,
+            quantityConsumed: totalConsumption,
+            unit: inventoryItem.unit,
+            reason: 'order',
+            orderId: order._id.toString(),
+            menuItemId,
+            notes: `Auto-consumption for order ${order.orderNumber}`,
+            recordedBy: 'system',
+            recordedAt: new Date()
+          });
 
-        await consumptionRecord.save();
+          await consumptionRecord.save();
 
-        // Update inventory stock
-        inventoryItem.currentStock -= totalConsumption;
-        
-        // Update status based on new stock level
-        if (inventoryItem.currentStock <= 0) {
-          inventoryItem.status = 'out_of_stock';
-        } else if (inventoryItem.currentStock <= inventoryItem.minStockLevel) {
-          inventoryItem.status = 'low_stock';
-        } else {
-          inventoryItem.status = 'in_stock';
-        }
+          // Update inventory stock
+          inventoryItem.currentStock -= totalConsumption;
+          
+          // Update status based on new stock level
+          if (inventoryItem.currentStock <= 0) {
+            inventoryItem.status = 'out_of_stock';
+          } else if (inventoryItem.currentStock <= inventoryItem.minStockLevel) {
+            inventoryItem.status = 'low_stock';
+          } else {
+            inventoryItem.status = 'in_stock';
+          }
 
-        inventoryItem.lastUpdated = new Date();
-        await inventoryItem.save();
+          inventoryItem.lastUpdated = new Date();
+          await inventoryItem.save();
 
-        // Send notifications based on stock status
-        if (inventoryItem.status === 'out_of_stock') {
-          await sendOutOfStockNotification(inventoryItem.ingredientName);
-          // Auto-disable menu items that depend on this ingredient
-          await autoDisableMenuItems(ingredientId);
-        } else if (inventoryItem.status === 'low_stock') {
-          await sendLowStockNotification(
-            inventoryItem.ingredientName, 
-            inventoryItem.currentStock, 
-            inventoryItem.minStockLevel
-          );
+          // Send notifications based on stock status
+          if (inventoryItem.status === 'out_of_stock') {
+            await sendOutOfStockNotification(inventoryItem.ingredientName);
+            // Auto-disable menu items that depend on this inventory item
+            await autoDisableMenuItems(inventoryItemId);
+          } else if (inventoryItem.status === 'low_stock') {
+            await sendLowStockNotification(
+              inventoryItem.ingredientName, 
+              inventoryItem.currentStock, 
+              inventoryItem.minStockLevel
+            );
+          }
         }
       }
     }
@@ -509,21 +515,27 @@ export async function PUT(request: NextRequest) {
 // Helper function to record material usage for an order
 async function recordMaterialUsage(order: any) {
   try {
+    const { InventoryItem } = await import('@/lib/models/Inventory');
+    
     for (const item of order.items) {
-      // Get menu item with ingredients
+      // Get menu item with inventory items
       const menuItem = await MenuItem.findById(item.menuItemId);
-      if (!menuItem || !menuItem.ingredients) continue;
+      if (!menuItem || !menuItem.inventoryItems) continue;
 
-      for (const ingredient of menuItem.ingredients) {
+      for (const invItem of menuItem.inventoryItems) {
         // Calculate total quantity needed (portion * order quantity)
-        const totalQuantity = ingredient.portion * item.quantity;
+        const totalQuantity = invItem.portion * item.quantity;
+        
+        // Get inventory item details
+        const inventoryItem = await InventoryItem.findById(invItem.inventoryItemId);
+        if (!inventoryItem) continue;
 
         // Record material usage
         const usage = new MaterialUsage({
-          materialId: ingredient.ingredientId,
-          materialName: `Ingredient ${ingredient.ingredientId}`, // You might want to fetch the actual name
+          materialId: inventoryItem.ingredientId, // Use ingredientId for backward compatibility
+          materialName: inventoryItem.ingredientName,
           quantityUsed: totalQuantity,
-          unit: 'g', // Default unit, should be fetched from material
+          unit: inventoryItem.unit,
           orderId: order._id.toString(),
           orderNumber: order.orderNumber,
           menuItemId: item.menuItemId,

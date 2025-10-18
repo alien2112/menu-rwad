@@ -33,47 +33,34 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      // Process each ingredient in the menu item
-      for (const ingredient of menuItem.ingredients) {
-        const { ingredientId, portion } = ingredient;
+      // Process each inventory item in the menu item
+      if (!menuItem.inventoryItems) {
+        console.warn(`Menu item ${menuItemId} has no inventory items`);
+        continue;
+      }
 
-        // Get ingredient to know its unit
-        const ingredientData = await Ingredient.findById(ingredientId);
-        if (!ingredientData) {
-          console.warn(`Ingredient not found: ${ingredientId}`);
-          continue;
-        }
+      for (const invItem of menuItem.inventoryItems) {
+        const { inventoryItemId, portion } = invItem;
 
         // Find inventory item
-        const inventoryItem = await InventoryItem.findOne({ ingredientId });
+        const inventoryItem = await InventoryItem.findById(inventoryItemId);
         if (!inventoryItem) {
-          console.warn(`Inventory item not found for ingredient: ${ingredientId}`);
+          console.warn(`Inventory item not found: ${inventoryItemId}`);
           continue;
         }
 
-        // Convert portion to inventory unit if needed
-        let totalConsumption = portion * quantity;
-
-        if (ingredientData.unit !== inventoryItem.unit) {
-          const converted = convertUnit(totalConsumption, ingredientData.unit, inventoryItem.unit);
-          if (converted !== null) {
-            console.log(`Converting ${totalConsumption}${ingredientData.unit} to ${converted}${inventoryItem.unit} for ${ingredientData.name}`);
-            totalConsumption = converted;
-          } else {
-            console.warn(`Cannot convert ${ingredientData.unit} to ${inventoryItem.unit} - skipping consumption`);
-            continue;
-          }
-        }
+        // Calculate total consumption
+        const totalConsumption = portion * quantity;
 
         // Check if there's enough stock
         if (inventoryItem.currentStock < totalConsumption) {
-          console.warn(`Insufficient stock for ingredient ${ingredientId}: ${inventoryItem.currentStock} < ${totalConsumption}`);
+          console.warn(`Insufficient stock for inventory item ${inventoryItemId}: ${inventoryItem.currentStock} < ${totalConsumption}`);
           continue;
         }
 
         // Create consumption record
         const consumptionRecord = new InventoryConsumption({
-          ingredientId,
+          ingredientId: inventoryItem.ingredientId, // Keep for backward compatibility
           ingredientName: inventoryItem.ingredientName,
           quantityConsumed: totalConsumption,
           unit: inventoryItem.unit,
@@ -105,8 +92,8 @@ export async function POST(request: NextRequest) {
         // Send notifications based on stock status
         if (inventoryItem.status === 'out_of_stock') {
           await sendOutOfStockNotification(inventoryItem.ingredientName);
-          // Auto-disable menu items that depend on this ingredient
-          await autoDisableMenuItems(ingredientId);
+          // Auto-disable menu items that depend on this inventory item
+          await autoDisableMenuItems(inventoryItemId);
         } else if (inventoryItem.status === 'low_stock') {
           await sendLowStockNotification(
             inventoryItem.ingredientName, 
@@ -116,7 +103,7 @@ export async function POST(request: NextRequest) {
         }
 
         consumptionResults.push({
-          ingredientId,
+          inventoryItemId,
           ingredientName: inventoryItem.ingredientName,
           quantityConsumed: totalConsumption,
           unit: inventoryItem.unit,

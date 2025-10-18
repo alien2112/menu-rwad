@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Plus, Edit2, Trash2, Search, X } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
-import { IMenuItem, IMenuItemIngredient } from '@/lib/models/MenuItem';
+import { IMenuItem, IMenuItemInventoryItem } from '@/lib/models/MenuItem';
 import { ICategory } from '@/lib/models/Category';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
@@ -22,7 +22,7 @@ interface Modifier {
 export default function ItemsPage() {
   const [items, setItems] = useState<IMenuItem[]>([]);
   const [categories, setCategories] = useState<ICategory[]>([]);
-  const [ingredients, setIngredients] = useState<IIngredient[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
   const [modifiers, setModifiers] = useState<Modifier[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +42,7 @@ export default function ItemsPage() {
     image: '',
     images: [],
     color: '#4F3500',
-    ingredients: [],
+    inventoryItems: [],
     preparationTime: 0,
     calories: 0,
     servingSize: '',
@@ -62,23 +62,23 @@ export default function ItemsPage() {
 
   const fetchData = async () => {
     try {
-      const [itemsRes, categoriesRes, ingredientsRes, modifiersRes] = await Promise.all([
+      const [itemsRes, categoriesRes, inventoryItemsRes, modifiersRes] = await Promise.all([
         fetch('/api/items?admin=true', { headers: { 'Cache-Control': 'no-store' } }),
         fetch('/api/categories'),
-        fetch('/api/ingredients'),
+        fetch('/api/inventory'),
         fetch('/api/modifiers'),
       ]);
 
-      const [itemsData, categoriesData, ingredientsData, modifiersData] = await Promise.all([
+      const [itemsData, categoriesData, inventoryItemsData, modifiersData] = await Promise.all([
         itemsRes.json(),
         categoriesRes.json(),
-        ingredientsRes.json(),
+        inventoryItemsRes.json(),
         modifiersRes.json(),
       ]);
 
       if (itemsData.success) setItems(itemsData.data);
       if (categoriesData.success) setCategories(categoriesData.data);
-      if (ingredientsData.success) setIngredients(ingredientsData.data);
+      if (inventoryItemsData.success) setInventoryItems(inventoryItemsData.data);
       if (modifiersData.success) setModifiers(modifiersData.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -108,12 +108,12 @@ export default function ItemsPage() {
         order: formData.order !== undefined && formData.order !== null
           ? Number(formData.order)
           : undefined,
-        ingredients: (formData.ingredients || [])
-          .filter((ing) => ing && ing.ingredientId)
-          .map((ing) => ({
-            ingredientId: ing.ingredientId,
-            portion: Number(ing.portion) || 1,
-            required: Boolean(ing.required),
+        inventoryItems: (formData.inventoryItems || [])
+          .filter((item) => item && item.inventoryItemId)
+          .map((item) => ({
+            inventoryItemId: item.inventoryItemId,
+            portion: Number(item.portion) || 1,
+            required: Boolean(item.required),
           })),
       };
 
@@ -203,25 +203,25 @@ export default function ItemsPage() {
     });
   };
 
-  const addIngredient = () => {
+  const addInventoryItem = () => {
     setFormData({
       ...formData,
-      ingredients: [
-        ...(formData.ingredients || []),
-        { ingredientId: '', portion: 1, required: true },
+      inventoryItems: [
+        ...(formData.inventoryItems || []),
+        { inventoryItemId: '', portion: 1, required: true },
       ],
     });
   };
 
-  const updateIngredient = (index: number, field: keyof IMenuItemIngredient, value: any) => {
-    const newIngredients = [...(formData.ingredients || [])];
-    newIngredients[index] = { ...newIngredients[index], [field]: value };
-    setFormData({ ...formData, ingredients: newIngredients });
+  const updateInventoryItem = (index: number, field: keyof IMenuItemInventoryItem, value: any) => {
+    const newInventoryItems = [...(formData.inventoryItems || [])];
+    newInventoryItems[index] = { ...newInventoryItems[index], [field]: value };
+    setFormData({ ...formData, inventoryItems: newInventoryItems });
   };
 
-  const removeIngredient = (index: number) => {
-    const newIngredients = formData.ingredients?.filter((_, i) => i !== index);
-    setFormData({ ...formData, ingredients: newIngredients });
+  const removeInventoryItem = (index: number) => {
+    const newInventoryItems = formData.inventoryItems?.filter((_, i) => i !== index);
+    setFormData({ ...formData, inventoryItems: newInventoryItems });
   };
 
   // Create category lookup map for O(1) access instead of O(n) find operations
@@ -603,31 +603,31 @@ export default function ItemsPage() {
               {activeTab === 'ingredients' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">المكونات</h3>
+                  <h3 className="text-lg font-semibold">المكونات من المخزون</h3>
                   <button
                     type="button"
-                    onClick={addIngredient}
+                    onClick={addInventoryItem}
                     className="admin-button"
                   >
                     <Plus size={16} />
-                    إضافة مكون
+                    إضافة عنصر مخزون
                   </button>
                 </div>
 
                 <div className="space-y-3">
-                  {formData.ingredients?.map((ing, index) => (
+                  {formData.inventoryItems?.map((item, index) => (
                     <div key={index} className="admin-card rounded-xl p-4">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div className="md:col-span-2">
                           <select
-                            value={ing.ingredientId}
-                            onChange={(e) => updateIngredient(index, 'ingredientId', e.target.value)}
+                            value={item.inventoryItemId}
+                            onChange={(e) => updateInventoryItem(index, 'inventoryItemId', e.target.value)}
                             className="admin-input w-full"
                           >
-                            <option value="">اختر المكون</option>
-                            {ingredients.map((ingredient) => (
-                              <option key={ingredient._id} value={ingredient._id}>
-                                {ingredient.name} ({ingredient.unit})
+                            <option value="">اختر عنصر المخزون</option>
+                            {inventoryItems.map((invItem) => (
+                              <option key={invItem._id} value={invItem._id}>
+                                {invItem.ingredientName} ({invItem.unit}) - {invItem.currentStock} متوفر
                               </option>
                             ))}
                           </select>
@@ -637,9 +637,9 @@ export default function ItemsPage() {
                           <input
                             type="number"
                             step="0.1"
-                            value={ing.portion}
-                            onChange={(e) => updateIngredient(index, 'portion', parseFloat(e.target.value))}
-                            placeholder={`الكمية${ing.ingredientId ? ` (${ingredients.find(i => i._id === ing.ingredientId)?.unit || ''})` : ''}`}
+                            value={item.portion}
+                            onChange={(e) => updateInventoryItem(index, 'portion', parseFloat(e.target.value))}
+                            placeholder={`الكمية${item.inventoryItemId ? ` (${inventoryItems.find(i => i._id === item.inventoryItemId)?.unit || ''})` : ''}`}
                             className="admin-input w-full"
                           />
                         </div>
@@ -648,15 +648,15 @@ export default function ItemsPage() {
                           <label className="flex items-center gap-2 text-sm">
                             <input
                               type="checkbox"
-                              checked={ing.required}
-                              onChange={(e) => updateIngredient(index, 'required', e.target.checked)}
+                              checked={item.required}
+                              onChange={(e) => updateInventoryItem(index, 'required', e.target.checked)}
                               className="rounded"
                             />
                             إجباري
                           </label>
                           <button
                             type="button"
-                            onClick={() => removeIngredient(index)}
+                            onClick={() => removeInventoryItem(index)}
                             className="admin-button mr-auto"
                           >
                             <X size={16} />
