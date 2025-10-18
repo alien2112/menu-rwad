@@ -95,20 +95,23 @@ export async function POST(request: NextRequest) {
     await dbConnect();
 
     const body = await request.json();
-    const { ingredientId, currentStock, minStockLevel, maxStockLevel } = body;
+    console.log('📦 Creating inventory item with data:', body);
+    
+    const { ingredientId, ingredientName, currentStock, minStockLevel, maxStockLevel, unit } = body;
 
-    // Get ingredient details
-    const ingredient = await Ingredient.findById(ingredientId);
-    if (!ingredient) {
+    // Validate required fields
+    if (!ingredientId || !ingredientName || currentStock === undefined || !minStockLevel || !maxStockLevel || !unit) {
+      console.log('❌ Missing required fields:', { ingredientId, ingredientName, currentStock, minStockLevel, maxStockLevel, unit });
       return NextResponse.json(
-        { success: false, error: 'Ingredient not found' },
-        { status: 404 }
+        { success: false, error: 'Missing required fields: ingredientId, ingredientName, currentStock, minStockLevel, maxStockLevel, unit' },
+        { status: 400 }
       );
     }
 
     // Check if inventory item already exists
     const existingItem = await InventoryItem.findOne({ ingredientId });
     if (existingItem) {
+      console.log('❌ Inventory item already exists for ingredientId:', ingredientId);
       return NextResponse.json(
         { success: false, error: 'Inventory item already exists for this ingredient' },
         { status: 400 }
@@ -123,11 +126,13 @@ export async function POST(request: NextRequest) {
       status = 'low_stock';
     }
 
+    console.log('✅ Creating inventory item with status:', status);
+
     const inventoryItem = new InventoryItem({
       ingredientId,
-      ingredientName: ingredient.name,
+      ingredientName,
       currentStock,
-      unit: ingredient.unit,
+      unit,
       minStockLevel,
       maxStockLevel,
       status,
@@ -135,6 +140,7 @@ export async function POST(request: NextRequest) {
     });
 
     await inventoryItem.save();
+    console.log('✅ Inventory item created successfully:', inventoryItem._id);
 
     return NextResponse.json({
       success: true,
@@ -143,7 +149,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating inventory item:', error);
+    console.error('❌ Error creating inventory item:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create inventory item' },
       { status: 500 }
