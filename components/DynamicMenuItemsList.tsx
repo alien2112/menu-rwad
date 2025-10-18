@@ -63,7 +63,7 @@ export const DynamicMenuItemsList = ({
   selectedCategory,
   viewMode = 'list'
 }: DynamicMenuItemsListProps) => {
-  const [layoutTemplate, setLayoutTemplate] = useState<TemplateId>('classic');
+  const [layoutTemplate, setLayoutTemplate] = useState<TemplateId | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Debug logging
@@ -138,6 +138,17 @@ export const DynamicMenuItemsList = ({
         return ClassicLayout;
     }
   };
+
+  // Show loading skeleton while template is being fetched
+  if (loading || !layoutTemplate) {
+    return (
+      <div className={viewMode === 'grid' ? 'px-4 grid grid-cols-2 gap-4 pb-24' : 'px-4 space-y-4 pb-24'}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <TemplateItemSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
 
   const TemplateComponent = getTemplateComponent(layoutTemplate);
   console.log('Selected TemplateComponent:', TemplateComponent);
