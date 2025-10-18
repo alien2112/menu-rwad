@@ -28,6 +28,7 @@ import {
   Users,
   Building2,
   Phone,
+  LogOut,
 } from 'lucide-react';
 import './admin.css';
 
@@ -136,6 +137,24 @@ export default function AdminLayout({
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  // Logout function
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear cookies
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout API error:', error);
+    } finally {
+      // Clear local state and storage regardless of API result
+      localStorage.removeItem("user_auth");
+      localStorage.removeItem("auth_token");
+      router.push("/");
+    }
+  };
 
   // Filter navigation based on user role; if no user yet, show all to avoid empty sidebar
   const navigation = user 
@@ -285,8 +304,8 @@ export default function AdminLayout({
             })}
           </nav>
 
-          {/* Footer */}
-          <div className="p-4 border-t border-white/10 flex-shrink-0">
+          {/* Footer with logout button */}
+          <div className="p-4 border-t border-white/10 flex-shrink-0 space-y-3">
             <AnimatePresence mode="wait">
               {!collapsed && (
                 <motion.div
@@ -305,6 +324,40 @@ export default function AdminLayout({
                 </motion.div>
               )}
             </AnimatePresence>
+            
+            {/* Logout Button */}
+            <motion.button
+              whileHover={{ scale: 1.02, backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogout}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 text-red-300 hover:text-red-200 hover:bg-red-500/20 ${
+                collapsed ? 'justify-center px-2' : ''
+              }`}
+            >
+              <motion.div
+                whileHover={{ scale: 1.1, rotate: -5 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <LogOut size={20} />
+              </motion.div>
+              <AnimatePresence mode="wait">
+                {!collapsed && (
+                  <motion.span
+                    initial={{ opacity: 0, width: 0, marginLeft: -12 }}
+                    animate={{ opacity: 1, width: 'auto', marginLeft: 0 }}
+                    exit={{ opacity: 0, width: 0, marginLeft: -12 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      ease: [0.4, 0, 0.2, 1],
+                      delay: 0.15
+                    }}
+                    className="font-semibold whitespace-nowrap overflow-hidden"
+                  >
+                    تسجيل الخروج
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
         </div>
       </aside>
