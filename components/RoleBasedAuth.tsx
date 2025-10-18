@@ -258,6 +258,12 @@ export function RoleBasedAuth({ children, embedded = false }: RoleBasedAuthProps
             <h3 className="text-white text-sm font-semibold text-center">بيانات الدخول الافتراضية:</h3>
             {Object.entries(roleConfig).map(([role, config]) => {
               const IconComponent = config.icon;
+              const passwords = {
+                admin: 'Admin@2024',
+                kitchen: 'Kitchen@2024',
+                barista: 'Barista@2024',
+                shisha: 'Shisha@2024'
+              };
               return (
                 <div key={role} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
                   <div className={`p-2 rounded-lg ${config.color}`}>
@@ -266,7 +272,7 @@ export function RoleBasedAuth({ children, embedded = false }: RoleBasedAuthProps
                   <div className="flex-1">
                     <p className="text-white text-sm font-medium">{config.name}</p>
                     <p className="text-white/60 text-xs">{config.description}</p>
-                    <p className="text-white/40 text-xs">المستخدم: {role} | كلمة المرور: {role}2024</p>
+                    <p className="text-white/40 text-xs">المستخدم: {role} | كلمة المرور: {passwords[role as keyof typeof passwords]}</p>
                   </div>
                 </div>
               );
