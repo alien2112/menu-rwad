@@ -78,7 +78,10 @@ export default function ItemsPage() {
 
       if (itemsData.success) setItems(itemsData.data);
       if (categoriesData.success) setCategories(categoriesData.data);
-      if (inventoryItemsData.success) setInventoryItems(inventoryItemsData.data);
+      if (inventoryItemsData.success) {
+        console.log('Inventory items fetched:', inventoryItemsData.data);
+        setInventoryItems(inventoryItemsData.data);
+      }
       if (modifiersData.success) setModifiers(modifiersData.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -172,7 +175,26 @@ export default function ItemsPage() {
 
   const handleEdit = (item: IMenuItem) => {
     setEditingItem(item);
-    setFormData(item);
+    
+    // Handle migration from old ingredients format to new inventoryItems format
+    const formData = { ...item };
+    
+    // If the item has old ingredients format, convert it to inventoryItems
+    if ((item as any).ingredients && !item.inventoryItems) {
+      formData.inventoryItems = (item as any).ingredients.map((ing: any) => ({
+        inventoryItemId: ing.ingredientId,
+        portion: ing.portion,
+        required: ing.required
+      }));
+    }
+    
+    // Ensure inventoryItems is always an array
+    if (!formData.inventoryItems) {
+      formData.inventoryItems = [];
+    }
+    
+    console.log('Form data set for editing:', formData);
+    setFormData(formData);
     setShowModal(true);
   };
 
@@ -191,7 +213,7 @@ export default function ItemsPage() {
       image: '',
       images: [],
       color: '#4F3500',
-      ingredients: [],
+      inventoryItems: [],
       preparationTime: 0,
       calories: 0,
       servingSize: '',
