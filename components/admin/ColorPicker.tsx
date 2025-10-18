@@ -35,16 +35,16 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-sm font-semibold text-white">{label}</label>}
+      {label && <label className="text-sm font-semibold">{label}</label>}
 
       <div className="relative">
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex items-center gap-3 px-4 py-3 glass-effect rounded-xl text-white hover:bg-white/10 transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3 admin-card rounded-xl"
         >
           <div
-            className="w-8 h-8 rounded-lg border-2 border-white/20"
+            className="w-8 h-8 rounded-lg border-2"
             style={{ backgroundColor: value }}
           />
           <span className="flex-1 text-right">{value}</span>
@@ -52,7 +52,7 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 mt-2 glass-sidebar rounded-xl p-4 z-50 border border-white/10">
+          <div className="absolute top-full left-0 right-0 mt-2 admin-card rounded-xl p-4 z-50">
             {/* Preset Colors */}
             <div className="grid grid-cols-6 gap-2 mb-4">
               {presetColors.map((color) => (
@@ -61,7 +61,7 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
                   type="button"
                   onClick={() => handleColorSelect(color)}
                   className={`w-10 h-10 rounded-lg border-2 transition-transform hover:scale-110 ${
-                    value === color ? 'border-white scale-110' : 'border-white/20'
+                    value === color ? 'border-highlight scale-110' : 'border-border-color'
                   }`}
                   style={{ backgroundColor: color }}
                 />
@@ -70,7 +70,7 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
 
             {/* Custom Color Input */}
             <div className="space-y-2">
-              <label className="text-xs text-white/70">لون مخصص</label>
+              <label className="text-xs">لون مخصص</label>
               <div className="flex gap-2">
                 <input
                   type="color"
@@ -83,12 +83,12 @@ export default function ColorPicker({ value, onChange, label }: ColorPickerProps
                   value={customColor}
                   onChange={(e) => setCustomColor(e.target.value)}
                   placeholder="#000000"
-                  className="flex-1 px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-accent focus:outline-none"
+                  className="admin-input flex-1"
                 />
                 <button
                   type="button"
                   onClick={() => handleColorSelect(customColor)}
-                  className="px-4 py-2 glass-green-button rounded-lg text-white text-sm font-semibold hover:bg-accent transition-colors"
+                  className="admin-button"
                 >
                   تطبيق
                 </button>

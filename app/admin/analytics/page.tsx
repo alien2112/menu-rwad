@@ -17,22 +17,12 @@ export default function AnalyticsPage() {
         <div className="flex gap-2 justify-center">
           <button
             onClick={() => setActiveTab('analytics')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeTab === 'analytics'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
+            className={`admin-button ${activeTab === 'analytics' ? 'active' : ''}`}>
             التحليلات الشاملة
           </button>
           <button
             onClick={() => setActiveTab('waste')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeTab === 'waste'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
+            className={`admin-button ${activeTab === 'waste' ? 'active' : ''}`}>
             تسجيل الهدر
           </button>
         </div>

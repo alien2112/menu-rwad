@@ -14,6 +14,7 @@ import {
   ListChecks,
 } from "lucide-react";
 import { Skeleton } from "@/components/SkeletonLoader";
+import { useAlert, useConfirmation } from "@/components/ui/alerts";
 
 interface ModifierOption {
   id: string;
@@ -61,6 +62,14 @@ export default function ModifiersPage() {
     status: "active" as 'active' | 'inactive',
   });
 
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
+
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
   useEffect(() => {
     fetchModifiers();
   }, []);
@@ -79,11 +88,6 @@ export default function ModifiersPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const showMessage = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
   };
 
   const handleAddOption = () => {
@@ -171,25 +175,34 @@ export default function ModifiersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا المعدل؟")) return;
+    confirm(
+      {
+        title: 'حذف المعدل',
+        message: 'هل أنت متأكد من حذف هذا المعدل؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const response = await fetch(`/api/modifiers/${id}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/modifiers/${id}`, {
-        method: "DELETE",
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        showMessage("success", "تم حذف المعدل بنجاح");
-        fetchModifiers();
-      } else {
-        showMessage("error", data.error || "فشل حذف المعدل");
+          if (data.success) {
+            showSuccess("تم حذف المعدل بنجاح");
+            fetchModifiers();
+          } else {
+            showError(data.error || "فشل حذف المعدل");
+          }
+        } catch (error) {
+          console.error("Error deleting modifier:", error);
+          showError("حدث خطأ أثناء الحذف");
+        }
       }
-    } catch (error) {
-      console.error("Error deleting modifier:", error);
-      showMessage("error", "حدث خطأ أثناء الحذف");
-    }
+    );
   };
 
   const resetForm = () => {
@@ -209,7 +222,7 @@ export default function ModifiersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -220,7 +233,7 @@ export default function ModifiersPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 border border-border">
+              <div key={i} className="admin-card rounded-xl p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <Skeleton className="h-6 w-40 mb-2" />
@@ -235,7 +248,7 @@ export default function ModifiersPage() {
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-full" />
                 </div>
-                <div className="flex items-center gap-2 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 pt-4 border-t">
                   <Skeleton className="h-10 flex-1 rounded-lg" />
                   <Skeleton className="h-10 w-10 rounded-lg" />
                   <Skeleton className="h-10 w-10 rounded-lg" />
@@ -249,13 +262,13 @@ export default function ModifiersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">إدارة المعدلات والإضافات</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold mb-2">إدارة المعدلات والإضافات</h1>
+            <p>
               قم بإنشاء خيارات قابلة للتخصيص لعناصر القائمة الخاصة بك
             </p>
           </div>
@@ -265,7 +278,7 @@ export default function ModifiersPage() {
               setEditingModifier(null);
               resetForm();
             }}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all"
+            className="admin-button"
           >
             <Plus className="w-5 h-5" />
             إضافة معدل جديد
@@ -294,10 +307,10 @@ export default function ModifiersPage() {
         {!showForm && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {modifiers.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <ListChecks className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg">لا توجد معدلات بعد</p>
-                <p className="text-muted-foreground/70 text-sm mt-2">ابدأ بإنشاء معدل جديد</p>
+              <div className="col-span-full text-center py-12 admin-card">
+                <ListChecks className="w-16 h-16 mx-auto mb-4" />
+                <p className="text-lg">لا توجد معدلات بعد</p>
+                <p className="mt-2">ابدأ بإنشاء معدل جديد</p>
               </div>
             ) : (
               modifiers.map((modifier) => (
@@ -305,16 +318,16 @@ export default function ModifiersPage() {
                   key={modifier._id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-card rounded-xl p-6 border border-card-foreground/10 hover:border-card-foreground/30 transition-all"
+                  className="admin-card rounded-xl p-6"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-foreground mb-1">
+                      <h3 className="text-xl font-bold mb-1">
                         {modifier.name}
                       </h3>
                       {modifier.nameEn && (
-                        <p className="text-sm text-muted-foreground">{modifier.nameEn}</p>
+                        <p className="text-sm">{modifier.nameEn}</p>
                       )}
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -328,7 +341,7 @@ export default function ModifiersPage() {
 
                   {/* Description */}
                   {modifier.description && (
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                    <p className="text-sm mb-4 line-clamp-2">
                       {modifier.description}
                     </p>
                   )}
@@ -336,43 +349,43 @@ export default function ModifiersPage() {
                   {/* Details */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">النوع:</span>
-                      <span className="text-foreground font-medium">
+                      <span>النوع:</span>
+                      <span className="font-medium">
                         {modifier.type === 'single' ? 'اختيار واحد' : 'اختيارات متعددة'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">عدد الخيارات:</span>
-                      <span className="text-foreground font-medium">
+                      <span>عدد الخيارات:</span>
+                      <span className="font-medium">
                         {modifier.options.length}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">إلزامي:</span>
-                      <span className="text-foreground font-medium">
+                      <span>إلزامي:</span>
+                      <span className="font-medium">
                         {modifier.required ? 'نعم' : 'لا'}
                       </span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-card-foreground/10">
+                  <div className="flex items-center gap-2 pt-4 border-t">
                     <button
                       onClick={() => setPreviewModifier(modifier)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-card-foreground/5 hover:bg-card-foreground/10 text-foreground py-2 px-4 rounded-lg text-sm font-medium transition-all"
+                      className="admin-button flex-1"
                     >
                       <Eye className="w-4 h-4" />
                       معاينة
                     </button>
                     <button
                       onClick={() => handleEdit(modifier)}
-                      className="flex items-center justify-center bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 p-2 rounded-lg transition-all"
+                      className="admin-button"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDelete(modifier._id)}
-                      className="flex items-center justify-center bg-red-500/20 hover:bg-red-500/30 text-red-400 p-2 rounded-lg transition-all"
+                      className="admin-button"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -383,8 +396,194 @@ export default function ModifiersPage() {
           </div>
         )}
 
-        {/* Form Modal - Continued in next message due to length */}
+        {/* Form Modal */}
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="admin-card rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h2 className="text-2xl font-bold mb-6">
+                  {editingModifier ? "تعديل المعدل" : "إضافة معدل جديد"}
+                </h2>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold mb-2 block">اسم المعدل</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="admin-input w-full"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold mb-2 block">اسم المعدل (En)</label>
+                      <input
+                        type="text"
+                        value={formData.nameEn}
+                        onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                        className="admin-input w-full"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold mb-2 block">الوصف</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="admin-input w-full"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-semibold mb-3">الخيارات</h4>
+                    <div className="space-y-3">
+                      {formData.options.map((option, index) => (
+                        <div key={option.id} className="flex items-center gap-3 p-3 admin-card rounded-lg">
+                          <input
+                            type="text"
+                            placeholder="اسم الخيار"
+                            value={option.name}
+                            onChange={(e) => handleOptionChange(index, "name", e.target.value)}
+                            className="admin-input flex-grow"
+                          />
+                          <input
+                            type="number"
+                            placeholder="السعر"
+                            value={option.price}
+                            onChange={(e) => handleOptionChange(index, "price", parseFloat(e.target.value) || 0)}
+                            className="admin-input w-24"
+                          />
+                          <label className="flex items-center gap-2 text-sm">
+                            <input
+                              type="checkbox"
+                              checked={option.isDefault}
+                              onChange={(e) => handleOptionChange(index, "isDefault", e.target.checked)}
+                              className="rounded"
+                            />
+                            افتراضي
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveOption(index)}
+                            className="admin-button"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddOption}
+                      className="admin-button mt-3"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      إضافة خيار
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-semibold mb-2 block">النوع</label>
+                      <select
+                        value={formData.type}
+                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                        className="admin-input w-full"
+                      >
+                        <option value="single">اختيار واحد</option>
+                        <option value="multiple">اختيارات متعددة</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-semibold">
+                        <input
+                          type="checkbox"
+                          checked={formData.required}
+                          onChange={(e) => setFormData({ ...formData, required: e.target.checked })}
+                          className="rounded"
+                        />
+                        إلزامي
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForm(false);
+                        setEditingModifier(null);
+                        resetForm();
+                      }}
+                      className="admin-button"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="submit"
+                      className="admin-button"
+                    >
+                      {editingModifier ? "تحديث" : "إنشاء"}
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Preview Modal */}
+        <AnimatePresence>
+          {previewModifier && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+              onClick={() => setPreviewModifier(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="admin-card rounded-2xl max-w-md w-full p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 className="text-xl font-bold mb-4">معاينة: {previewModifier.name}</h3>
+                <div className="space-y-3">
+                  {previewModifier.options.map(opt => (
+                    <div key={opt.id} className="flex justify-between items-center">
+                      <span>{opt.name}</span>
+                      <span className="font-medium">{opt.price > 0 ? `${opt.price} ر.س` : 'مجاني'}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setPreviewModifier(null)}
+                  className="admin-button w-full mt-6"
+                >
+                  إغلاق
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+      {ConfirmationComponent}
     </div>
   );
 }

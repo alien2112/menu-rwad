@@ -6,6 +6,7 @@ import ImageUpload from '@/components/admin/ImageUpload';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
 import { UnitType, UNIT_LABELS } from '@/lib/unitConversion';
+import { useAlert, useConfirmation } from '@/components/ui/alerts';
 
 export default function IngredientsPage() {
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
@@ -27,6 +28,9 @@ export default function IngredientsPage() {
     allergens: [],
     status: 'active',
   });
+
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
 
   useEffect(() => {
     fetchIngredients();
@@ -71,17 +75,30 @@ export default function IngredientsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المكون؟')) return;
-
-    try {
-      const res = await fetch(`/api/ingredients/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) {
-        fetchIngredients();
+    confirm(
+      {
+        title: 'حذف المكون',
+        message: 'هل أنت متأكد من حذف هذا المكون؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const res = await fetch(`/api/ingredients/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            fetchIngredients();
+            showSuccess('تم حذف المكون بنجاح');
+          } else {
+            showError(data.error || 'فشل حذف المكون');
+          }
+        } catch (error) {
+          console.error('Error deleting ingredient:', error);
+          showError('حدث خطأ أثناء حذف المكون');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting ingredient:', error);
-    }
+    );
   };
 
   const handleEdit = (ingredient: IIngredient) => {
@@ -117,39 +134,39 @@ export default function IngredientsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <div className="h-7 w-48 bg-white/10 rounded animate-pulse" />
-              <div className="h-4 w-64 bg-white/10 rounded mt-2 animate-pulse" />
+              <div className="h-7 w-48 rounded animate-pulse" />
+              <div className="h-4 w-64 rounded mt-2 animate-pulse" />
             </div>
-            <div className="h-11 w-44 bg-white/10 rounded-xl animate-pulse" />
+            <div className="h-11 w-44 rounded-xl animate-pulse" />
           </div>
         </div>
 
-        <div className="glass-effect rounded-2xl p-4">
-          <div className="h-11 bg-white/10 rounded-xl animate-pulse" />
+        <div className="admin-card rounded-2xl p-4">
+          <div className="h-11 rounded-xl animate-pulse" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="glass-effect rounded-2xl p-6">
+            <div key={i} className="admin-card rounded-2xl p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 rounded-xl bg-white/10 animate-pulse" />
+                <div className="w-12 h-12 rounded-xl animate-pulse" />
                 <div className="flex gap-2">
-                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
-                  <div className="h-9 w-9 bg-white/10 rounded-lg animate-pulse" />
+                  <div className="h-9 w-9 rounded-lg animate-pulse" />
+                  <div className="h-9 w-9 rounded-lg animate-pulse" />
                 </div>
               </div>
-              <div className="h-5 w-2/3 bg-white/10 rounded animate-pulse mb-2" />
-              <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse mb-4" />
+              <div className="h-5 w-2/3 rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 rounded animate-pulse mb-4" />
               <div className="space-y-2">
-                <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
-                <div className="h-4 w-5/6 bg-white/10 rounded animate-pulse" />
-                <div className="h-4 w-2/3 bg-white/10 rounded animate-pulse" />
+                <div className="h-4 w-full rounded animate-pulse" />
+                <div className="h-4 w-5/6 rounded animate-pulse" />
+                <div className="h-4 w-2/3 rounded animate-pulse" />
               </div>
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <div className="h-6 w-20 bg-white/10 rounded-full animate-pulse" />
+              <div className="mt-4 pt-4 border-t">
+                <div className="h-6 w-20 rounded-full animate-pulse" />
               </div>
             </div>
           ))}
@@ -161,15 +178,15 @@ export default function IngredientsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-effect rounded-2xl p-6">
+      <div className="admin-card rounded-2xl p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">إدارة المكونات</h1>
-            <p className="text-white/70">إضافة وتعديل وحذف مكونات المنتجات</p>
+            <h1 className="text-3xl font-bold mb-2">إدارة المكونات</h1>
+            <p>إضافة وتعديل وحذف مكونات المنتجات</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="glass-green-button px-6 py-3 rounded-xl text-white font-semibold hover:bg-coffee-green transition-colors flex items-center gap-2 justify-center"
+            className="admin-button"
           >
             <Plus size={20} />
             إضافة مكون جديد
@@ -178,15 +195,15 @@ export default function IngredientsPage() {
       </div>
 
       {/* Search */}
-      <div className="glass-effect rounded-2xl p-4">
+      <div className="admin-card rounded-2xl p-4">
         <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50" size={20} />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2" size={20} />
           <input
             type="text"
             placeholder="البحث عن مكون..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-12 pl-4 py-3 bg-white/10 rounded-xl text-white placeholder-white/50 border border-white/20 focus:border-coffee-green focus:outline-none"
+            className="admin-input w-full pr-12 pl-4 py-3"
           />
         </div>
       </div>
@@ -196,7 +213,7 @@ export default function IngredientsPage() {
         {filteredIngredients.map((ingredient) => (
           <div
             key={ingredient._id}
-            className="glass-effect rounded-2xl p-6 hover:bg-white/15 transition-all duration-200"
+            className="admin-card rounded-2xl p-6"
           >
             <div className="flex items-start justify-between mb-4">
               <div
@@ -214,48 +231,48 @@ export default function IngredientsPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(ingredient)}
-                  className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
+                  className="admin-button"
                 >
                   <Edit2 size={16} />
                 </button>
                 <button
                   onClick={() => handleDelete(ingredient._id!)}
-                  className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                  className="admin-button"
                 >
                   <Trash2 size={16} />
                 </button>
               </div>
             </div>
 
-            <h3 className="text-lg font-bold text-white mb-1">{ingredient.name}</h3>
+            <h3 className="text-lg font-bold mb-1">{ingredient.name}</h3>
             {ingredient.nameEn && (
-              <p className="text-white/60 text-sm mb-3">{ingredient.nameEn}</p>
+              <p className="text-sm mb-3">{ingredient.nameEn}</p>
             )}
 
             {ingredient.description && (
-              <p className="text-white/70 text-sm mb-4 line-clamp-2">
+              <p className="text-sm mb-4 line-clamp-2">
                 {ingredient.description}
               </p>
             )}
 
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between">
                 <span>الوحدة:</span>
-                <span className="font-semibold text-white">{ingredient.unit}</span>
+                <span className="font-semibold">{ingredient.unit}</span>
               </div>
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between">
                 <span>الكمية الافتراضية:</span>
-                <span className="font-semibold text-white">{ingredient.defaultPortion}</span>
+                <span className="font-semibold">{ingredient.defaultPortion}</span>
               </div>
-              <div className="flex justify-between text-white/70">
+              <div className="flex justify-between">
                 <span>السعر لكل وحدة:</span>
-                <span className="font-semibold text-coffee-green">
+                <span className="font-semibold">
                   {ingredient.pricePerUnit} ريال سعودي
                 </span>
               </div>
             </div>
 
-            <div className="mt-4 pt-4 border-t border-white/10">
+            <div className="mt-4 pt-4 border-t">
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs ${
                   ingredient.status === 'active'
@@ -271,27 +288,27 @@ export default function IngredientsPage() {
       </div>
 
       {filteredIngredients.length === 0 && (
-        <div className="glass-effect rounded-2xl p-12 text-center">
-          <p className="text-white/50">لا توجد مكونات</p>
+        <div className="admin-card rounded-2xl p-12 text-center">
+          <p>لا توجد مكونات</p>
         </div>
       )}
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="glass-sidebar rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-6">
+          <div className="admin-card rounded-2xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-bold mb-6">
               {editingIngredient ? 'تعديل المكون' : 'إضافة مكون جديد'}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Info */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">المعلومات الأساسية</h3>
+                <h3 className="text-lg font-semibold">المعلومات الأساسية</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       اسم المكون (عربي) *
                     </label>
                     <input
@@ -299,33 +316,33 @@ export default function IngredientsPage() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                       placeholder="مثال: حليب"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       اسم المكون (English)
                     </label>
                     <input
                       type="text"
                       value={formData.nameEn}
                       onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                       placeholder="e.g., Milk"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold text-white mb-2 block">
+                  <label className="text-sm font-semibold mb-2 block">
                     الوصف
                   </label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none min-h-24"
+                    className="admin-input w-full min-h-24"
                     placeholder="وصف مختصر للمكون..."
                   />
                 </div>
@@ -333,18 +350,18 @@ export default function IngredientsPage() {
 
               {/* Measurement */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">القياسات</h3>
+                <h3 className="text-lg font-semibold">القياسات</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الوحدة *
                     </label>
                     <select
                       required
                       value={formData.unit}
                       onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     >
                       <optgroup label="وزن (Weight)">
                         <option value={UnitType.GRAM}>{UNIT_LABELS[UnitType.GRAM].ar} (g)</option>
@@ -367,7 +384,7 @@ export default function IngredientsPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       السعر لكل وحدة *
                     </label>
                     <input
@@ -376,14 +393,14 @@ export default function IngredientsPage() {
                       step="0.01"
                       value={formData.pricePerUnit}
                       onChange={(e) => setFormData({ ...formData, pricePerUnit: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الكمية الافتراضية *
                     </label>
                     <input
@@ -392,12 +409,12 @@ export default function IngredientsPage() {
                       step="0.1"
                       value={formData.defaultPortion}
                       onChange={(e) => setFormData({ ...formData, defaultPortion: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الحد الأدنى
                     </label>
                     <input
@@ -405,12 +422,12 @@ export default function IngredientsPage() {
                       step="0.1"
                       value={formData.minPortion}
                       onChange={(e) => setFormData({ ...formData, minPortion: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الحد الأقصى
                     </label>
                     <input
@@ -418,7 +435,7 @@ export default function IngredientsPage() {
                       step="0.1"
                       value={formData.maxPortion}
                       onChange={(e) => setFormData({ ...formData, maxPortion: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
                 </div>
@@ -426,7 +443,7 @@ export default function IngredientsPage() {
 
               {/* Visual */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">المظهر</h3>
+                <h3 className="text-lg font-semibold">المظهر</h3>
 
                 <ImageUpload
                   label="صورة المكون"
@@ -437,16 +454,16 @@ export default function IngredientsPage() {
 
               {/* Settings */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">الإعدادات</h3>
+                <h3 className="text-lg font-semibold">الإعدادات</h3>
 
                 <div>
-                  <label className="text-sm font-semibold text-white mb-2 block">
+                  <label className="text-sm font-semibold mb-2 block">
                     الحالة
                   </label>
                   <select
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as 'active' | 'inactive' })}
-                    className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                    className="admin-input w-full"
                   >
                     <option value="active">نشط</option>
                     <option value="inactive">غير نشط</option>
@@ -455,17 +472,17 @@ export default function IngredientsPage() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-white/10">
+              <div className="flex gap-3 pt-4 border-t">
                 <button
                   type="submit"
-                  className="flex-1 glass-green-button px-6 py-3 rounded-xl text-white font-semibold hover:bg-coffee-green transition-colors"
+                  className="admin-button flex-1"
                 >
                   {editingIngredient ? 'تحديث' : 'إضافة'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 glass-effect px-6 py-3 rounded-xl text-white font-semibold hover:bg-white/10 transition-colors"
+                  className="admin-button flex-1"
                 >
                   إلغاء
                 </button>
@@ -474,6 +491,7 @@ export default function IngredientsPage() {
           </div>
         </div>
       )}
+      {ConfirmationComponent}
     </div>
   );
 }

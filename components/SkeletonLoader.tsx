@@ -15,10 +15,27 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 }) => {
   return (
     <div 
-      className={`animate-pulse bg-gray-200/30 ${height} ${width} ${
+      className={`animate-pulse ${height} ${width} ${
         rounded ? 'rounded' : ''
       } ${className}`}
-    />
+      style={{
+        backgroundColor: 'var(--accent)',
+        backgroundImage: 'linear-gradient(90deg, var(--accent) 0%, rgba(215, 107, 62, 0.1) 50%, var(--accent) 100%)',
+        backgroundSize: '200% 100%',
+        animation: 'shimmer 1.5s infinite',
+      }}
+    >
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            background-position: -200% 0;
+          }
+          100% {
+            background-position: 200% 0;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 

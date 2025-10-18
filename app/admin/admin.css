@@ -1,0 +1,1503 @@
+
+:root {
+  /* Default admin colors - will be overridden by theme context */
+  --primary: #333333;
+  --accent: #F5F2E8;
+  --highlight: #D76B3E;
+  --neutral: #FFFFFF;
+  --border-color: rgba(0, 0, 0, 0.08);
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-light: #666666;
+
+  /* Enhanced shadow system - Apple-like depth */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.15), 0 12px 24px rgba(0, 0, 0, 0.1);
+
+  /* Glow effects */
+  --glow-primary: 0 0 20px rgba(215, 107, 62, 0.15);
+  --glow-hover: 0 0 30px rgba(215, 107, 62, 0.25);
+
+  /* Animation variables - refined timing */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.6, 1);
+  
+  /* Theme context variables - these will be set by the theme system */
+  --theme-background: #F6EEDF;
+  --theme-foreground: #4F3500;
+  --theme-primary: #9C6B1E;
+  --theme-secondary: #D3A34C;
+  --theme-accent: #1EA55E;
+  --theme-card: #4F3500;
+  --theme-card-foreground: #FFFFFF;
+  --theme-muted: rgba(0,0,0,0.12);
+  --theme-muted-foreground: rgba(18,15,6,0.7);
+  --theme-ring: #D3A34C;
+  --theme-scroll-thumb-start: #1EA55E;
+  --theme-scroll-thumb-end: #D3A34C;
+  --theme-scroll-track: rgba(0,0,0,0.25);
+}
+
+/* General Admin Body Styles */
+.admin-body {
+  background-color: var(--accent);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Force all text to be black except sidebar */
+.admin-body *:not(.admin-sidebar *),
+.admin-theme *:not(.admin-sidebar *),
+.admin-main-content *,
+.admin-card *,
+.admin-panel *,
+.admin-table * {
+  color: var(--text-primary) !important;
+}
+
+/* Override any inherited text colors except sidebar */
+.admin-body h1:not(.admin-sidebar h1),
+.admin-body h2:not(.admin-sidebar h2),
+.admin-body h3:not(.admin-sidebar h3),
+.admin-body h4:not(.admin-sidebar h4),
+.admin-body h5:not(.admin-sidebar h5),
+.admin-body h6:not(.admin-sidebar h6),
+.admin-body p:not(.admin-sidebar p),
+.admin-body span:not(.admin-sidebar span),
+.admin-body div:not(.admin-sidebar div),
+.admin-body td:not(.admin-sidebar td),
+.admin-body th:not(.admin-sidebar th) {
+  color: var(--text-primary) !important;
+}
+
+/* Admin Theme Container */
+.admin-theme {
+  background-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Enhanced Sidebar Styles with Glassmorphism */
+.admin-sidebar {
+  background: linear-gradient(180deg,
+    rgba(51, 51, 51, 0.95) 0%,
+    rgba(51, 51, 51, 0.98) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--neutral);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-xl),
+              inset -1px 0 0 rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-slow) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 100%);
+  pointer-events: none;
+}
+
+.admin-sidebar:hover {
+  box-shadow: var(--shadow-2xl),
+              inset -1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Sidebar Navigation Items with Enhanced Micro-Interactions */
+.admin-sidebar nav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  margin: 6px 12px;
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  transition: all var(--transition-normal) var(--ease-smooth);
+  overflow: hidden;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+/* Subtle gradient background on hover */
+.admin-sidebar nav a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%);
+  opacity: 0;
+  transition: opacity var(--transition-normal) var(--ease-smooth);
+  border-radius: 14px;
+}
+
+.admin-sidebar nav a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 60%;
+  background: linear-gradient(180deg, var(--highlight), rgba(215, 107, 62, 0.6));
+  transition: transform var(--transition-normal) var(--ease-spring);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 8px rgba(215, 107, 62, 0.4);
+}
+
+.admin-sidebar nav a:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(6px) scale(1.01);
+  color: rgba(255, 255, 255, 1);
+  box-shadow: var(--shadow-sm),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar nav a:hover::after {
+  opacity: 1;
+}
+
+.admin-sidebar nav a:hover::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.admin-sidebar nav a.active {
+  background: linear-gradient(90deg,
+    rgba(215, 107, 62, 0.95) 0%,
+    rgba(215, 107, 62, 0.85) 100%);
+  color: var(--neutral);
+  box-shadow: var(--shadow-md),
+              var(--glow-primary),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  transform: translateX(2px);
+}
+
+.admin-sidebar nav a.active::before {
+  transform: translateY(-50%) scaleY(1);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+.admin-sidebar nav a.active::after {
+  opacity: 1;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 100%);
+}
+
+.admin-sidebar nav a.active:hover {
+  transform: translateX(4px) scale(1.01);
+  box-shadow: var(--shadow-lg),
+              var(--glow-hover),
+              inset 0 1px 0 rgba(255, 255, 255, 0.25),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Sidebar Icons */
+.admin-sidebar nav a svg {
+  transition: all var(--transition-fast) var(--ease-smooth);
+}
+
+.admin-sidebar nav a:hover svg {
+  transform: scale(1.1);
+}
+
+.admin-sidebar nav a.active svg {
+  transform: scale(1.05);
+}
+
+/* Sidebar Collapse Animation */
+.admin-sidebar.collapsed {
+  width: 80px;
+}
+
+.admin-sidebar.collapsed nav a span {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-normal) var(--ease-smooth);
+}
+
+.admin-sidebar:not(.collapsed) nav a span {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all var(--transition-normal) var(--ease-smooth);
+}
+
+.admin-sidebar a,
+.admin-sidebar button {
+  color: var(--neutral);
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar button:hover {
+  background-color: var(--highlight);
+  color: var(--neutral);
+  transform: translateX(-2px);
+}
+
+.admin-sidebar .active {
+  background-color: var(--highlight);
+  color: var(--neutral);
+  font-weight: 600;
+}
+
+.admin-sidebar h1,
+.admin-sidebar h2,
+.admin-sidebar h3,
+.admin-sidebar p {
+  color: var(--neutral);
+}
+
+/* Main Content Styles */
+.admin-main-content {
+  background-color: var(--accent);
+  color: var(--text-primary);
+}
+
+/* Enhanced Card, Panel, and Table Styles with Premium Depth */
+.admin-card,
+.admin-panel,
+.admin-table {
+  background: linear-gradient(145deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.98) 100%);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border-radius: 18px;
+  transition: all var(--transition-normal) var(--ease-smooth);
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+/* Subtle top accent line */
+.admin-card::before,
+.admin-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--highlight) 0%,
+    rgba(215, 107, 62, 0.6) 50%,
+    transparent 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--transition-slow) var(--ease-out);
+}
+
+/* Hover glow effect */
+.admin-card::after,
+.admin-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(circle at top left,
+    rgba(215, 107, 62, 0.05) 0%,
+    transparent 50%);
+  opacity: 0;
+  transition: opacity var(--transition-normal) var(--ease-smooth);
+  pointer-events: none;
+}
+
+.admin-card:hover,
+.admin-panel:hover {
+  transform: translateY(-4px) scale(1.005);
+  box-shadow: var(--shadow-lg),
+              var(--glow-primary),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(215, 107, 62, 0.15);
+}
+
+.admin-card:hover::before,
+.admin-panel:hover::before {
+  transform: scaleX(1);
+}
+
+.admin-card:hover::after,
+.admin-panel:hover::after {
+  opacity: 1;
+}
+
+.admin-card:active,
+.admin-panel:active {
+  transform: translateY(-2px) scale(1.002);
+  transition: transform var(--transition-fast) var(--ease-smooth);
+  box-shadow: var(--shadow-md),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Fade-in Animation for Cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-card,
+.admin-panel {
+  animation: fadeInUp var(--transition-slow) var(--ease-smooth);
+}
+
+/* Staggered Animation for Card Grids */
+.admin-card:nth-child(1),
+.admin-panel:nth-child(1) { animation-delay: 0ms; }
+.admin-card:nth-child(2),
+.admin-panel:nth-child(2) { animation-delay: 50ms; }
+.admin-card:nth-child(3),
+.admin-panel:nth-child(3) { animation-delay: 100ms; }
+.admin-card:nth-child(4),
+.admin-panel:nth-child(4) { animation-delay: 150ms; }
+.admin-card:nth-child(5),
+.admin-panel:nth-child(5) { animation-delay: 200ms; }
+.admin-card:nth-child(6),
+.admin-panel:nth-child(6) { animation-delay: 250ms; }
+
+.admin-card h1,
+.admin-card h2,
+.admin-card h3,
+.admin-card h4,
+.admin-card h5,
+.admin-card h6 {
+  color: var(--text-primary);
+}
+
+.admin-card p,
+.admin-card span,
+.admin-card div {
+  color: var(--text-primary);
+}
+
+/* Enhanced Button Styles with Premium Interactions */
+.admin-button {
+  background: linear-gradient(135deg,
+    rgba(215, 107, 62, 1) 0%,
+    rgba(215, 107, 62, 0.9) 100%);
+  color: var(--neutral);
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all var(--transition-normal) var(--ease-smooth);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-sm),
+              0 0 0 0 rgba(215, 107, 62, 0),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ripple effect on click */
+.admin-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s var(--ease-out),
+              height 0.5s var(--ease-out),
+              opacity 0.5s var(--ease-out);
+  opacity: 0;
+}
+
+/* Shine effect overlay */
+.admin-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%);
+  transition: left 0.5s var(--ease-smooth);
+}
+
+.admin-button:hover {
+  background: linear-gradient(135deg,
+    rgba(215, 107, 62, 1) 0%,
+    rgba(215, 107, 62, 0.95) 100%);
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: var(--shadow-md),
+              0 0 20px rgba(215, 107, 62, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.2),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.admin-button:hover::after {
+  left: 100%;
+}
+
+.admin-button:active {
+  transform: translateY(0) scale(1.005);
+  transition: transform var(--transition-fast) var(--ease-smooth);
+  box-shadow: var(--shadow-xs),
+              inset 0 2px 4px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.admin-button:active::before {
+  width: 300px;
+  height: 300px;
+  opacity: 1;
+  transition: width 0s, height 0s, opacity 0.3s var(--ease-out);
+}
+
+.admin-button:focus {
+  outline: none;
+  box-shadow: var(--shadow-md),
+              0 0 0 4px rgba(215, 107, 62, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15),
+              inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.admin-button:focus-visible {
+  outline: 2px solid rgba(215, 107, 62, 0.5);
+  outline-offset: 3px;
+}
+
+.admin-button.active {
+  background-color: var(--primary);
+  color: var(--neutral);
+}
+
+/* Modal button styles - Updated for Card components */
+.fixed.inset-0 .admin-card .admin-button,
+.fixed.inset-0 .Card .admin-button {
+  background-color: var(--highlight);
+  color: var(--neutral);
+}
+
+.fixed.inset-0 .admin-card .admin-button.cancel,
+.fixed.inset-0 .Card .admin-button.cancel {
+  background-color: var(--accent);
+  color: var(--text-primary);
+  border: 1px solid var(--highlight);
+}
+
+/* Button alignment improvements */
+.fixed.inset-0 .Card .flex.gap-2 {
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  margin-top: 24px !important;
+}
+
+.fixed.inset-0 .Card .flex.gap-2 button {
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+}
+
+/* CardHeader and CardContent padding */
+.fixed.inset-0 .Card .CardHeader {
+  padding: 24px 24px 16px 24px !important;
+}
+
+.fixed.inset-0 .Card .CardContent {
+  padding: 0 24px 24px 24px !important;
+}
+
+/* Title styling */
+.fixed.inset-0 .Card .CardTitle {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: var(--neutral) !important;
+}
+
+/* Additional storage modal improvements */
+.fixed.inset-0 .Card.max-w-md .CardHeader {
+  padding: 24px 24px 20px 24px !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.fixed.inset-0 .Card.max-w-md .CardTitle {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: var(--neutral) !important;
+  margin: 0 !important;
+}
+
+/* Better label styling */
+.fixed.inset-0 .Card.max-w-md label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--neutral) !important;
+  margin-bottom: 6px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Required field indicators */
+.fixed.inset-0 .Card.max-w-md label:has-text("*")::after {
+  content: " *" !important;
+  color: var(--highlight) !important;
+}
+
+/* Better spacing for form sections */
+.fixed.inset-0 .Card.max-w-md .space-y-4 > div:not(.grid) {
+  margin-bottom: 20px !important;
+}
+
+.fixed.inset-0 .Card.max-w-md .space-y-4 > .grid {
+  margin-bottom: 20px !important;
+}
+
+/* Button styles for Card components in modals */
+.fixed.inset-0 .Card button[type="submit"] {
+  background-color: var(--highlight) !important;
+  color: var(--neutral) !important;
+}
+
+.fixed.inset-0 .Card button[type="button"] {
+  background-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--highlight) !important;
+}
+
+/* Enhanced Input and Form Styles with Premium Feedback */
+.admin-input,
+.admin-select {
+  border: 1.5px solid var(--border-color);
+  background: linear-gradient(145deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.95) 100%);
+  color: var(--text-primary) !important;
+  padding: 13px 18px;
+  border-radius: 12px;
+  font-size: 14.5px;
+  font-weight: 450;
+  transition: all var(--transition-normal) var(--ease-smooth);
+  box-shadow: var(--shadow-xs),
+              inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  position: relative;
+}
+
+.admin-input:focus,
+.admin-select:focus {
+  outline: none;
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 4px rgba(215, 107, 62, 0.08),
+              var(--shadow-sm),
+              inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  background: rgba(255, 255, 255, 1) !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-1px) scale(1.005);
+  border-width: 1.5px;
+}
+
+.admin-input:hover:not(:focus),
+.admin-select:hover:not(:focus) {
+  border-color: rgba(215, 107, 62, 0.25);
+  box-shadow: var(--shadow-sm),
+              inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  background: rgba(255, 255, 255, 1);
+}
+
+.admin-input::placeholder {
+  color: rgba(102, 102, 102, 0.6) !important;
+  transition: color var(--transition-normal) var(--ease-smooth),
+              opacity var(--transition-normal) var(--ease-smooth);
+  font-weight: 400;
+}
+
+.admin-input:focus::placeholder {
+  color: rgba(102, 102, 102, 0.4) !important;
+  opacity: 0.7;
+}
+
+/* Animated Underline for Text Inputs */
+.admin-input {
+  position: relative;
+}
+
+.admin-input::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--highlight);
+  transition: width var(--transition-normal) var(--ease-smooth);
+}
+
+.admin-input:focus::after {
+  width: 100%;
+}
+
+/* Select Dropdown Enhancements */
+.admin-select {
+  cursor: pointer;
+}
+
+.admin-select:hover {
+  background-color: rgba(245, 242, 232, 0.5);
+}
+
+/* Modal specific input styles - Updated for Card components */
+.fixed.inset-0 .admin-card .admin-input,
+.fixed.inset-0 .admin-card .admin-select,
+.fixed.inset-0 .admin-card input,
+.fixed.inset-0 .admin-card select,
+.fixed.inset-0 .admin-card textarea,
+.fixed.inset-0 .Card .admin-input,
+.fixed.inset-0 .Card .admin-select,
+.fixed.inset-0 .Card input,
+.fixed.inset-0 .Card select,
+.fixed.inset-0 .Card textarea {
+  background-color: var(--accent) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--highlight) !important;
+}
+
+.fixed.inset-0 .admin-card .admin-input::placeholder,
+.fixed.inset-0 .admin-card input::placeholder,
+.fixed.inset-0 .admin-card textarea::placeholder,
+.fixed.inset-0 .Card .admin-input::placeholder,
+.fixed.inset-0 .Card input::placeholder,
+.fixed.inset-0 .Card textarea::placeholder {
+  color: var(--text-light) !important;
+}
+
+/* Override any modal text colors for Card components */
+.fixed.inset-0 .Card * {
+  color: var(--neutral) !important;
+}
+
+.fixed.inset-0 .Card .admin-input,
+.fixed.inset-0 .Card .admin-select,
+.fixed.inset-0 .Card input,
+.fixed.inset-0 .Card select,
+.fixed.inset-0 .Card textarea {
+  color: var(--text-primary) !important;
+}
+
+/* Badge Styles */
+.admin-badge {
+  background-color: var(--highlight);
+  color: var(--neutral);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Header and Title Styles */
+.admin-header {
+  color: var(--text-primary);
+}
+
+/* Table Styles */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  background-color: var(--accent);
+  color: var(--text-primary);
+  padding: 12px;
+  text-align: right;
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.admin-table tr:hover {
+  background-color: rgba(215, 107, 62, 0.05);
+}
+
+/* Status Badges */
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-in-progress {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-ready {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-served {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Alert and Notification Styles */
+.admin-alert {
+  background-color: var(--neutral);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  box-shadow: 0 2px 4px var(--shadow-light);
+}
+
+.admin-alert-success {
+  border-left: 4px solid #10b981;
+}
+
+.admin-alert-error {
+  border-left: 4px solid #ef4444;
+}
+
+.admin-alert-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-alert-info {
+  border-left: 4px solid var(--highlight);
+}
+
+/* Enhanced Modal and Dialog Styles with Scale-in Animations */
+.fixed.inset-0 .admin-card,
+.fixed.inset-0 .Card {
+  background-color: var(--primary) !important;
+  color: var(--neutral) !important;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px var(--shadow-dark);
+  animation: modalScaleIn var(--transition-normal) var(--ease-spring);
+  backdrop-filter: blur(10px);
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Modal Background Blur */
+.fixed.inset-0 {
+  backdrop-filter: blur(8px);
+  background-color: rgba(0, 0, 0, 0.4);
+  animation: modalBackdropFade var(--transition-fast) var(--ease-smooth);
+}
+
+@keyframes modalBackdropFade {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* Modal Content Animations */
+.fixed.inset-0 .Card .CardContent {
+  animation: contentFadeIn var(--transition-slow) var(--ease-smooth) 100ms both;
+}
+
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card components in modals */
+.fixed.inset-0 .admin-card .admin-card-header,
+.fixed.inset-0 .Card .CardHeader {
+  background-color: var(--primary) !important;
+  color: var(--neutral) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.fixed.inset-0 .admin-card .admin-card-content,
+.fixed.inset-0 .Card .CardContent {
+  background-color: var(--primary) !important;
+  color: var(--neutral) !important;
+}
+
+/* Ensure all modal text is visible */
+.fixed.inset-0 .admin-card h1,
+.fixed.inset-0 .admin-card h2,
+.fixed.inset-0 .admin-card h3,
+.fixed.inset-0 .admin-card h4,
+.fixed.inset-0 .admin-card h5,
+.fixed.inset-0 .admin-card h6,
+.fixed.inset-0 .admin-card p,
+.fixed.inset-0 .admin-card span,
+.fixed.inset-0 .admin-card div,
+.fixed.inset-0 .admin-card label,
+.fixed.inset-0 .Card h1,
+.fixed.inset-0 .Card h2,
+.fixed.inset-0 .Card h3,
+.fixed.inset-0 .Card h4,
+.fixed.inset-0 .Card h5,
+.fixed.inset-0 .Card h6,
+.fixed.inset-0 .Card p,
+.fixed.inset-0 .Card span,
+.fixed.inset-0 .Card div,
+.fixed.inset-0 .Card label {
+  color: var(--neutral) !important;
+}
+
+/* Modal specific styling for better appearance */
+.fixed.inset-0 .admin-card,
+.fixed.inset-0 .Card {
+  min-width: 600px;
+  max-width: 700px;
+  width: 90vw;
+}
+
+/* Override max-w-md for storage modal */
+.fixed.inset-0 .Card.max-w-md {
+  max-width: 700px !important;
+  width: 90vw !important;
+  min-height: 500px;
+}
+
+/* Storage modal specific improvements */
+.fixed.inset-0 .Card.max-w-md .CardContent {
+  padding: 24px !important;
+}
+
+.fixed.inset-0 .Card.max-w-md form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fixed.inset-0 .Card.max-w-md .space-y-4 > * + * {
+  margin-top: 20px !important;
+}
+
+.fixed.inset-0 .admin-card .form-group,
+.fixed.inset-0 .admin-card .admin-form-group,
+.fixed.inset-0 .Card .form-group,
+.fixed.inset-0 .Card .admin-form-group {
+  margin-bottom: 20px;
+}
+
+.fixed.inset-0 .admin-card .form-group label,
+.fixed.inset-0 .admin-card .admin-form-label,
+.fixed.inset-0 .Card .form-group label,
+.fixed.inset-0 .Card .admin-form-label {
+  display: block;
+  color: var(--neutral) !important;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Better form field styling for storage modal */
+.fixed.inset-0 .Card.max-w-md div {
+  margin-bottom: 16px;
+}
+
+.fixed.inset-0 .Card.max-w-md div:last-child {
+  margin-bottom: 0;
+}
+
+.fixed.inset-0 .Card.max-w-md .grid {
+  margin-bottom: 0;
+}
+
+.fixed.inset-0 .Card.max-w-md .grid > div {
+  margin-bottom: 0;
+}
+
+/* Improve grid layouts */
+.fixed.inset-0 .Card.max-w-md .grid-cols-2 {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px !important;
+}
+
+.fixed.inset-0 .Card.max-w-md .grid-cols-3 {
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 12px !important;
+}
+
+/* Better input styling */
+.fixed.inset-0 .Card.max-w-md input,
+.fixed.inset-0 .Card.max-w-md select {
+  height: 44px !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+}
+
+/* Better button styling */
+.fixed.inset-0 .Card.max-w-md .flex.gap-2 {
+  justify-content: flex-end !important;
+  gap: 16px !important;
+  margin-top: 32px !important;
+  padding-top: 24px !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+.fixed.inset-0 .Card.max-w-md .flex.gap-2 button {
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  min-width: 100px !important;
+}
+
+/* Form spacing improvements */
+.fixed.inset-0 .Card form {
+  padding: 0 !important;
+}
+
+.fixed.inset-0 .Card .space-y-4 > * + * {
+  margin-top: 20px !important;
+}
+
+/* Grid layout improvements */
+.fixed.inset-0 .Card .grid {
+  gap: 16px !important;
+}
+
+.fixed.inset-0 .Card .grid-cols-2 {
+  grid-template-columns: 1fr 1fr !important;
+}
+
+.fixed.inset-0 .Card .grid-cols-3 {
+  grid-template-columns: 1fr 1fr 1fr !important;
+}
+
+.fixed.inset-0 .admin-card .form-group .required,
+.fixed.inset-0 .admin-card .admin-form-label .required,
+.fixed.inset-0 .Card .form-group .required,
+.fixed.inset-0 .Card .admin-form-label .required {
+  color: var(--highlight) !important;
+}
+
+/* Modal input focus states */
+.fixed.inset-0 .admin-card .admin-input:focus,
+.fixed.inset-0 .admin-card input:focus,
+.fixed.inset-0 .admin-card select:focus,
+.fixed.inset-0 .admin-card textarea:focus,
+.fixed.inset-0 .Card .admin-input:focus,
+.fixed.inset-0 .Card input:focus,
+.fixed.inset-0 .Card select:focus,
+.fixed.inset-0 .Card textarea:focus {
+  outline: none;
+  border-color: var(--highlight) !important;
+  box-shadow: 0 0 0 2px rgba(215, 107, 62, 0.2) !important;
+}
+
+/* Enhanced Loading and Skeleton Styles with Premium Shimmer */
+.admin-skeleton {
+  background: linear-gradient(110deg,
+    rgba(245, 242, 232, 0.4) 0%,
+    rgba(245, 242, 232, 0.6) 40%,
+    rgba(215, 107, 62, 0.08) 50%,
+    rgba(245, 242, 232, 0.6) 60%,
+    rgba(245, 242, 232, 0.4) 100%);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  animation: shimmer 2s ease-in-out infinite;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Enhanced Loading Spinner with smooth rotation */
+.admin-spinner {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.admin-spinner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--highlight);
+  border-right-color: var(--highlight);
+  animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  filter: drop-shadow(0 0 4px rgba(215, 107, 62, 0.3));
+}
+
+.admin-spinner::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: rgba(215, 107, 62, 0.4);
+  animation: spin 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pulse loading effect for cards */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.admin-loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Toast Notification Animations */
+@keyframes toastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toastSlideDown {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+}
+
+.admin-toast {
+  animation: toastSlideUp var(--transition-normal) var(--ease-spring);
+}
+
+.admin-toast.closing {
+  animation: toastSlideDown var(--transition-fast) var(--ease-smooth);
+}
+
+/* Page Transition Animations */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-main-content {
+  animation: pageFadeIn var(--transition-slow) var(--ease-smooth);
+}
+
+/* Tab Transition Animations */
+@keyframes tabSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.admin-tab-content {
+  animation: tabSlideIn var(--transition-normal) var(--ease-smooth);
+}
+
+/* Disable only spin animations in admin */
+.admin-body .animate-spin,
+.admin-theme .animate-spin,
+.admin-main-content .animate-spin {
+  animation: none !important;
+}
+
+/* Override Tailwind's animate-spin specifically */
+.animate-spin {
+  animation: none !important;
+}
+
+/* Disable rotate animations */
+.admin-body [class*="rotate"],
+.admin-theme [class*="rotate"],
+.admin-main-content [class*="rotate"] {
+  transform: none !important;
+}
+
+/* Statistics Cards */
+.admin-stat-card {
+  background-color: var(--neutral);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-medium);
+}
+
+.admin-stat-card h3 {
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.admin-stat-card p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Navigation Tabs */
+.admin-tabs {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-tab {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-tab:hover {
+  color: var(--text-primary);
+  background-color: rgba(215, 107, 62, 0.05);
+}
+
+.admin-tab.active {
+  color: var(--highlight);
+  border-bottom-color: var(--highlight);
+  background-color: rgba(215, 107, 62, 0.1);
+}
+
+/* Form Groups */
+.admin-form-group {
+  margin-bottom: 16px;
+}
+
+.admin-form-label {
+  display: block;
+  color: var(--text-primary) !important;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.admin-form-error {
+  color: #ef4444 !important;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/* Additional form element overrides */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  background-color: var(--neutral) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="number"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="url"]::placeholder,
+input[type="search"]::placeholder,
+textarea::placeholder {
+  color: var(--text-light) !important;
+}
+
+/* Ensure all form elements in admin areas are visible */
+.admin-body input,
+.admin-body textarea,
+.admin-body select,
+.admin-theme input,
+.admin-theme textarea,
+.admin-theme select {
+  background-color: var(--neutral) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-card,
+  .admin-panel {
+    margin: 8px;
+    border-radius: 6px;
+  }
+  
+  .admin-button {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+  
+  .admin-table {
+    font-size: 0.875rem;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 8px;
+  }
+}
+
+/* Additional text color overrides except sidebar */
+.admin-main-content .text-gray-500,
+.admin-main-content .text-gray-600,
+.admin-main-content .text-gray-700,
+.admin-main-content .text-gray-800,
+.admin-main-content .text-gray-900,
+.admin-main-content .text-slate-500,
+.admin-main-content .text-slate-600,
+.admin-main-content .text-slate-700,
+.admin-main-content .text-slate-800,
+.admin-main-content .text-slate-900 {
+  color: var(--text-primary) !important;
+}
+
+/* Ensure all admin content has black text except sidebar */
+.admin-main-content .text-sm,
+.admin-main-content .text-base,
+.admin-main-content .text-lg,
+.admin-main-content .text-xl,
+.admin-main-content .text-2xl,
+.admin-main-content .text-3xl {
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode support (if needed in future) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-light: #666666;
+  }
+}
+
+/* Responsive Animations and Mobile Optimizations */
+@media (max-width: 768px) {
+  /* Reduce animation intensity on mobile */
+  .admin-card:hover,
+  .admin-panel:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
+  }
+  
+  .admin-button:hover {
+    transform: scale(1.01);
+  }
+  
+  /* Smoother sidebar collapse on mobile */
+  .admin-sidebar {
+    transition: all var(--transition-slow) var(--ease-smooth);
+  }
+  
+  /* Reduce animation delays for better performance */
+  .admin-card:nth-child(1),
+  .admin-panel:nth-child(1) { animation-delay: 0ms; }
+  .admin-card:nth-child(2),
+  .admin-panel:nth-child(2) { animation-delay: 25ms; }
+  .admin-card:nth-child(3),
+  .admin-panel:nth-child(3) { animation-delay: 50ms; }
+  .admin-card:nth-child(4),
+  .admin-panel:nth-child(4) { animation-delay: 75ms; }
+  .admin-card:nth-child(5),
+  .admin-panel:nth-child(5) { animation-delay: 100ms; }
+  .admin-card:nth-child(6),
+  .admin-panel:nth-child(6) { animation-delay: 125ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Respect user's motion preferences */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Performance optimizations */
+.admin-card,
+.admin-panel,
+.admin-button,
+.admin-input {
+  will-change: transform, box-shadow;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus management for accessibility */
+.admin-button:focus-visible,
+.admin-input:focus-visible,
+.admin-select:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .admin-card,
+  .admin-panel {
+    border: 2px solid var(--primary);
+  }
+  
+  .admin-button {
+    border: 2px solid var(--primary);
+  }
+}
+
+/* Custom Alert System Styles */
+.admin-alert {
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.admin-alert-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: var(--text-primary);
+}
+
+.admin-alert-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--text-primary);
+}
+
+.admin-alert-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: var(--text-primary);
+}
+
+.admin-alert-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--text-primary);
+}
+
+/* Alert animations */
+@keyframes alertSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes alertSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+.admin-alert-enter {
+  animation: alertSlideIn 0.3s ease-out;
+}
+
+.admin-alert-exit {
+  animation: alertSlideOut 0.2s ease-in;
+}

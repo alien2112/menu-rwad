@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "@/lib/polyfills";
-import { CartProvider } from "@/contexts/CartContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { PublicLayoutWrapper } from "@/components/PublicLayoutWrapper";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import dbConnect from "@/lib/mongodb";
 import SiteSettings from "@/lib/models/SiteSettings";
@@ -151,12 +149,9 @@ export default async function RootLayout({
           }}
         />
         <ThemeProvider initialTheme={initialTheme}>
-          <LanguageProvider>
-            <CartProvider>
-              {children}
-              <LanguageSwitcher />
-            </CartProvider>
-          </LanguageProvider>
+          <PublicLayoutWrapper>
+            {children}
+          </PublicLayoutWrapper>
         </ThemeProvider>
       </body>
     </html>

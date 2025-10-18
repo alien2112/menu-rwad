@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/Card";
+import { Button } from "@/components/admin/Button";
+import { Input } from "@/components/admin/Input";
+import { Label } from "@/components/admin/Label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
+import { Badge } from "@/components/admin/Badge";
+import { Alert, AlertDescription } from "@/components/admin/Alert";
 import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
 import { IIngredient } from '@/lib/models/Ingredient';
 import { UnitType, UNIT_LABELS } from '@/lib/unitConversion';
@@ -189,21 +189,21 @@ export default function StorageManagementDashboard() {
 
   const getStatusBadge = (material: Material) => {
     if (material.currentQuantity <= 0) {
-      return <Badge variant="destructive">Out of Stock</Badge>;
+      return <Badge>Out of Stock</Badge>;
     } else if (material.currentQuantity <= material.alertLimit) {
-      return <Badge variant="secondary">Low Stock</Badge>;
+      return <Badge>Low Stock</Badge>;
     } else {
-      return <Badge variant="default">In Stock</Badge>;
+      return <Badge>In Stock</Badge>;
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-600';
-      case 'high': return 'text-orange-600';
-      case 'medium': return 'text-yellow-600';
-      case 'low': return 'text-green-600';
-      default: return 'text-gray-600';
+      case 'urgent': return { color: '#dc2626' };
+      case 'high': return { color: '#ea580c' };
+      case 'medium': return { color: '#d97706' };
+      case 'low': return { color: '#16a34a' };
+      default: return { color: 'var(--text-secondary)' };
     }
   };
 
@@ -232,7 +232,7 @@ export default function StorageManagementDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Package className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{materials.length}</div>
@@ -245,27 +245,27 @@ export default function StorageManagementDashboard() {
             <TrendingDown className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{lowStockMaterials.length}</div>
+            <div className="text-2xl font-bold">{lowStockMaterials.length}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-red-500" />
+            <AlertTriangle className="h-4 w-4" style={{ color: '#dc2626' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{outOfStockMaterials.length}</div>
+            <div className="text-2xl font-bold">{outOfStockMaterials.length}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Materials</CardTitle>
-            <TrendingUp className="h-4 w-4 text-green-500" />
+            <TrendingUp className="h-4 w-4" style={{ color: '#16a34a' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold">
               {materials.filter(m => m.status === 'active').length}
             </div>
           </CardContent>
@@ -278,10 +278,10 @@ export default function StorageManagementDashboard() {
           placeholder="Search materials..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm bg-white text-slate-900 placeholder:text-slate-500 border border-gray-300 shadow-sm rounded-xl"
+          className="max-w-sm"
         />
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-40 bg-white text-slate-900 border border-gray-300 shadow-sm rounded-xl">
+          <SelectTrigger className="w-40">
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
@@ -294,7 +294,7 @@ export default function StorageManagementDashboard() {
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40 bg-white text-slate-900 border border-gray-300 shadow-sm rounded-xl">
+          <SelectTrigger className="w-40">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -313,7 +313,7 @@ export default function StorageManagementDashboard() {
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full" dir="rtl">
+            <table className="w-full admin-table" dir="rtl">
               <thead>
                 <tr className="border-b">
                   <th className="text-right p-2">Name</th>
@@ -332,7 +332,7 @@ export default function StorageManagementDashboard() {
                       <div>
                         <div className="font-medium">{material.name}</div>
                         {material.nameEn && (
-                          <div className="text-sm text-gray-500">{material.nameEn}</div>
+                          <div className="text-sm">{material.nameEn}</div>
                         )}
                       </div>
                     </td>
@@ -340,13 +340,13 @@ export default function StorageManagementDashboard() {
                     <td className="p-2 text-right">
                       <div className="flex flex-row-reverse items-center gap-2">
                         <span>{material.currentQuantity}</span>
-                        <span className="text-gray-500">{material.unit}</span>
+                        <span>{material.unit}</span>
                       </div>
                     </td>
                     <td className="p-2 text-right">
                       <div className="flex flex-row-reverse items-center gap-2">
                         <span>{material.alertLimit}</span>
-                        <span className="text-gray-500">{material.unit}</span>
+                        <span>{material.unit}</span>
                       </div>
                     </td>
                     <td className="p-2 text-right">{getStatusBadge(material)}</td>
@@ -354,7 +354,6 @@ export default function StorageManagementDashboard() {
                     <td className="p-2 text-right">
                       <Button
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={() => {
                           const newQuantity = prompt(`Enter new quantity for ${material.name}:`, material.currentQuantity.toString());
                           if (newQuantity && !isNaN(Number(newQuantity))) {
@@ -500,13 +499,13 @@ export default function StorageManagementDashboard() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs mt-1">
                     Link this material to an ingredient to automatically sync stock levels
                   </p>
                 </div>
                 <div className="flex gap-2">
                   <Button type="submit">Add Material</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                  <Button type="button" onClick={() => setShowAddForm(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -528,7 +527,7 @@ export default function StorageManagementDashboard() {
                 <div
                   key={notification._id}
                   className={`p-3 rounded-lg border ${
-                    notification.isRead ? 'bg-gray-50' : 'bg-yellow-50 border-yellow-200'
+                    notification.isRead ? '' : 'bg-yellow-500/20'
                   }`}
                 >
                   <div className="flex justify-between items-start">
@@ -539,15 +538,14 @@ export default function StorageManagementDashboard() {
                           {notification.priority}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-sm mt-1">{notification.message}</p>
+                      <p className="text-xs mt-1">
                         {new Date(notification.createdAt).toLocaleString()}
                       </p>
                     </div>
                     {!notification.isRead && (
                       <Button
                         size="sm"
-                        variant="outline"
                         onClick={() => markNotificationAsRead(notification._id)}
                       >
                         Mark Read

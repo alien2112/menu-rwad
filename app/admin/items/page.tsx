@@ -8,6 +8,7 @@ import { ICategory } from '@/lib/models/Category';
 import { IIngredient } from '@/lib/models/Ingredient';
 import Image from 'next/image';
 import { clearMenuDataCache } from '@/lib/cacheInvalidation';
+import { useAlert, useConfirmation } from '@/components/ui/alerts';
 
 interface Modifier {
   _id: string;
@@ -51,6 +52,9 @@ export default function ItemsPage() {
     featured: false,
     order: 0,
   });
+
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
 
   useEffect(() => {
     fetchData();
@@ -138,19 +142,32 @@ export default function ItemsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-
-    try {
-      const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) {
-        fetchData();
-        // Clear public menu cache so deletion appears immediately
-        clearMenuDataCache();
+    confirm(
+      {
+        title: 'حذف المنتج',
+        message: 'هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const res = await fetch(`/api/items/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            fetchData();
+            // Clear public menu cache so deletion appears immediately
+            clearMenuDataCache();
+            showSuccess('تم حذف المنتج بنجاح');
+          } else {
+            showError(data.error || 'فشل حذف المنتج');
+          }
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          showError('حدث خطأ أثناء حذف المنتج');
+        }
       }
-    } catch (error) {
-      console.error('Error deleting item:', error);
-    }
+    );
   };
 
   const handleEdit = (item: IMenuItem) => {
@@ -226,36 +243,36 @@ export default function ItemsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <div className="h-7 w-48 bg-white/10 rounded animate-pulse" />
-              <div className="h-4 w-64 bg-white/10 rounded mt-2 animate-pulse" />
+              <div className="h-7 w-48 rounded animate-pulse" />
+              <div className="h-4 w-64 rounded mt-2 animate-pulse" />
             </div>
-            <div className="h-11 w-44 bg-white/10 rounded-xl animate-pulse" />
+            <div className="h-11 w-44 rounded-xl animate-pulse" />
           </div>
         </div>
 
-        <div className="glass-effect rounded-2xl p-4 space-y-4">
-          <div className="h-11 bg-white/10 rounded-xl animate-pulse" />
+        <div className="admin-card rounded-2xl p-4 space-y-4">
+          <div className="h-11 rounded-xl animate-pulse" />
           <div className="flex gap-2 overflow-x-auto pb-2">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-9 w-24 bg-white/10 rounded-xl animate-pulse" />
+              <div key={i} className="h-9 w-24 rounded-xl animate-pulse" />
             ))}
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="glass-effect rounded-2xl overflow-hidden">
-              <div className="h-48 bg-white/10 animate-pulse" />
+            <div key={i} className="admin-card rounded-2xl overflow-hidden">
+              <div className="h-48 animate-pulse" />
               <div className="p-6 space-y-3">
-                <div className="h-5 w-2/3 bg-white/10 rounded animate-pulse" />
-                <div className="h-4 w-1/2 bg-white/10 rounded animate-pulse" />
-                <div className="h-4 w-full bg-white/10 rounded animate-pulse" />
+                <div className="h-5 w-2/3 rounded animate-pulse" />
+                <div className="h-4 w-1/2 rounded animate-pulse" />
+                <div className="h-4 w-full rounded animate-pulse" />
                 <div className="flex items-center justify-between pt-2">
-                  <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
-                  <div className="h-5 w-16 bg-white/10 rounded animate-pulse" />
+                  <div className="h-6 w-32 rounded animate-pulse" />
+                  <div className="h-5 w-16 rounded animate-pulse" />
                 </div>
               </div>
             </div>
@@ -268,15 +285,15 @@ export default function ItemsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="glass-effect rounded-2xl p-6">
+      <div className="admin-card rounded-2xl p-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">إدارة المنتجات</h1>
-            <p className="text-white/70">إضافة وتعديل وحذف منتجات القائمة</p>
+            <h1 className="text-3xl font-bold mb-2">إدارة المنتجات</h1>
+            <p>إضافة وتعديل وحذف منتجات القائمة</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="glass-green-button px-6 py-3 rounded-xl text-white font-semibold hover:bg-coffee-green transition-colors flex items-center gap-2 justify-center"
+            className="admin-button"
           >
             <Plus size={20} />
             إضافة منتج جديد
@@ -285,39 +302,29 @@ export default function ItemsPage() {
       </div>
 
       {/* Filters */}
-      <div className="glass-effect rounded-2xl p-4 space-y-4">
+      <div className="admin-card rounded-2xl p-4 space-y-4">
         <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-white/50" size={20} />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2" size={20} />
           <input
             type="text"
             placeholder="البحث عن منتج..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pr-12 pl-4 py-3 bg-white/10 rounded-xl text-white placeholder-white/50 border border-white/20 focus:border-coffee-green focus:outline-none"
+            className="admin-input w-full pr-12 pl-4 py-3"
           />
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setSelectedCategory('')}
-            className={`px-4 py-2 rounded-xl font-semibold whitespace-nowrap transition-colors ${
-              !selectedCategory
-                ? 'bg-coffee-green text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
+            className={`admin-button ${!selectedCategory ? 'active' : ''}`}>
             الكل
           </button>
           {categories.map((cat) => (
             <button
               key={cat._id}
               onClick={() => setSelectedCategory(cat._id!)}
-              className={`px-4 py-2 rounded-xl font-semibold whitespace-nowrap transition-colors ${
-                selectedCategory === cat._id
-                  ? 'bg-coffee-green text-white'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
-            >
+              className={`admin-button ${selectedCategory === cat._id ? 'active' : ''}`}>
               {cat.name}
             </button>
           ))}
@@ -331,10 +338,10 @@ export default function ItemsPage() {
           return (
             <div
               key={item._id}
-              className="glass-effect rounded-2xl overflow-hidden hover:bg-white/15 transition-all duration-200"
+              className="admin-card rounded-2xl overflow-hidden"
             >
               {item.image && (
-                <div className="relative h-48 bg-black/20">
+                <div className="relative h-48">
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -348,21 +355,21 @@ export default function ItemsPage() {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold text-white mb-1">{item.name}</h3>
+                    <h3 className="text-xl font-bold mb-1">{item.name}</h3>
                     {item.nameEn && (
-                      <p className="text-white/60 text-sm">{item.nameEn}</p>
+                      <p className="text-sm">{item.nameEn}</p>
                     )}
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(item)}
-                      className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
+                      className="admin-button"
                     >
                       <Edit2 size={16} />
                     </button>
                     <button
                       onClick={() => handleDelete(item._id!)}
-                      className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                      className="admin-button"
                     >
                       <Trash2 size={16} />
                     </button>
@@ -370,31 +377,31 @@ export default function ItemsPage() {
                 </div>
 
                 {item.description && (
-                  <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                  <p className="text-sm mb-4 line-clamp-2">
                     {item.description}
                   </p>
                 )}
 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex gap-2">
-                    <span className="text-2xl font-bold text-white">
+                    <span className="text-2xl font-bold">
                       {item.discountPrice || item.price} ريال سعودي
                     </span>
                     {item.discountPrice && (
-                      <span className="text-lg text-white/50 line-through">
+                      <span className="text-lg line-through">
                         {item.price} ريال سعودي
                       </span>
                     )}
                   </div>
                   {item.calories && item.calories > 0 && (
-                    <div className="text-sm text-white/60">
-                      <span className="text-coffee-gold font-medium">{item.calories}</span> سعرة حرارية
+                    <div className="text-sm">
+                      <span className="font-medium">{item.calories}</span> سعرة حرارية
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-white/50">{category?.name}</span>
+                  <span>{category?.name}</span>
                   <span
                     className={`px-3 py-1 rounded-full ${
                       item.status === 'active'
@@ -418,16 +425,16 @@ export default function ItemsPage() {
       </div>
 
       {filteredItems.length === 0 && (
-        <div className="glass-effect rounded-2xl p-12 text-center">
-          <p className="text-white/50">لا توجد منتجات</p>
+        <div className="admin-card rounded-2xl p-12 text-center">
+          <p>لا توجد منتجات</p>
         </div>
       )}
 
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 overflow-y-auto">
-          <div className="glass-sidebar rounded-2xl p-6 w-full max-w-4xl my-8 border border-white/10">
-            <h2 className="text-2xl font-bold text-white mb-6">
+          <div className="admin-card rounded-2xl p-6 w-full max-w-4xl my-8">
+            <h2 className="text-2xl font-bold mb-6">
               {editingItem ? 'تعديل المنتج' : 'إضافة منتج جديد'}
             </h2>
 
@@ -451,8 +458,7 @@ export default function ItemsPage() {
                     key={tab.key}
                     type="button"
                     onClick={() => setActiveTab(tab.key as any)}
-                    className={`px-3 py-2 rounded-lg text-sm font-semibold ${activeTab === tab.key ? 'bg-coffee-green text-white' : 'glass-effect text-white/80 hover:bg-white/10'}`}
-                  >
+                    className={`admin-button ${activeTab === tab.key ? 'active' : ''}`}>
                     {tab.label}
                   </button>
                 ))}
@@ -460,11 +466,11 @@ export default function ItemsPage() {
               {/* Basic Info */}
               {activeTab === 'basic' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">المعلومات الأساسية</h3>
+                <h3 className="text-lg font-semibold">المعلومات الأساسية</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       اسم المنتج (عربي) *
                     </label>
                     <input
@@ -472,57 +478,57 @@ export default function ItemsPage() {
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       اسم المنتج (English)
                     </label>
                     <input
                       type="text"
                       value={formData.nameEn}
                       onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الوصف (عربي)
                     </label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none min-h-24"
+                      className="admin-input w-full min-h-24"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الوصف (English)
                     </label>
                     <textarea
                       value={formData.descriptionEn}
                       onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none min-h-24"
+                      className="admin-input w-full min-h-24"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الفئة *
                     </label>
                     <select
                       required
                       value={formData.categoryId}
                       onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     >
                       <option value="">اختر الفئة</option>
                       {categories.map((cat) => (
@@ -534,7 +540,7 @@ export default function ItemsPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       السعر *
                     </label>
                     <input
@@ -543,12 +549,12 @@ export default function ItemsPage() {
                       step="0.01"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       سعر الخصم
                     </label>
                     <input
@@ -556,7 +562,7 @@ export default function ItemsPage() {
                       step="0.01"
                       value={formData.discountPrice}
                       onChange={(e) => setFormData({ ...formData, discountPrice: parseFloat(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
                 </div>
@@ -566,7 +572,7 @@ export default function ItemsPage() {
               {/* Images */}
               {activeTab === 'images' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">الصور</h3>
+                <h3 className="text-lg font-semibold">الصور</h3>
                 <ImageUpload
                   label="الصورة الرئيسية"
                   value={formData.image}
@@ -581,11 +587,11 @@ export default function ItemsPage() {
               {activeTab === 'ingredients' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">المكونات</h3>
+                  <h3 className="text-lg font-semibold">المكونات</h3>
                   <button
                     type="button"
                     onClick={addIngredient}
-                    className="px-4 py-2 glass-green-button rounded-lg text-white text-sm font-semibold hover:bg-coffee-green transition-colors flex items-center gap-2"
+                    className="admin-button"
                   >
                     <Plus size={16} />
                     إضافة مكون
@@ -594,13 +600,13 @@ export default function ItemsPage() {
 
                 <div className="space-y-3">
                   {formData.ingredients?.map((ing, index) => (
-                    <div key={index} className="glass-effect rounded-xl p-4">
+                    <div key={index} className="admin-card rounded-xl p-4">
                       <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div className="md:col-span-2">
                           <select
                             value={ing.ingredientId}
                             onChange={(e) => updateIngredient(index, 'ingredientId', e.target.value)}
-                            className="w-full px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-coffee-green focus:outline-none"
+                            className="admin-input w-full"
                           >
                             <option value="">اختر المكون</option>
                             {ingredients.map((ingredient) => (
@@ -618,12 +624,12 @@ export default function ItemsPage() {
                             value={ing.portion}
                             onChange={(e) => updateIngredient(index, 'portion', parseFloat(e.target.value))}
                             placeholder={`الكمية${ing.ingredientId ? ` (${ingredients.find(i => i._id === ing.ingredientId)?.unit || ''})` : ''}`}
-                            className="w-full px-3 py-2 bg-white/10 rounded-lg text-white text-sm border border-white/20 focus:border-coffee-green focus:outline-none"
+                            className="admin-input w-full"
                           />
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <label className="flex items-center gap-2 text-white text-sm">
+                          <label className="flex items-center gap-2 text-sm">
                             <input
                               type="checkbox"
                               checked={ing.required}
@@ -635,7 +641,7 @@ export default function ItemsPage() {
                           <button
                             type="button"
                             onClick={() => removeIngredient(index)}
-                            className="mr-auto p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                            className="admin-button mr-auto"
                           >
                             <X size={16} />
                           </button>
@@ -651,26 +657,26 @@ export default function ItemsPage() {
               {activeTab === 'modifiers' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">المعدلات والإضافات</h3>
+                  <h3 className="text-lg font-semibold">المعدلات والإضافات</h3>
                   <a
                     href="/admin/modifiers"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 glass-effect rounded-lg text-white text-sm font-semibold hover:bg-white/10 transition-colors flex items-center gap-2"
+                    className="admin-button"
                   >
                     <Plus size={16} />
                     إدارة المعدلات
                   </a>
                 </div>
 
-                <p className="text-white/70 text-sm">
+                <p className="text-sm">
                   اختر المعدلات التي ترغب في إضافتها لهذا المنتج (مثل الحجم، الإضافات، الخيارات)
                 </p>
 
                 {modifiers.length === 0 ? (
-                  <div className="glass-effect rounded-xl p-8 text-center">
-                    <p className="text-white/50">لا توجد معدلات متاحة</p>
-                    <p className="text-white/30 text-sm mt-2">
+                  <div className="admin-card rounded-xl p-8 text-center">
+                    <p>لا توجد معدلات متاحة</p>
+                    <p className="text-sm mt-2">
                       قم بإنشاء معدلات أولاً من صفحة إدارة المعدلات
                     </p>
                   </div>
@@ -690,22 +696,22 @@ export default function ItemsPage() {
                               : [...current, modifier._id];
                             setFormData({ ...formData, modifiers: updated });
                           }}
-                          className={`glass-effect rounded-xl p-4 text-right transition-all ${
+                          className={`admin-card rounded-xl p-4 text-right transition-all ${
                             isSelected
-                              ? 'border-2 border-coffee-green bg-coffee-green/20'
-                              : 'border border-white/20 hover:border-white/40'
+                              ? 'border-2 border-highlight'
+                              : 'border'
                           }`}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex-1">
-                              <h4 className="text-white font-semibold mb-1">
+                              <h4 className="font-semibold mb-1">
                                 {modifier.name}
                                 {modifier.required && (
                                   <span className="text-red-400 mr-1">*</span>
                                 )}
                               </h4>
                               {modifier.nameEn && (
-                                <p className="text-white/50 text-xs mb-2">{modifier.nameEn}</p>
+                                <p className="text-xs mb-2">{modifier.nameEn}</p>
                               )}
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className={`text-xs px-2 py-1 rounded ${
@@ -724,11 +730,11 @@ export default function ItemsPage() {
                             </div>
                             <div className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center ${
                               isSelected
-                                ? 'border-coffee-green bg-coffee-green'
-                                : 'border-white/30'
+                                ? 'border-highlight bg-highlight'
+                                : 'border'
                             }`}>
                               {isSelected && (
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                 </svg>
                               )}
@@ -741,8 +747,8 @@ export default function ItemsPage() {
                 )}
 
                 {formData.modifiers && formData.modifiers.length > 0 && (
-                  <div className="glass-effect rounded-xl p-4">
-                    <p className="text-white/70 text-sm">
+                  <div className="admin-card rounded-xl p-4">
+                    <p className="text-sm">
                       تم اختيار {formData.modifiers.length} معدل/معدلات
                     </p>
                   </div>
@@ -753,42 +759,42 @@ export default function ItemsPage() {
               {/* Additional Info */}
               {activeTab === 'more' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">معلومات إضافية</h3>
+                <h3 className="text-lg font-semibold">معلومات إضافية</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       وقت التحضير (دقيقة)
                     </label>
                     <input
                       type="number"
                       value={formData.preparationTime}
                       onChange={(e) => setFormData({ ...formData, preparationTime: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       السعرات الحرارية
                     </label>
                     <input
                       type="number"
                       value={formData.calories}
                       onChange={(e) => setFormData({ ...formData, calories: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       حجم الحصة
                     </label>
                     <input
                       type="text"
                       value={formData.servingSize}
                       onChange={(e) => setFormData({ ...formData, servingSize: e.target.value })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
                 </div>
@@ -798,17 +804,17 @@ export default function ItemsPage() {
               {/* Settings */}
               {activeTab === 'settings' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-white">الإعدادات</h3>
+                <h3 className="text-lg font-semibold">الإعدادات</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الحالة
                     </label>
                     <select
                       value={formData.status}
                       onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     >
                       <option value="active">نشط</option>
                       <option value="inactive">غير نشط</option>
@@ -817,14 +823,14 @@ export default function ItemsPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-semibold text-white mb-2 block">
+                    <label className="text-sm font-semibold mb-2 block">
                       الترتيب
                     </label>
                     <input
                       type="number"
                       value={formData.order}
                       onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                      className="w-full px-4 py-3 glass-effect rounded-xl text-white border border-white/20 focus:border-coffee-green focus:outline-none"
+                      className="admin-input w-full"
                     />
                   </div>
 
@@ -834,17 +840,17 @@ export default function ItemsPage() {
               )}
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-white/10">
+              <div className="flex gap-3 pt-4 border-t">
                 <button
                   type="submit"
-                  className="flex-1 glass-green-button px-6 py-3 rounded-xl text-white font-semibold hover:bg-coffee-green transition-colors"
+                  className="admin-button flex-1"
                 >
                   {editingItem ? 'تحديث' : 'إضافة'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 glass-effect px-6 py-3 rounded-xl text-white font-semibold hover:bg-white/10 transition-colors"
+                  className="admin-button flex-1"
                 >
                   إلغاء
                 </button>
@@ -853,6 +859,7 @@ export default function ItemsPage() {
           </div>
         </div>
       )}
+      {ConfirmationComponent}
     </div>
   );
 }

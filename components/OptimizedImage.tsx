@@ -35,7 +35,7 @@ export function OptimizedImage({
   style = {},
   priority = false,
   objectFit = 'cover',
-  placeholderColor = '#e5e7eb',
+  placeholderColor = 'var(--accent)',
   preserveTransparency = false,
   onLoad,
   onError,
@@ -142,7 +142,7 @@ export function OptimizedImage({
               border: '3px solid rgba(0,0,0,0.1)',
               borderTopColor: 'rgba(0,0,0,0.3)',
               borderRadius: '50%',
-              animation: 'spin 0.8s linear infinite',
+              animation: 'none', // Removed spin animation
             }}
           />
         )}
@@ -172,13 +172,7 @@ export function OptimizedImage({
         />
       )}
 
-      <style jsx>{`
-        @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
+      {/* Removed spin animation keyframes */}
     </div>
   );
 }
@@ -201,8 +195,8 @@ export function ImageSkeleton({
       style={{
         width,
         height,
-        backgroundColor: '#e5e7eb',
-        backgroundImage: 'linear-gradient(90deg, #e5e7eb 0%, #f3f4f6 50%, #e5e7eb 100%)',
+        backgroundColor: 'var(--accent)',
+        backgroundImage: 'linear-gradient(90deg, var(--accent) 0%, rgba(215, 107, 62, 0.1) 50%, var(--accent) 100%)',
         backgroundSize: '200% 100%',
         animation: 'shimmer 1.5s infinite',
       }}

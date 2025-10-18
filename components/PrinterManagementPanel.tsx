@@ -334,7 +334,7 @@ export default function PrinterManagementPanel() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/10 rounded-xl">
+            <div className="p-3 admin-card rounded-xl">
               <Skeleton height="h-6" width="w-6" className="rounded" />
             </div>
             <div>
@@ -364,18 +364,18 @@ export default function PrinterManagementPanel() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-500/20 rounded-xl">
-            <Printer className="w-6 h-6 text-blue-400" />
+          <div className="p-3 admin-card rounded-xl">
+            <Printer className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">إدارة الطابعات</h1>
-            <p className="text-white/70">إعداد وإدارة طابعات الأقسام</p>
+            <h1 className="text-2xl font-bold">إدارة الطابعات</h1>
+            <p>إعداد وإدارة طابعات الأقسام</p>
           </div>
         </div>
         
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+          className="admin-button"
         >
           <Plus className="w-4 h-4" />
           إضافة طابعة
@@ -402,22 +402,12 @@ export default function PrinterManagementPanel() {
       <div className="flex gap-2 justify-center">
         <button
           onClick={() => setActiveTab('printers')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'printers'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white/10 text-white/70 hover:bg-white/20'
-          }`}
-        >
+          className={`admin-button ${activeTab === 'printers' ? 'active' : ''}`}>
           الطابعات
         </button>
         <button
           onClick={() => setActiveTab('jobs')}
-          className={`px-4 py-2 rounded-lg transition-colors ${
-            activeTab === 'jobs'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white/10 text-white/70 hover:bg-white/20'
-          }`}
-        >
+          className={`admin-button ${activeTab === 'jobs' ? 'active' : ''}`}>
           مهام الطباعة
         </button>
       </div>
@@ -426,7 +416,7 @@ export default function PrinterManagementPanel() {
       {activeTab === 'printers' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {printers.map((printer) => (
-            <div key={printer._id} className="glass-effect rounded-2xl p-6">
+            <div key={printer._id} className="admin-card rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-lg ${
@@ -439,22 +429,22 @@ export default function PrinterManagementPanel() {
                     )}
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">{printer.name}</h3>
-                    <p className="text-white/70 text-sm">{getDepartmentLabel(printer.department)}</p>
+                    <h3 className="text-lg font-bold">{printer.name}</h3>
+                    <p className="text-sm">{getDepartmentLabel(printer.department)}</p>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleEdit(printer)}
-                    className="p-2 text-blue-400 hover:text-blue-300 transition-colors"
+                    className="admin-button"
                     title="تعديل"
                   >
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(printer._id!)}
-                    className="p-2 text-red-400 hover:text-red-300 transition-colors"
+                    className="admin-button"
                     title="حذف"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -464,31 +454,31 @@ export default function PrinterManagementPanel() {
 
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-white/70">نوع الاتصال:</span>
-                  <span className="text-white">{getConnectionTypeLabel(printer.connectionType)}</span>
+                  <span>نوع الاتصال:</span>
+                  <span>{getConnectionTypeLabel(printer.connectionType)}</span>
                 </div>
                 
                 {printer.connectionDetails?.ipAddress && (
                   <div className="flex justify-between">
-                    <span className="text-white/70">عنوان IP:</span>
-                    <span className="text-white">{printer.connectionDetails.ipAddress}</span>
+                    <span>عنوان IP:</span>
+                    <span>{printer.connectionDetails.ipAddress}</span>
                   </div>
                 )}
                 
                 <div className="flex justify-between">
-                  <span className="text-white/70">عرض الورق:</span>
-                  <span className="text-white">{printer.paperWidth}mm</span>
+                  <span>عرض الورق:</span>
+                  <span>{printer.paperWidth}mm</span>
                 </div>
                 
                 <div className="flex justify-between">
-                  <span className="text-white/70">عدد المطبوعات:</span>
-                  <span className="text-white">{printer.printCount}</span>
+                  <span>عدد المطبوعات:</span>
+                  <span>{printer.printCount}</span>
                 </div>
                 
                 {printer.lastPrintAt && (
                   <div className="flex justify-between">
-                    <span className="text-white/70">آخر طباعة:</span>
-                    <span className="text-white text-sm">
+                    <span>آخر طباعة:</span>
+                    <span className="text-sm">
                       {new Date(printer.lastPrintAt).toLocaleString('ar-SA')}
                     </span>
                   </div>
@@ -499,10 +489,10 @@ export default function PrinterManagementPanel() {
                 <button
                   onClick={() => handleTestConnection(printer._id!)}
                   disabled={testing === printer._id}
-                  className="flex-1 flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className="admin-button flex-1"
                 >
                   {testing === printer._id ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2"></div>
                   ) : (
                     <TestTube className="w-4 h-4" />
                   )}
@@ -512,10 +502,10 @@ export default function PrinterManagementPanel() {
                 <button
                   onClick={() => handleTestPrint(printer._id!)}
                   disabled={testing === printer._id}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className="admin-button flex-1"
                 >
                   {testing === printer._id ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2"></div>
                   ) : (
                     <Printer className="w-4 h-4" />
                   )}
@@ -528,41 +518,41 @@ export default function PrinterManagementPanel() {
       )}
 
       {activeTab === 'jobs' && (
-        <div className="glass-effect rounded-2xl p-6">
-          <h3 className="text-lg font-bold text-white mb-4">مهام الطباعة الأخيرة</h3>
+        <div className="admin-card rounded-2xl p-6">
+          <h3 className="text-lg font-bold mb-4">مهام الطباعة الأخيرة</h3>
           
           {printJobs.length === 0 ? (
             <div className="text-center py-8">
-              <Printer className="w-16 h-16 text-white/30 mx-auto mb-4" />
-              <p className="text-white/70">لا توجد مهام طباعة</p>
+              <Printer className="w-16 h-16 mx-auto mb-4" />
+              <p>لا توجد مهام طباعة</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full admin-table">
                 <thead>
-                  <tr className="border-b border-white/20">
-                    <th className="text-right py-3 text-white/70">رقم المهمة</th>
-                    <th className="text-right py-3 text-white/70">الطابعة</th>
-                    <th className="text-right py-3 text-white/70">رقم الطلب</th>
-                    <th className="text-right py-3 text-white/70">النوع</th>
-                    <th className="text-right py-3 text-white/70">الحالة</th>
-                    <th className="text-right py-3 text-white/70">التاريخ</th>
+                  <tr className="border-b">
+                    <th className="text-right py-3">رقم المهمة</th>
+                    <th className="text-right py-3">الطابعة</th>
+                    <th className="text-right py-3">رقم الطلب</th>
+                    <th className="text-right py-3">النوع</th>
+                    <th className="text-right py-3">الحالة</th>
+                    <th className="text-right py-3">التاريخ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {printJobs.map((job) => (
-                    <tr key={job.jobId} className="border-b border-white/10">
-                      <td className="py-3 text-white font-medium">{job.jobId}</td>
-                      <td className="py-3 text-white/70">{job.printerName}</td>
-                      <td className="py-3 text-white">{job.orderNumber}</td>
-                      <td className="py-3 text-white/70">
+                    <tr key={job.jobId} className="border-b">
+                      <td className="py-3 font-medium">{job.jobId}</td>
+                      <td>{job.printerName}</td>
+                      <td>{job.orderNumber}</td>
+                      <td>
                         {job.jobType === 'order' ? 'طلب' : 
                          job.jobType === 'test' ? 'اختبار' : 'إعادة طباعة'}
                       </td>
-                      <td className={`py-3 ${getStatusColor(job.status)}`}>
+                      <td className={`${getStatusColor(job.status)}`}>
                         {getStatusLabel(job.status)}
                       </td>
-                      <td className="py-3 text-white/70 text-sm">
+                      <td className="text-sm">
                         {new Date(job.createdAt).toLocaleString('ar-SA')}
                       </td>
                     </tr>
@@ -577,9 +567,9 @@ export default function PrinterManagementPanel() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="glass-effect rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="admin-card rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold">
                 {editingId ? 'تعديل الطابعة' : 'إضافة طابعة جديدة'}
               </h2>
               <button
@@ -588,7 +578,7 @@ export default function PrinterManagementPanel() {
                   setEditingId(null);
                   resetForm();
                 }}
-                className="p-2 text-white/70 hover:text-white transition-colors"
+                className="p-2"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -597,22 +587,22 @@ export default function PrinterManagementPanel() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">اسم الطابعة *</label>
+                  <label className="block text-sm mb-2">اسم الطابعة *</label>
                   <input
                     type="text"
                     value={formData.name || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    className="admin-input w-full"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">القسم *</label>
+                  <label className="block text-sm mb-2">القسم *</label>
                   <select
                     value={formData.department || 'kitchen'}
                     onChange={(e) => setFormData(prev => ({ ...prev, department: e.target.value as any }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    className="admin-input w-full"
                     required
                   >
                     <option value="kitchen">مطبخ</option>
@@ -623,11 +613,11 @@ export default function PrinterManagementPanel() {
                 </div>
 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">نوع الاتصال *</label>
+                  <label className="block text-sm mb-2">نوع الاتصال *</label>
                   <select
                     value={formData.connectionType || 'LAN'}
                     onChange={(e) => setFormData(prev => ({ ...prev, connectionType: e.target.value as any }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    className="admin-input w-full"
                     required
                   >
                     <option value="LAN">شبكة محلية (LAN)</option>
@@ -638,11 +628,11 @@ export default function PrinterManagementPanel() {
                 </div>
 
                 <div>
-                  <label className="block text-white/70 text-sm mb-2">عرض الورق *</label>
+                  <label className="block text-sm mb-2">عرض الورق *</label>
                   <select
                     value={formData.paperWidth || 58}
                     onChange={(e) => setFormData(prev => ({ ...prev, paperWidth: Number(e.target.value) as any }))}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                    className="admin-input w-full"
                     required
                   >
                     <option value={58}>58mm</option>
@@ -653,12 +643,12 @@ export default function PrinterManagementPanel() {
 
               {/* Connection Details */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">تفاصيل الاتصال</h3>
+                <h3 className="text-lg font-bold">تفاصيل الاتصال</h3>
                 
                 {(formData.connectionType === 'LAN' || formData.connectionType === 'WiFi') && (
                   <>
                     <div>
-                      <label className="block text-white/70 text-sm mb-2">عنوان IP *</label>
+                      <label className="block text-sm mb-2">عنوان IP *</label>
                       <input
                         type="text"
                         value={formData.connectionDetails?.ipAddress || ''}
@@ -666,14 +656,14 @@ export default function PrinterManagementPanel() {
                           ...prev,
                           connectionDetails: { ...prev.connectionDetails, ipAddress: e.target.value }
                         }))}
-                        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                        className="admin-input w-full"
                         placeholder="192.168.1.100"
                         required
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-white/70 text-sm mb-2">المنفذ</label>
+                      <label className="block text-sm mb-2">المنفذ</label>
                       <input
                         type="number"
                         value={formData.connectionDetails?.port || 9100}
@@ -681,7 +671,7 @@ export default function PrinterManagementPanel() {
                           ...prev,
                           connectionDetails: { ...prev.connectionDetails, port: Number(e.target.value) }
                         }))}
-                        className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                        className="admin-input w-full"
                         min="1"
                         max="65535"
                       />
@@ -691,7 +681,7 @@ export default function PrinterManagementPanel() {
 
                 {formData.connectionType === 'USB' && (
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">مسار USB *</label>
+                    <label className="block text-sm mb-2">مسار USB *</label>
                     <input
                       type="text"
                       value={formData.connectionDetails?.usbPath || ''}
@@ -699,7 +689,7 @@ export default function PrinterManagementPanel() {
                         ...prev,
                         connectionDetails: { ...prev.connectionDetails, usbPath: e.target.value }
                       }))}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                      className="admin-input w-full"
                       placeholder="/dev/usb/lp0"
                       required
                     />
@@ -708,7 +698,7 @@ export default function PrinterManagementPanel() {
 
                 {formData.connectionType === 'Bluetooth' && (
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">عنوان البلوتوث *</label>
+                    <label className="block text-sm mb-2">عنوان البلوتوث *</label>
                     <input
                       type="text"
                       value={formData.connectionDetails?.bluetoothAddress || ''}
@@ -716,7 +706,7 @@ export default function PrinterManagementPanel() {
                         ...prev,
                         connectionDetails: { ...prev.connectionDetails, bluetoothAddress: e.target.value }
                       }))}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                      className="admin-input w-full"
                       placeholder="00:11:22:33:44:55"
                       required
                     />
@@ -726,11 +716,11 @@ export default function PrinterManagementPanel() {
 
               {/* Print Settings */}
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-white">إعدادات الطباعة</h3>
+                <h3 className="text-lg font-bold">إعدادات الطباعة</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">عدد النسخ</label>
+                    <label className="block text-sm mb-2">عدد النسخ</label>
                     <input
                       type="number"
                       min="1"
@@ -740,19 +730,19 @@ export default function PrinterManagementPanel() {
                         ...prev,
                         settings: { ...prev.settings, copies: Number(e.target.value) }
                       }))}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                      className="admin-input w-full"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/70 text-sm mb-2">حجم الخط</label>
+                    <label className="block text-sm mb-2">حجم الخط</label>
                     <select
                       value={formData.settings?.fontSize || 'medium'}
                       onChange={(e) => setFormData(prev => ({
                         ...prev,
                         settings: { ...prev.settings, fontSize: e.target.value as any }
                       }))}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                      className="admin-input w-full"
                     >
                       <option value="small">صغير</option>
                       <option value="medium">متوسط</option>
@@ -762,7 +752,7 @@ export default function PrinterManagementPanel() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-2 text-white">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.settings?.printCustomerCopy !== false}
@@ -775,7 +765,7 @@ export default function PrinterManagementPanel() {
                     طباعة نسخة للعميل
                   </label>
                   
-                  <label className="flex items-center gap-2 text-white">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.settings?.printInternalCopy !== false}
@@ -788,7 +778,7 @@ export default function PrinterManagementPanel() {
                     طباعة نسخة داخلية
                   </label>
                   
-                  <label className="flex items-center gap-2 text-white">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.settings?.includeQRCode !== false}
@@ -801,7 +791,7 @@ export default function PrinterManagementPanel() {
                     تضمين رمز QR
                   </label>
                   
-                  <label className="flex items-center gap-2 text-white">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.settings?.paperCut !== false}
@@ -814,7 +804,7 @@ export default function PrinterManagementPanel() {
                     قطع الورق تلقائياً
                   </label>
                   
-                  <label className="flex items-center gap-2 text-white">
+                  <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={formData.settings?.buzzer !== false}
@@ -837,14 +827,14 @@ export default function PrinterManagementPanel() {
                     setEditingId(null);
                     resetForm();
                   }}
-                  className="px-4 py-2 text-white/70 hover:text-white transition-colors"
+                  className="admin-button"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className="admin-button"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'جاري الحفظ...' : (editingId ? 'تحديث' : 'حفظ')}

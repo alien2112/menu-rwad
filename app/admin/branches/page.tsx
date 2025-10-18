@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/SkeletonLoader";
+import { useAlert, useConfirmation } from "@/components/ui/alerts";
 
 interface Branch {
   _id: string;
@@ -48,6 +49,14 @@ export default function BranchesPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
+
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
 
   useEffect(() => {
     fetchBranches();
@@ -111,7 +120,7 @@ export default function BranchesPage() {
 
       const iconHtml = `
         <div style="
-          background: ${branch.isMainBranch ? '#FFD700' : '#00BF89'};
+          background: ${branch.isMainBranch ? 'var(--highlight)' : 'var(--primary)'};
           width: 32px;
           height: 32px;
           border-radius: 50% 50% 50% 0;
@@ -120,7 +129,7 @@ export default function BranchesPage() {
           box-shadow: 0 2px 8px rgba(0,0,0,0.3);
           display: flex;
           align-items: center;
-          justify-center;
+          justify-content: center;
         ">
           <div style="transform: rotate(45deg); color: white; font-weight: bold;">
             ${branch.isMainBranch ? '⭐' : '📍'}
@@ -142,23 +151,14 @@ export default function BranchesPage() {
 
       const popupContent = `
         <div style="padding: 8px; min-width: 200px;">
-          <h3 style="margin: 0 0 8px 0; font-weight: bold; font-size: 16px; color: #333;">${branch.name}</h3>
-          ${branch.isMainBranch ? '<span style="background: #FFD700; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">الفرع الرئيسي</span>' : ''}
-          <p style="margin: 8px 0 4px 0; font-size: 13px; color: #666;">📍 ${branch.address}</p>
-          <p style="margin: 4px 0; font-size: 13px; color: #666;">📞 ${branch.phone}</p>
+          <h3 style="margin: 0 0 8px 0; font-weight: bold; font-size: 16px;">${branch.name}</h3>
+          ${branch.isMainBranch ? '<span style="background: var(--highlight); color: var(--neutral); padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">الفرع الرئيسي</span>' : ''}
+          <p style="margin: 8px 0 4px 0; font-size: 13px;">📍 ${branch.address}</p>
+          <p style="margin: 4px 0; font-size: 13px;">📞 ${branch.phone}</p>
           ${branch.isOpenNow ? '<p style="margin: 4px 0; color: green; font-size: 12px;">🟢 مفتوح الآن</p>' : '<p style="margin: 4px 0; color: red; font-size: 12px;">🔴 مغلق الآن</p>'}
-          <button onclick="window.location.href='/admin/branches/${branch._id}'" style="
-            margin-top: 8px;
-            width: 100%;
-            padding: 6px 12px;
-            background: #00BF89;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-          ">تعديل الفرع</button>
+          <button onclick="window.location.href='/admin/branches/${branch._id}'" class="admin-button" style="margin-top: 8px; width: 100%;">
+            تعديل الفرع
+          </button>
         </div>
       `;
 
@@ -177,34 +177,38 @@ export default function BranchesPage() {
 
   const handleDelete = async (id: string, isMainBranch: boolean) => {
     if (isMainBranch) {
-      showMessage("error", "لا يمكن حذف الفرع الرئيسي");
+      showError("لا يمكن حذف الفرع الرئيسي");
       return;
     }
 
-    if (!confirm("هل أنت متأكد من حذف هذا الفرع؟")) return;
+    confirm(
+      {
+        title: 'حذف الفرع',
+        message: 'هل أنت متأكد من حذف هذا الفرع؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const response = await fetch(`/api/branches/${id}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/branches/${id}`, {
-        method: "DELETE",
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        showMessage("success", "تم حذف الفرع بنجاح");
-        fetchBranches();
-      } else {
-        showMessage("error", data.error || "فشل حذف الفرع");
+          if (data.success) {
+            showSuccess("تم حذف الفرع بنجاح");
+            fetchBranches();
+          } else {
+            showError(data.error || "فشل حذف الفرع");
+          }
+        } catch (error) {
+          console.error("Error deleting branch:", error);
+          showError("حدث خطأ أثناء الحذف");
+        }
       }
-    } catch (error) {
-      console.error("Error deleting branch:", error);
-      showMessage("error", "حدث خطأ أثناء الحذف");
-    }
-  };
-
-  const showMessage = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
+    );
   };
 
   useEffect(() => {
@@ -224,7 +228,7 @@ export default function BranchesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -239,7 +243,7 @@ export default function BranchesPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 border border-border">
+              <div key={i} className="admin-card rounded-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <Skeleton className="h-6 w-24 rounded-full" />
                   <Skeleton className="h-6 w-16 rounded-full" />
@@ -250,7 +254,7 @@ export default function BranchesPage() {
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-full" />
                 </div>
-                <div className="flex items-center gap-2 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 pt-4 border-t">
                   <Skeleton className="h-10 flex-1 rounded-lg" />
                   <Skeleton className="h-10 w-10 rounded-lg" />
                 </div>
@@ -263,19 +267,19 @@ export default function BranchesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">إدارة الفروع</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold mb-2">إدارة الفروع</h1>
+            <p>
               قم بإدارة فروع المطعم المختلفة ومواقعها
             </p>
           </div>
           <button
             onClick={() => router.push("/admin/branches/new")}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all"
+            className="admin-button"
           >
             <Plus className="w-5 h-5" />
             إضافة فرع جديد
@@ -301,26 +305,16 @@ export default function BranchesPage() {
         </AnimatePresence>
 
         {/* View Toggle */}
-        <div className="flex items-center gap-2 mb-6 bg-card rounded-lg p-1 w-fit border border-border">
+        <div className="flex items-center gap-2 mb-6 admin-card rounded-lg p-1 w-fit">
           <button
             onClick={() => setViewMode('grid')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all ${
-              viewMode === 'grid'
-                ? 'bg-primary text-white'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
+            className={`admin-button ${viewMode === 'grid' ? 'active' : ''}`}>
             <Grid3X3 className="w-4 h-4" />
             عرض الشبكة
           </button>
           <button
             onClick={() => setViewMode('map')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md font-medium text-sm transition-all ${
-              viewMode === 'map'
-                ? 'bg-primary text-white'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
+            className={`admin-button ${viewMode === 'map' ? 'active' : ''}`}>
             <MapIcon className="w-4 h-4" />
             عرض الخريطة
           </button>
@@ -330,10 +324,10 @@ export default function BranchesPage() {
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {branches.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <MapPin className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg">لا توجد فروع بعد</p>
-                <p className="text-muted-foreground/70 text-sm mt-2">ابدأ بإضافة فرع جديد</p>
+              <div className="col-span-full text-center py-12 admin-card">
+                <MapPin className="w-16 h-16 mx-auto mb-4" />
+                <p className="text-lg">لا توجد فروع بعد</p>
+                <p className="mt-2">ابدأ بإضافة فرع جديد</p>
               </div>
             ) : (
               branches.map((branch) => (
@@ -341,7 +335,7 @@ export default function BranchesPage() {
                   key={branch._id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="bg-card rounded-xl p-6 border border-card-foreground/10 hover:border-primary/30 transition-all relative overflow-hidden"
+                  className="admin-card rounded-xl p-6 relative overflow-hidden"
                 >
                   {/* Main Branch Badge */}
                   {branch.isMainBranch && (
@@ -369,25 +363,25 @@ export default function BranchesPage() {
                   </div>
 
                   {/* Branch Name */}
-                  <h3 className="text-xl font-bold text-foreground mb-1">
+                  <h3 className="text-xl font-bold mb-1">
                     {branch.name}
                   </h3>
                   {branch.nameEn && (
-                    <p className="text-sm text-muted-foreground mb-4">{branch.nameEn}</p>
+                    <p className="text-sm mb-4">{branch.nameEn}</p>
                   )}
 
                   {/* Details */}
                   <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-start gap-2 text-sm">
                       <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                       <span className="line-clamp-2">{branch.address}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm">
                       <Phone className="w-4 h-4 flex-shrink-0" />
                       <span>{branch.phone}</span>
                     </div>
                     {branch.email && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm">
                         <Mail className="w-4 h-4 flex-shrink-0" />
                         <span className="truncate">{branch.email}</span>
                       </div>
@@ -395,10 +389,10 @@ export default function BranchesPage() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-2 pt-4 border-t border-card-foreground/10">
+                  <div className="flex items-center gap-2 pt-4 border-t">
                     <button
                       onClick={() => router.push(`/admin/branches/${branch._id}`)}
-                      className="flex-1 flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary py-2 px-4 rounded-lg text-sm font-medium transition-all"
+                      className="admin-button flex-1"
                     >
                       <Edit className="w-4 h-4" />
                       تعديل
@@ -406,7 +400,7 @@ export default function BranchesPage() {
                     <button
                       onClick={() => handleDelete(branch._id, branch.isMainBranch)}
                       disabled={branch.isMainBranch}
-                      className="flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="admin-button"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -419,12 +413,12 @@ export default function BranchesPage() {
 
         {/* Map View */}
         {viewMode === 'map' && (
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
+          <div className="admin-card rounded-xl overflow-hidden">
             {branches.filter(b => b.location?.lat && b.location?.lng).length === 0 ? (
               <div className="p-12 text-center">
-                <MapIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg">لا توجد فروع بمواقع محددة</p>
-                <p className="text-muted-foreground/70 text-sm mt-2">
+                <MapIcon className="w-16 h-16 mx-auto mb-4" />
+                <p className="text-lg">لا توجد فروع بمواقع محددة</p>
+                <p className="mt-2">
                   قم بإضافة موقع للفروع لعرضها على الخريطة
                 </p>
               </div>
@@ -434,6 +428,7 @@ export default function BranchesPage() {
           </div>
         )}
       </div>
+      {ConfirmationComponent}
     </div>
   );
 }

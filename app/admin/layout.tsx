@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { RoleBasedAuth } from '@/components/RoleBasedAuth';
+import { AlertProvider } from '@/components/ui/alerts';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   FolderOpen,
@@ -26,6 +28,7 @@ import {
   Users,
   Building2,
 } from 'lucide-react';
+import './admin.css';
 
 interface User {
   id: string;
@@ -67,6 +70,13 @@ export default function AdminLayout({
   const [placeTagline, setPlaceTagline] = useState<string>('نظام إدارة المطاعم');
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    document.body.classList.add('admin-body');
+    return () => {
+      document.body.classList.remove('admin-body');
+    };
+  }, []);
 
   useEffect(() => {
     // Get user from localStorage
@@ -132,68 +142,131 @@ export default function AdminLayout({
     : allNavigation;
 
   return (
-    <RoleBasedAuth embedded>
-    <div className="admin-theme min-h-screen bg-gradient-to-br from-[#4F3500] via-[#3E2901] to-[#2A1B00]">
-      {/* Mobile menu button */}
-      <button
+    <AlertProvider position="top-right" maxAlerts={5}>
+      <RoleBasedAuth embedded>
+        <div className="admin-theme min-h-screen">
+      {/* Mobile menu button with animation */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2 glass-effect rounded-xl text-white"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2 rounded-xl text-white admin-button"
         aria-label={sidebarOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
         aria-expanded={sidebarOpen}
       >
-        {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={sidebarOpen ? 'close' : 'menu'}
+            initial={{ rotate: -90, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            exit={{ rotate: 90, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          >
+            {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+          </motion.div>
+        </AnimatePresence>
+      </motion.button>
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 right-0 z-40 h-screen transition-all duration-300 ${
+        className={`admin-sidebar fixed top-0 right-0 z-40 h-screen transition-all duration-300 ${
           collapsed ? 'w-20' : 'w-72'
         } ${
           sidebarOpen ? 'translate-x-0' : 'translate-x-full'
         } lg:translate-x-0 max-w-[90vw] sm:max-w-none`}
       >
-        <div className="h-full glass-sidebar border-l border-white/10 flex flex-col">
-          {/* Header */}
+        <div className="h-full flex flex-col">
+          {/* Header with smooth animations */}
           <div className="p-6 border-b border-white/10 flex-shrink-0">
             <div className="flex items-center justify-between">
-              {!collapsed && (
-                <h1 className="text-2xl font-bold text-white font-arabic">
-                  لوحة التحكم
-                </h1>
-              )}
-              <button
+              <AnimatePresence mode="wait">
+                {!collapsed && (
+                  <motion.h1
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                    className="text-2xl font-bold text-white font-arabic"
+                  >
+                    لوحة التحكم
+                  </motion.h1>
+                )}
+              </AnimatePresence>
+              <motion.button
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setCollapsed(!collapsed)}
                 className="hidden lg:block p-2 hover:bg-white/10 rounded-lg transition-colors text-white"
                 aria-label={collapsed ? 'توسيع الشريط الجانبي' : 'طي الشريط الجانبي'}
               >
-                {collapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-              </button>
+                <motion.div
+                  animate={{ rotate: collapsed ? 180 : 0 }}
+                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  {collapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+                </motion.div>
+              </motion.button>
             </div>
-            {!collapsed && (
-              <p className="text-sm text-white/90 mt-2">إدارة قائمة المطعم</p>
-            )}
+            <AnimatePresence mode="wait">
+              {!collapsed && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -5 }}
+                  transition={{ duration: 0.2, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+                  className="text-sm text-white/90 mt-2"
+                >
+                  إدارة قائمة المطعم
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation with staggered animations */}
           <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
               const isActive = pathname === item.href;
               return (
-                <Link
+                <motion.div
                   key={item.name}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive
-                      ? 'bg-coffee-green text-white shadow-lg'
-                      : 'text-white/80 hover:bg-white/10'
-                  } ${collapsed ? 'justify-center' : ''}`}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: index * 0.03,
+                    ease: [0.4, 0, 0.2, 1],
+                  }}
                 >
-                  <item.icon size={20} />
-                  {!collapsed && (
-                    <span className="font-semibold">{item.name}</span>
-                  )}
-                </Link>
+                  <Link
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                      isActive
+                        ? 'active'
+                        : ''
+                    } ${collapsed ? 'justify-center' : ''}`}
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+                    >
+                      <item.icon size={20} />
+                    </motion.div>
+                    <AnimatePresence mode="wait">
+                      {!collapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: 'auto' }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                          className="font-semibold whitespace-nowrap overflow-hidden"
+                        >
+                          {item.name}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                  </Link>
+                </motion.div>
               );
             })}
           </nav>
@@ -201,32 +274,53 @@ export default function AdminLayout({
           {/* Footer */}
           <div className="p-4 border-t border-white/10 flex-shrink-0">
             {!collapsed && (
-              <div className="glass-effect rounded-xl p-4">
-                <p className="text-sm text-white/90 font-semibold">{placeName || 'مركش'}</p>
-                <p className="text-xs text-white/60 mt-1">{placeTagline || 'نظام إدارة المطاعم'}</p>
+              <div className="admin-card rounded-xl p-4">
+                <p className="text-sm font-semibold">{placeName || 'مركش'}</p>
+                <p className="text-xs mt-1">{placeTagline || 'نظام إدارة المطاعم'}</p>
               </div>
             )}
           </div>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content with smooth page transitions */}
       <main
-        className={`transition-all duration-300 ${
+        className={`admin-main-content transition-all duration-300 ${
           collapsed ? 'lg:mr-20' : 'lg:mr-72'
         }`}
       >
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.98 }}
+            transition={{
+              duration: 0.25,
+              ease: [0.4, 0, 0.2, 1],
+            }}
+            className="p-4 sm:p-6 lg:p-8"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
-      {/* Overlay for mobile */}
-      {sidebarOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/50 z-30"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-    </div>
-    </RoleBasedAuth>
+      {/* Overlay for mobile with fade animation */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+            className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+        </div>
+      </RoleBasedAuth>
+    </AlertProvider>
   );
 }

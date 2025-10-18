@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useAlert, useConfirmation } from "@/components/ui/alerts";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -40,6 +41,9 @@ export default function EditQRCodePage() {
   const [saving, setSaving] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
 
   const [branches, setBranches] = useState<Branch[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -195,29 +199,36 @@ export default function EditQRCodePage() {
   };
 
   const handleDelete = async () => {
-    if (!confirm("هل أنت متأكد من حذف رمز QR هذا؟ لا يمكن التراجع عن هذا الإجراء.")) {
-      return;
-    }
+    confirm(
+      {
+        title: 'حذف رمز QR',
+        message: 'هل أنت متأكد من حذف رمز QR هذا؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const response = await fetch(`/api/qrcodes/${qrCodeId}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/qrcodes/${qrCodeId}`, {
-        method: "DELETE",
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({ type: "success", text: "تم حذف رمز QR بنجاح" });
-        setTimeout(() => {
-          router.push("/admin/qrcodes");
-        }, 1500);
-      } else {
-        setMessage({ type: "error", text: data.error || "فشل حذف رمز QR" });
+          if (data.success) {
+            showSuccess("تم حذف رمز QR بنجاح");
+            setTimeout(() => {
+              router.push("/admin/qrcodes");
+            }, 1500);
+          } else {
+            showError(data.error || "فشل حذف رمز QR");
+          }
+        } catch (error) {
+          console.error("Error deleting QR code:", error);
+          showError("حدث خطأ أثناء الحذف");
+        }
       }
-    } catch (error) {
-      console.error("Error deleting QR code:", error);
-      setMessage({ type: "error", text: "حدث خطأ أثناء الحذف" });
-    }
+    );
   };
 
   const handleDownloadPNG = () => {
@@ -721,6 +732,7 @@ export default function EditQRCodePage() {
           </div>
         </div>
       </div>
+      {ConfirmationComponent}
     </div>
   );
 }

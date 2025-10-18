@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/Card";
+import { Button } from "@/components/admin/Button";
+import { Badge } from "@/components/admin/Badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
 import { AlertTriangle, Package, CheckCircle, X, Bell } from "lucide-react";
 
 interface Notification {
@@ -128,15 +128,15 @@ export default function NotificationsDashboard() {
   const getPriorityBadge = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return <Badge variant="destructive">Urgent</Badge>;
+        return <Badge>Urgent</Badge>;
       case 'high':
-        return <Badge variant="secondary" className="bg-orange-100 text-orange-800">High</Badge>;
+        return <Badge>High</Badge>;
       case 'medium':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">Medium</Badge>;
+        return <Badge>Medium</Badge>;
       case 'low':
-        return <Badge variant="secondary" className="bg-green-100 text-green-800">Low</Badge>;
+        return <Badge>Low</Badge>;
       default:
-        return <Badge variant="secondary">{priority}</Badge>;
+        return <Badge>{priority}</Badge>;
     }
   };
 
@@ -150,9 +150,9 @@ export default function NotificationsDashboard() {
       case 'order_alert':
         return <Bell className="w-5 h-5 text-blue-500" />;
       case 'system':
-        return <CheckCircle className="w-5 h-5 text-gray-500" />;
+        return <CheckCircle className="w-5 h-5" />;
       default:
-        return <Bell className="w-5 h-5 text-gray-500" />;
+        return <Bell className="w-5 h-5" />;
     }
   };
 
@@ -174,10 +174,10 @@ export default function NotificationsDashboard() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-8 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[1, 2].map(i => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              <div key={i} className="h-24 rounded"></div>
             ))}
           </div>
         </div>
@@ -200,7 +200,7 @@ export default function NotificationsDashboard() {
                 type="text"
                 value={placeName}
                 onChange={(e) => setPlaceName(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="admin-input w-full"
                 placeholder="مثال: مركش"
               />
             </div>
@@ -210,7 +210,7 @@ export default function NotificationsDashboard() {
                 type="text"
                 value={placeTagline}
                 onChange={(e) => setPlaceTagline(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="admin-input w-full"
                 placeholder="مثال: نظام إدارة المطاعم"
               />
             </div>
@@ -226,7 +226,7 @@ export default function NotificationsDashboard() {
           <Bell className="w-8 h-8" />
           Notifications Dashboard
         </h1>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm">
           Last updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -236,7 +236,7 @@ export default function NotificationsDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Notifications</CardTitle>
-            <Bell className="h-4 w-4 text-muted-foreground" />
+            <Bell className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{notifications.length}</div>
@@ -246,20 +246,20 @@ export default function NotificationsDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Unread</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <AlertTriangle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{unreadCount}</div>
+            <div className="text-2xl font-bold">{unreadCount}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Urgent</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <AlertTriangle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{urgentCount}</div>
+            <div className="text-2xl font-bold">{urgentCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -314,7 +314,7 @@ export default function NotificationsDashboard() {
                   {getTypeIcon(notification.type)}
                   <div>
                     <CardTitle className="text-lg">{notification.title}</CardTitle>
-                    <div className="text-sm text-gray-500 mt-1">
+                    <div className="text-sm mt-1">
                       {new Date(notification.createdAt).toLocaleString()}
                       {notification.resolvedAt && (
                         <span> | Resolved: {new Date(notification.resolvedAt).toLocaleString()}</span>
@@ -325,17 +325,17 @@ export default function NotificationsDashboard() {
                 <div className="flex gap-2">
                   {getPriorityBadge(notification.priority)}
                   {notification.isResolved && (
-                    <Badge variant="outline" className="bg-green-100 text-green-800">Resolved</Badge>
+                    <Badge>Resolved</Badge>
                   )}
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 mb-4">{notification.message}</p>
+              <p className="mb-4">{notification.message}</p>
               
               {/* Metadata */}
               {notification.metadata && (
-                <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                <div className="admin-card p-3 rounded-lg mb-4">
                   <h4 className="font-medium mb-2">Details:</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     {notification.metadata.materialName && (
@@ -362,7 +362,6 @@ export default function NotificationsDashboard() {
                 {!notification.isRead && (
                   <Button
                     size="sm"
-                    variant="outline"
                     onClick={() => markAsRead(notification._id)}
                   >
                     Mark as Read
@@ -371,7 +370,6 @@ export default function NotificationsDashboard() {
                 {!notification.isResolved && (
                   <Button
                     size="sm"
-                    variant="outline"
                     onClick={() => markAsResolved(notification._id)}
                   >
                     Mark as Resolved
@@ -379,7 +377,6 @@ export default function NotificationsDashboard() {
                 )}
                 <Button
                   size="sm"
-                  variant="outline"
                   onClick={() => deleteNotification(notification._id)}
                   className="text-red-600 hover:text-red-700"
                 >
@@ -395,9 +392,9 @@ export default function NotificationsDashboard() {
       {filteredNotifications.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
-            <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-500">No notifications found</h3>
-            <p className="text-gray-400">Notifications will appear here when alerts are triggered</p>
+            <Bell className="w-12 h-12 mx-auto mb-4" />
+            <h3 className="text-lg font-medium">No notifications found</h3>
+            <p>Notifications will appear here when alerts are triggered</p>
           </CardContent>
         </Card>
       )}

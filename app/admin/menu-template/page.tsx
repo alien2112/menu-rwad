@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Loader2, Eye, X } from "lucide-react";
+import { Check, Loader2, Eye, X, Palette, RotateCcw } from "lucide-react";
 import { MENU_TEMPLATES, TemplateId } from "@/lib/types/MenuTemplate";
 import { clearCachePattern } from "@/lib/cacheInvalidation";
 import { ClassicLayout } from "@/components/templates/ClassicLayout";
@@ -16,6 +16,9 @@ import { CompactLayout } from "@/components/templates/CompactLayout";
 import { FuturisticLayout } from "@/components/templates/FuturisticLayout";
 import { NaturalLayout } from "@/components/templates/NaturalLayout";
 import { Skeleton } from "@/components/SkeletonLoader";
+import ColorPicker from "@/components/admin/ColorPicker";
+import { useTheme } from "@/contexts/ThemeContext";
+import { useAlert } from "@/components/ui/alerts";
 
 // Sample menu item for preview
 const SAMPLE_ITEM = {
@@ -40,11 +43,60 @@ export default function MenuTemplatePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<'templates' | 'colors'>('templates');
+  
+  // Theme management
+  const { theme, updateTheme, resetTheme, loading: themeLoading } = useTheme();
+  const [localTheme, setLocalTheme] = useState<any>({});
+  const { showSuccess, showError } = useAlert();
 
   // Fetch current template
   useEffect(() => {
     fetchCurrentTemplate();
   }, []);
+
+  // Initialize local theme when theme loads
+  useEffect(() => {
+    if (theme) {
+      setLocalTheme(theme);
+    }
+  }, [theme]);
+
+  // Theme management functions
+  const handleThemeChange = (key: string, value: string) => {
+    setLocalTheme((prev: any) => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleSaveTheme = async () => {
+    try {
+      const success = await updateTheme(localTheme);
+      if (success) {
+        showSuccess('تم حفظ الألوان بنجاح');
+      } else {
+        showError('فشل في حفظ الألوان');
+      }
+    } catch (error) {
+      showError('حدث خطأ أثناء الحفظ');
+    }
+  };
+
+  const handleResetTheme = async () => {
+    try {
+      const success = await resetTheme();
+      if (success) {
+        setLocalTheme({});
+        showSuccess('تم إعادة تعيين الألوان');
+      } else {
+        showError('فشل في إعادة التعيين');
+      }
+    } catch (error) {
+      showError('حدث خطأ أثناء إعادة التعيين');
+    }
+  };
+
 
   const fetchCurrentTemplate = async () => {
     try {
@@ -113,12 +165,12 @@ export default function MenuTemplatePage() {
     }
 
     // Fallback (should not reach here)
-    return <div className="text-white p-8">Template not found</div>;
+    return <div className="p-8">Template not found</div>;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <Skeleton className="h-8 w-48 mb-2" />
@@ -126,7 +178,7 @@ export default function MenuTemplatePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 border-2 border-border">
+              <div key={i} className="admin-card rounded-xl p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <Skeleton className="h-6 w-32 mb-2" />
@@ -152,15 +204,32 @@ export default function MenuTemplatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">قوالب القائمة</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold mb-2">قوالب القائمة</h1>
+          <p>
             اختر التصميم المثالي لعرض عناصر القائمة الخاصة بك
           </p>
         </div>
+
+            {/* Tab Navigation */}
+            <div className="flex gap-2 mb-8">
+              <button
+                onClick={() => setActiveTab('templates')}
+                className={`admin-button ${activeTab === 'templates' ? 'active' : ''}`}
+              >
+                قوالب القائمة
+              </button>
+              <button
+                onClick={() => setActiveTab('colors')}
+                className={`admin-button ${activeTab === 'colors' ? 'active' : ''}`}
+              >
+                <Palette className="w-4 h-4 mr-2" />
+                ألوان القائمة
+              </button>
+            </div>
 
         {/* Success/Error Message */}
         <AnimatePresence>
@@ -180,97 +249,208 @@ export default function MenuTemplatePage() {
           )}
         </AnimatePresence>
 
-        {/* Template Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {MENU_TEMPLATES.map((template) => (
-            <motion.div
-              key={template.id}
-              className={`bg-card rounded-xl p-6 border-2 transition-all cursor-pointer ${
-                selectedTemplate === template.id
-                  ? "border-primary shadow-lg shadow-primary/20"
-                  : "border-card-foreground/10 hover:border-card-foreground/30"
-              }`}
-              onClick={() => setSelectedTemplate(template.id)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {/* Template Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-bold text-foreground">
-                      {template.nameAr}
-                    </h3>
-                    <span className="text-sm text-muted-foreground">
-                      {template.name}
-                    </span>
-                    {currentTemplate === template.id && (
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30">
-                        الحالي
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {template.descriptionAr}
-                  </p>
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeTab === 'templates' && (
+              <>
+                {/* Template Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  {MENU_TEMPLATES.map((template) => (
+                    <motion.div
+                      key={template.id}
+                      className={`admin-card rounded-xl p-6 border-2 transition-all cursor-pointer ${
+                        selectedTemplate === template.id
+                          ? "border-highlight shadow-lg shadow-highlight/20"
+                          : "border-border-color"
+                      }`}
+                      onClick={() => setSelectedTemplate(template.id)}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {/* Template Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-xl font-bold">
+                              {template.nameAr}
+                            </h3>
+                            <span className="text-sm">
+                              {template.name}
+                            </span>
+                            {currentTemplate === template.id && (
+                              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30">
+                                الحالي
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm leading-relaxed">
+                            {template.descriptionAr}
+                          </p>
+                        </div>
+
+                        {selectedTemplate === template.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="flex-shrink-0 w-8 h-8 bg-highlight rounded-full flex items-center justify-center"
+                          >
+                            <Check className="w-5 h-5" />
+                          </motion.div>
+                        )}
+                      </div>
+
+                      {/* Features */}
+                      <ul className="space-y-2 mb-4">
+                        {template.featuresAr.slice(0, 3).map((feature, index) => (
+                          <li key={index} className="text-sm flex items-start gap-2">
+                            <span className="text-highlight mt-1">•</span>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Preview Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewTemplate(template.id);
+                        }}
+                        className="admin-button w-full mt-4"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span className="text-sm font-medium">معاينة</span>
+                      </button>
+                    </motion.div>
+                  ))}
                 </div>
 
-                {selectedTemplate === template.id && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center"
+                {/* Save Button */}
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving || selectedTemplate === currentTemplate}
+                    className="admin-button"
                   >
-                    <Check className="w-5 h-5 text-white" />
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Features */}
-              <ul className="space-y-2 mb-4">
-                {template.featuresAr.slice(0, 3).map((feature, index) => (
-                  <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <span className="text-primary mt-1">•</span>
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* Preview Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setPreviewTemplate(template.id);
-                }}
-                className="w-full mt-4 flex items-center justify-center gap-2 bg-card-foreground/5 hover:bg-card-foreground/10 text-foreground py-2 px-4 rounded-lg transition-colors border border-card-foreground/10"
-              >
-                <Eye className="w-4 h-4" />
-                <span className="text-sm font-medium">معاينة</span>
-              </button>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Save Button */}
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={handleSave}
-            disabled={saving || selectedTemplate === currentTemplate}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground text-white px-8 py-3 rounded-lg font-bold transition-all disabled:cursor-not-allowed"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>جاري الحفظ...</span>
-              </>
-            ) : (
-              <>
-                <Check className="w-5 h-5" />
-                <span>حفظ القالب</span>
+                    {saving ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>جاري الحفظ...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-5 h-5" />
+                        <span>حفظ القالب</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </>
             )}
-          </button>
-        </div>
+
+            {activeTab === 'colors' && (
+              <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <h4 className="text-lg font-semibold mb-2">تخصيص ألوان القائمة</h4>
+                  <p className="text-sm text-gray-600">قم بتخصيص الألوان لعرض القائمة</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <ColorPicker
+                    label="الخلفية الرئيسية"
+                    value={localTheme.background || '#F6EEDF'}
+                    onChange={(color) => handleThemeChange('background', color)}
+                  />
+                  <ColorPicker
+                    label="لون النص الرئيسي"
+                    value={localTheme.foreground || '#4F3500'}
+                    onChange={(color) => handleThemeChange('foreground', color)}
+                  />
+                  <ColorPicker
+                    label="اللون الأساسي"
+                    value={localTheme.primary || '#9C6B1E'}
+                    onChange={(color) => handleThemeChange('primary', color)}
+                  />
+                  <ColorPicker
+                    label="اللون الثانوي"
+                    value={localTheme.secondary || '#D3A34C'}
+                    onChange={(color) => handleThemeChange('secondary', color)}
+                  />
+                  <ColorPicker
+                    label="لون التمييز"
+                    value={localTheme.accent || '#1EA55E'}
+                    onChange={(color) => handleThemeChange('accent', color)}
+                  />
+                  <ColorPicker
+                    label="خلفية البطاقات"
+                    value={localTheme.card || '#4F3500'}
+                    onChange={(color) => handleThemeChange('card', color)}
+                  />
+                  <ColorPicker
+                    label="نص البطاقات"
+                    value={localTheme['card-foreground'] || '#FFFFFF'}
+                    onChange={(color) => handleThemeChange('card-foreground', color)}
+                  />
+                  <ColorPicker
+                    label="الخلفية المطفأة"
+                    value={localTheme.muted || 'rgba(0,0,0,0.12)'}
+                    onChange={(color) => handleThemeChange('muted', color)}
+                  />
+                  <ColorPicker
+                    label="النص المطفأ"
+                    value={localTheme['muted-foreground'] || 'rgba(18,15,6,0.7)'}
+                    onChange={(color) => handleThemeChange('muted-foreground', color)}
+                  />
+                  <ColorPicker
+                    label="لون الحلقة"
+                    value={localTheme.ring || '#D3A34C'}
+                    onChange={(color) => handleThemeChange('ring', color)}
+                  />
+                  <ColorPicker
+                    label="بداية شريط التمرير"
+                    value={localTheme['scroll-thumb-start'] || '#1EA55E'}
+                    onChange={(color) => handleThemeChange('scroll-thumb-start', color)}
+                  />
+                  <ColorPicker
+                    label="نهاية شريط التمرير"
+                    value={localTheme['scroll-thumb-end'] || '#D3A34C'}
+                    onChange={(color) => handleThemeChange('scroll-thumb-end', color)}
+                  />
+                  <ColorPicker
+                    label="مسار شريط التمرير"
+                    value={localTheme['scroll-track'] || 'rgba(0,0,0,0.25)'}
+                    onChange={(color) => handleThemeChange('scroll-track', color)}
+                  />
+                </div>
+
+                <div className="flex justify-between items-center pt-4 border-t">
+                  <button
+                    onClick={handleResetTheme}
+                    disabled={themeLoading}
+                    className="admin-button flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    إعادة تعيين
+                  </button>
+                  <button
+                    onClick={handleSaveTheme}
+                    disabled={themeLoading}
+                    className="admin-button flex items-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    حفظ الألوان
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
         {/* Preview Modal */}
         <AnimatePresence>
@@ -287,24 +467,24 @@ export default function MenuTemplatePage() {
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
                 transition={{ type: "spring", damping: 20 }}
-                className="bg-background rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto"
+                className="admin-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
-                <div className="sticky top-0 bg-background border-b border-border p-6 flex items-center justify-between z-10">
+                <div className="sticky top-0 admin-card border-b p-6 flex items-center justify-between z-10">
                   <div>
-                    <h2 className="text-2xl font-bold text-foreground">
+                    <h2 className="text-2xl font-bold">
                       معاينة: {MENU_TEMPLATES.find(t => t.id === previewTemplate)?.nameAr}
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="text-sm mt-1">
                       هذا مثال توضيحي لكيفية ظهور عناصر القائمة
                     </p>
                   </div>
                   <button
                     onClick={() => setPreviewTemplate(null)}
-                    className="flex-shrink-0 w-10 h-10 bg-card hover:bg-card/80 rounded-full flex items-center justify-center transition-colors"
+                    className="admin-button flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
                   >
-                    <X className="w-5 h-5 text-foreground" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
 
@@ -316,10 +496,10 @@ export default function MenuTemplatePage() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="sticky bottom-0 bg-background border-t border-border p-6 flex justify-end gap-3">
+                <div className="sticky bottom-0 admin-card border-t p-6 flex justify-end gap-3">
                   <button
                     onClick={() => setPreviewTemplate(null)}
-                    className="px-6 py-2 bg-card hover:bg-card/80 text-foreground rounded-lg transition-colors"
+                    className="admin-button"
                   >
                     إغلاق
                   </button>
@@ -328,7 +508,7 @@ export default function MenuTemplatePage() {
                       setSelectedTemplate(previewTemplate);
                       setPreviewTemplate(null);
                     }}
-                    className="px-6 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors font-medium"
+                    className="admin-button"
                   >
                     اختيار هذا القالب
                   </button>

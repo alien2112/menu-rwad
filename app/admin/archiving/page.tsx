@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/Card";
+import { Button } from "@/components/admin/Button";
+import { Badge } from "@/components/admin/Badge";
+import { Input } from "@/components/admin/Input";
+import { Label } from "@/components/admin/Label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
 import { Calendar, Download, Trash2, Archive, AlertCircle, CheckCircle, Clock } from "lucide-react";
-import { AlertDialog } from "@/components/AlertDialog";
+import { AlertDialog } from "@/components/admin/AlertDialog";
+import { useAlert, useConfirmation } from "@/components/ui/alerts";
 
 interface ArchiveLog {
   _id: string;
@@ -42,6 +43,9 @@ export default function ArchivingDashboard() {
     setAlertMessage(message);
     setIsAlertOpen(true);
   };
+
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
 
   // Create archive form state
   const [createForm, setCreateForm] = useState({
@@ -108,54 +112,61 @@ export default function ArchivingDashboard() {
   };
 
   const triggerCleanup = async () => {
-    if (!confirm('This will automatically archive and clean old data with Excel exports. Continue?')) {
-      return;
-    }
+    confirm(
+      {
+        title: 'تنظيف البيانات',
+        message: 'This will automatically archive and clean old data with Excel exports. Continue?',
+        confirmText: 'متابعة',
+        cancelText: 'إلغاء',
+        type: 'warning',
+      },
+      async () => {
+        try {
+          const response = await fetch('/api/cleanup-with-export', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || 'manual-cleanup'}`
+            },
+          });
 
-    try {
-      const response = await fetch('/api/cleanup-with-export', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_CRON_SECRET || 'manual-cleanup'}`
-        },
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        // Download all Excel files
-        data.data.excelFiles.forEach((file: any) => {
-          const link = document.createElement('a');
-          link.href = `data:${file.mimeType};base64,${file.data}`;
-          link.download = file.fileName;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        });
-        
-        showAlert('Success', `Cleanup completed with Excel exports!\nOrders: ${data.data.ordersDeleted}\nUsage: ${data.data.usageDeleted}\nNotifications: ${data.data.notificationsDeleted}\nExcel files downloaded: ${data.data.excelFiles.length}`);
-        fetchArchives(); // Refresh the list
-      } else {
-        showAlert('Error', 'Cleanup failed: ' + data.error);
+          const data = await response.json();
+          if (data.success) {
+            // Download all Excel files
+            data.data.excelFiles.forEach((file: any) => {
+              const link = document.createElement('a');
+              link.href = `data:${file.mimeType};base64,${file.data}`;
+              link.download = file.fileName;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            });
+            
+            showSuccess(`تم تنظيف البيانات بنجاح!\nالطلبات: ${data.data.ordersDeleted}\nالاستخدام: ${data.data.usageDeleted}\nالإشعارات: ${data.data.notificationsDeleted}\nملفات Excel المحملة: ${data.data.excelFiles.length}`);
+            fetchArchives(); // Refresh the list
+          } else {
+            showError('فشل تنظيف البيانات: ' + data.error);
+          }
+        } catch (error) {
+          console.error('Error triggering cleanup:', error);
+          showError('فشل في تشغيل التنظيف');
+        }
       }
-    } catch (error) {
-      console.error('Error triggering cleanup:', error);
-      showAlert('Error', 'Failed to trigger cleanup');
-    }
+    );
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+        return <Badge><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'processing':
-        return <Badge variant="default"><Archive className="w-3 h-3 mr-1" />Processing</Badge>;
+        return <Badge><Archive className="w-3 h-3 mr-1" />Processing</Badge>;
       case 'completed':
-        return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
+        return <Badge className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
       case 'failed':
-        return <Badge variant="destructive"><AlertCircle className="w-3 h-3 mr-1" />Failed</Badge>;
+        return <Badge className="bg-red-500"><AlertCircle className="w-3 h-3 mr-1" />Failed</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge>{status}</Badge>;
     }
   };
 
@@ -210,7 +221,7 @@ export default function ArchivingDashboard() {
             <Archive className="w-4 h-4 mr-2" />
             Create Archive
           </Button>
-          <Button variant="outline" onClick={triggerCleanup}>
+          <Button onClick={triggerCleanup}>
             <Trash2 className="w-4 h-4 mr-2" />
             Auto Cleanup
           </Button>
@@ -222,7 +233,7 @@ export default function ArchivingDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Archives</CardTitle>
-            <Archive className="h-4 w-4 text-muted-foreground" />
+            <Archive className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalArchives}</div>
@@ -232,30 +243,30 @@ export default function ArchivingDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CheckCircle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{completedArchives}</div>
+            <div className="text-2xl font-bold">{completedArchives}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Failed</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <AlertCircle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{failedArchives}</div>
+            <div className="text-2xl font-bold">{failedArchives}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Records Archived</CardTitle>
-            <Download className="h-4 w-4 text-muted-foreground" />
+            <Download className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{totalRecordsArchived.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{totalRecordsArchived.toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
@@ -269,7 +280,7 @@ export default function ArchivingDashboard() {
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
             <SelectItem value="orders">Orders</SelectItem>
-            <SelectItem value="usage">Usage</SelectItem>
+            <SelectItem value="usage">Material Usage</SelectItem>
             <SelectItem value="notifications">Notifications</SelectItem>
           </SelectContent>
         </Select>
@@ -297,10 +308,10 @@ export default function ArchivingDashboard() {
                   {getTypeIcon(archive.archiveType)}
                   <div>
                     <CardTitle className="text-lg capitalize">{archive.archiveType} Archive</CardTitle>
-                    <div className="text-sm text-gray-500 mt-1">
+                    <div className="text-sm mt-1">
                       Period: {new Date(archive.period.startDate).toLocaleDateString()} - {new Date(archive.period.endDate).toLocaleDateString()}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm">
                       Created: {new Date(archive.createdAt).toLocaleString()}
                       {archive.completedAt && (
                         <span> | Completed: {new Date(archive.completedAt).toLocaleString()}</span>
@@ -316,11 +327,11 @@ export default function ArchivingDashboard() {
             <CardContent>
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm">
                     Records: {archive.recordCount.toLocaleString()}
                   </p>
                   {archive.filePath && (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm">
                       File: {archive.filePath}
                     </p>
                   )}
@@ -334,7 +345,6 @@ export default function ArchivingDashboard() {
                   {archive.filePath && (
                     <Button
                       size="sm"
-                      variant="outline"
                       onClick={() => {
                         // For now, show a message that file was downloaded during creation
                         showAlert('Info', 'File was downloaded when archive was created. File: ' + archive.filePath);
@@ -354,9 +364,9 @@ export default function ArchivingDashboard() {
       {filteredArchives.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
-            <Archive className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-500">No archives found</h3>
-            <p className="text-gray-400">Create your first archive to get started</p>
+            <Archive className="w-12 h-12 mx-auto mb-4" />
+            <h3 className="text-lg font-medium">No archives found</h3>
+            <p>Create your first archive to get started</p>
           </CardContent>
         </Card>
       )}
@@ -408,7 +418,7 @@ export default function ArchivingDashboard() {
                 </div>
                 <div className="flex gap-2">
                   <Button type="submit">Create Archive</Button>
-                  <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>
+                  <Button type="button" onClick={() => setShowCreateForm(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -423,6 +433,7 @@ export default function ArchivingDashboard() {
         title={alertTitle}
         message={alertMessage}
       />
+      {ConfirmationComponent}
     </div>
   );
 }

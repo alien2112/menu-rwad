@@ -181,7 +181,7 @@ export default function TaxComplianceSettings() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-white/10 rounded-xl">
+            <div className="p-3 admin-card rounded-xl">
               <Skeleton height="h-6" width="w-6" className="rounded" />
             </div>
             <div>
@@ -196,7 +196,7 @@ export default function TaxComplianceSettings() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="glass-effect rounded-2xl p-6">
+          <div className="admin-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Skeleton height="h-5" width="w-5" className="rounded" />
               <Skeleton height="h-6" width="w-40" />
@@ -207,7 +207,7 @@ export default function TaxComplianceSettings() {
               <Skeleton height="h-10" />
             </div>
           </div>
-          <div className="glass-effect rounded-2xl p-6">
+          <div className="admin-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <Skeleton height="h-5" width="w-5" className="rounded" />
               <Skeleton height="h-6" width="w-40" />
@@ -228,12 +228,12 @@ export default function TaxComplianceSettings() {
       {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-blue-500/20 rounded-xl">
-            <Settings className="w-6 h-6 text-blue-400" />
+          <div className="p-3 admin-card rounded-xl">
+            <Settings className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">إدارة الضرائب والامتثال</h1>
-            <p className="text-white/70">إعدادات الضرائب والتقارير المالية</p>
+            <h1 className="text-2xl font-bold">إدارة الضرائب والامتثال</h1>
+            <p>إعدادات الضرائب والتقارير المالية</p>
           </div>
         </div>
         
@@ -241,22 +241,12 @@ export default function TaxComplianceSettings() {
         <div className="flex gap-2 justify-center flex-wrap">
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeTab === 'settings'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
+            className={`admin-button ${activeTab === 'settings' ? 'active' : ''}`}>
             الإعدادات
           </button>
           <button
             onClick={() => setActiveTab('reports')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              activeTab === 'reports'
-                ? 'bg-blue-500 text-white'
-                : 'bg-white/10 text-white/70 hover:bg-white/20'
-            }`}
-          >
+            className={`admin-button ${activeTab === 'reports' ? 'active' : ''}`}>
             التقارير
           </button>
         </div>
@@ -281,16 +271,16 @@ export default function TaxComplianceSettings() {
       {activeTab === 'settings' && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Tax Configuration */}
-          <div className="glass-effect rounded-2xl p-6">
+          <div className="admin-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Calculator className="w-5 h-5 text-blue-400" />
-              <h2 className="text-xl font-bold text-white">إعدادات الضرائب</h2>
+              <Calculator className="w-5 h-5" />
+              <h2 className="text-xl font-bold">إعدادات الضرائب</h2>
             </div>
             
             <div className="space-y-4">
               {/* Enable Tax Handling */}
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">تفعيل معالجة الضرائب</label>
+                <label className="font-medium">تفعيل معالجة الضرائب</label>
                 <button
                   onClick={() => setSettings(prev => ({ ...prev, enableTaxHandling: !prev.enableTaxHandling }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
@@ -305,11 +295,11 @@ export default function TaxComplianceSettings() {
 
               {/* Tax Type */}
               <div>
-                <label className="block text-white font-medium mb-2">نوع الضريبة</label>
+                <label className="block font-medium mb-2">نوع الضريبة</label>
                 <select
                   value={settings.taxType}
                   onChange={(e) => setSettings(prev => ({ ...prev, taxType: e.target.value as any }))}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 >
                   <option value="VAT">ضريبة القيمة المضافة (VAT)</option>
                   <option value="GST">ضريبة السلع والخدمات (GST)</option>
@@ -320,7 +310,7 @@ export default function TaxComplianceSettings() {
 
               {/* VAT Rate */}
               <div>
-                <label className="block text-white font-medium mb-2">معدل الضريبة (%)</label>
+                <label className="block font-medium mb-2">معدل الضريبة (%)</label>
                 <input
                   type="number"
                   min="0"
@@ -328,13 +318,13 @@ export default function TaxComplianceSettings() {
                   step="0.1"
                   value={settings.vatRate}
                   onChange={(e) => setSettings(prev => ({ ...prev, vatRate: Number(e.target.value) }))}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 />
               </div>
 
               {/* Include Tax in Price */}
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">إدراج الضريبة في السعر</label>
+                <label className="font-medium">إدراج الضريبة في السعر</label>
                 <button
                   onClick={() => setSettings(prev => ({ ...prev, includeTaxInPrice: !prev.includeTaxInPrice }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
@@ -349,7 +339,7 @@ export default function TaxComplianceSettings() {
 
               {/* Display Tax Breakdown */}
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">عرض تفصيل الضريبة</label>
+                <label className="font-medium">عرض تفصيل الضريبة</label>
                 <button
                   onClick={() => setSettings(prev => ({ ...prev, displayTaxBreakdown: !prev.displayTaxBreakdown }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
@@ -365,20 +355,20 @@ export default function TaxComplianceSettings() {
           </div>
 
           {/* Compliance Settings */}
-          <div className="glass-effect rounded-2xl p-6">
+          <div className="admin-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-6">
-              <Shield className="w-5 h-5 text-green-400" />
-              <h2 className="text-xl font-bold text-white">إعدادات الامتثال</h2>
+              <Shield className="w-5 h-5" />
+              <h2 className="text-xl font-bold">إعدادات الامتثال</h2>
             </div>
             
             <div className="space-y-4">
               {/* Compliance Mode */}
               <div>
-                <label className="block text-white font-medium mb-2">وضع الامتثال</label>
+                <label className="block font-medium mb-2">وضع الامتثال</label>
                 <select
                   value={settings.complianceMode}
                   onChange={(e) => setSettings(prev => ({ ...prev, complianceMode: e.target.value as any }))}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-500"
+                  className="admin-input w-full"
                 >
                   <option value="Saudi ZATCA">هيئة الزكاة والضريبة السعودية (ZATCA)</option>
                   <option value="UAE FTA">هيئة الإمارات للضرائب (FTA)</option>
@@ -389,22 +379,22 @@ export default function TaxComplianceSettings() {
 
               {/* Tax Number */}
               <div>
-                <label className="block text-white font-medium mb-2">رقم التسجيل الضريبي</label>
+                <label className="block font-medium mb-2">رقم التسجيل الضريبي</label>
                 <input
                   type="text"
                   value={settings.taxNumber || ''}
                   onChange={(e) => setSettings(prev => ({ ...prev, taxNumber: e.target.value || null }))}
                   placeholder={settings.complianceMode === 'Saudi ZATCA' ? '3XXXXXXXXXXXXXXX' : 'أدخل رقم التسجيل الضريبي'}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-500"
+                  className="admin-input w-full"
                 />
                 {settings.complianceMode === 'Saudi ZATCA' && (
-                  <p className="text-white/60 text-sm mt-1">يجب أن يكون 15 رقم يبدأ بـ 3</p>
+                  <p className="text-sm mt-1">يجب أن يكون 15 رقم يبدأ بـ 3</p>
                 )}
               </div>
 
               {/* Generate Tax Reports */}
               <div className="flex items-center justify-between">
-                <label className="text-white font-medium">إنشاء تقارير ضريبية تلقائية</label>
+                <label className="font-medium">إنشاء تقارير ضريبية تلقائية</label>
                 <button
                   onClick={() => setSettings(prev => ({ ...prev, generateTaxReports: !prev.generateTaxReports }))}
                   className={`w-12 h-6 rounded-full transition-colors ${
@@ -424,19 +414,19 @@ export default function TaxComplianceSettings() {
       {activeTab === 'reports' && (
         <div className="space-y-6">
           {/* Report Controls */}
-          <div className="glass-effect rounded-2xl p-6">
+          <div className="admin-card rounded-2xl p-6">
             <div className="flex items-center gap-3 mb-4">
-              <FileText className="w-5 h-5 text-purple-400" />
-              <h2 className="text-xl font-bold text-white">تقارير الضرائب</h2>
+              <FileText className="w-5 h-5" />
+              <h2 className="text-xl font-bold">تقارير الضرائب</h2>
             </div>
             
             <div className="flex items-center gap-4">
               <div>
-                <label className="block text-white font-medium mb-2">الفترة الزمنية</label>
+                <label className="block font-medium mb-2">الفترة الزمنية</label>
                 <select
                   value={reportPeriod}
                   onChange={(e) => setReportPeriod(e.target.value as any)}
-                  className="bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500"
+                  className="admin-input"
                 >
                   <option value="day">اليوم</option>
                   <option value="week">الأسبوع</option>
@@ -449,7 +439,7 @@ export default function TaxComplianceSettings() {
                 <button
                   onClick={generateReport}
                   disabled={reportLoading}
-                  className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                  className="admin-button"
                 >
                   <TrendingUp className="w-4 h-4" />
                   {reportLoading ? 'جاري الإنشاء...' : 'إنشاء التقرير'}
@@ -458,7 +448,7 @@ export default function TaxComplianceSettings() {
                 {reports && (
                   <button
                     onClick={downloadReport}
-                    className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="admin-button"
                   >
                     <Download className="w-4 h-4" />
                     تحميل
@@ -472,51 +462,51 @@ export default function TaxComplianceSettings() {
           {reports && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Summary */}
-              <div className="glass-effect rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-4">ملخص التقرير</h3>
+              <div className="admin-card rounded-2xl p-6">
+                <h3 className="text-lg font-bold mb-4">ملخص التقرير</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-white/70">إجمالي الطلبات:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.summary.totalOrders}</span>
+                    <span>إجمالي الطلبات:</span>
+                    <span className="font-bold">{reports.complianceReport.summary.totalOrders}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">إجمالي المبيعات:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.summary.totalSales} ر.س</span>
+                    <span>إجمالي المبيعات:</span>
+                    <span className="font-bold">{reports.complianceReport.summary.totalSales} ر.س</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">المبيعات الخاضعة للضريبة:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.summary.taxableSales} ر.س</span>
+                    <span>المبيعات الخاضعة للضريبة:</span>
+                    <span className="font-bold">{reports.complianceReport.summary.taxableSales} ر.س</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">إجمالي الضريبة المحصلة:</span>
-                    <span className="text-white font-bold text-green-400">{reports.complianceReport.summary.totalTaxCollected} ر.س</span>
+                    <span>إجمالي الضريبة المحصلة:</span>
+                    <span className="font-bold text-green-400">{reports.complianceReport.summary.totalTaxCollected} ر.س</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">متوسط قيمة الطلب:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.summary.averageOrderValue} ر.س</span>
+                    <span>متوسط قيمة الطلب:</span>
+                    <span className="font-bold">{reports.complianceReport.summary.averageOrderValue} ر.س</span>
                   </div>
                 </div>
               </div>
 
               {/* Tax Breakdown */}
-              <div className="glass-effect rounded-2xl p-6">
-                <h3 className="text-lg font-bold text-white mb-4">تفصيل الضريبة</h3>
+              <div className="admin-card rounded-2xl p-6">
+                <h3 className="text-lg font-bold mb-4">تفصيل الضريبة</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-white/70">معدل الضريبة:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.breakdown.taxRate}</span>
+                    <span>معدل الضريبة:</span>
+                    <span className="font-bold">{reports.complianceReport.breakdown.taxRate}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">مبلغ الضريبة:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.breakdown.taxAmount} ر.س</span>
+                    <span>مبلغ الضريبة:</span>
+                    <span className="font-bold">{reports.complianceReport.breakdown.taxAmount} ر.س</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">المبلغ الصافي:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.breakdown.netAmount} ر.س</span>
+                    <span>المبلغ الصافي:</span>
+                    <span className="font-bold">{reports.complianceReport.breakdown.netAmount} ر.س</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-white/70">المبلغ الإجمالي:</span>
-                    <span className="text-white font-bold">{reports.complianceReport.breakdown.grossAmount} ر.س</span>
+                    <span>المبلغ الإجمالي:</span>
+                    <span className="font-bold">{reports.complianceReport.breakdown.grossAmount} ر.س</span>
                   </div>
                 </div>
               </div>
@@ -531,7 +521,7 @@ export default function TaxComplianceSettings() {
           <button
             onClick={saveSettings}
             disabled={saving}
-            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
+            className="admin-button"
           >
             <Save className="w-4 h-4" />
             {saving ? 'جاري الحفظ...' : 'حفظ الإعدادات'}

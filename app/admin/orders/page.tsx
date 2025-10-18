@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/Card";
+import { Button } from "@/components/admin/Button";
+import { Badge } from "@/components/admin/Badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
+import { Input } from "@/components/admin/Input";
 import { ChefHat, Coffee, Wind, Clock, CheckCircle, AlertCircle, Package, Printer } from "lucide-react";
-import { AlertDialog } from "@/components/AlertDialog";
+import { AlertDialog } from "@/components/admin/AlertDialog";
 
 interface OrderItem {
   menuItemId: string;
@@ -109,47 +109,47 @@ export default function AdminDashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge>Pending</Badge>;
       case 'confirmed':
-        return <Badge variant="default">Confirmed</Badge>;
+        return <Badge>Confirmed</Badge>;
       case 'preparing':
-        return <Badge variant="default" className="bg-blue-500">Preparing</Badge>;
+        return <Badge className="bg-blue-500">Preparing</Badge>;
       case 'ready':
-        return <Badge variant="default" className="bg-green-500">Ready</Badge>;
+        return <Badge className="bg-green-500">Ready</Badge>;
       case 'delivered':
-        return <Badge variant="outline">Delivered</Badge>;
+        return <Badge>Delivered</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge>Cancelled</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge>{status}</Badge>;
     }
   };
 
   const getDepartmentBadge = (department: string) => {
     switch (department) {
       case 'kitchen':
-        return <Badge variant="outline" className="bg-orange-100 text-orange-800"><ChefHat className="w-3 h-3 mr-1" />Kitchen</Badge>;
+        return <Badge><ChefHat className="w-3 h-3 mr-1" />Kitchen</Badge>;
       case 'barista':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800"><Coffee className="w-3 h-3 mr-1" />Barista</Badge>;
+        return <Badge><Coffee className="w-3 h-3 mr-1" />Barista</Badge>;
       case 'shisha':
-        return <Badge variant="outline" className="bg-purple-100 text-purple-800"><Wind className="w-3 h-3 mr-1" />Shisha</Badge>;
+        return <Badge><Wind className="w-3 h-3 mr-1" />Shisha</Badge>;
       default:
-        return <Badge variant="outline">{department}</Badge>;
+        return <Badge>{department}</Badge>;
     }
   };
 
   const getDepartmentStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className="w-4 h-4" />;
       case 'in_progress':
         return <AlertCircle className="w-4 h-4 text-blue-500" />;
       case 'ready':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'served':
-        return <CheckCircle className="w-4 h-4 text-gray-500" />;
+        return <CheckCircle className="w-4 h-4" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
+        return <Clock className="w-4 h-4" />;
     }
   };
 
@@ -181,10 +181,10 @@ export default function AdminDashboard() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-8 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              <div key={i} className="h-24 rounded"></div>
             ))}
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <div className="text-sm text-gray-500">
+        <div className="text-sm">
           Last updated: {new Date().toLocaleTimeString()}
         </div>
       </div>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <Package className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalOrders}</div>
@@ -216,30 +216,30 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
+            <Clock className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{pendingOrders}</div>
+            <div className="text-2xl font-bold">{pendingOrders}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Preparing</CardTitle>
-            <AlertCircle className="h-4 w-4 text-muted-foreground" />
+            <AlertCircle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{preparingOrders}</div>
+            <div className="text-2xl font-bold">{preparingOrders}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Ready</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CheckCircle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{readyOrders}</div>
+            <div className="text-2xl font-bold">{readyOrders}</div>
           </CardContent>
         </Card>
       </div>
@@ -252,8 +252,8 @@ export default function AdminDashboard() {
             <ChefHat className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{kitchenPending}</div>
-            <p className="text-xs text-muted-foreground">Pending items</p>
+            <div className="text-2xl font-bold">{kitchenPending}</div>
+            <p className="text-xs">Pending items</p>
           </CardContent>
         </Card>
 
@@ -263,8 +263,8 @@ export default function AdminDashboard() {
             <Coffee className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{baristaPending}</div>
-            <p className="text-xs text-muted-foreground">Pending items</p>
+            <div className="text-2xl font-bold">{baristaPending}</div>
+            <p className="text-xs">Pending items</p>
           </CardContent>
         </Card>
 
@@ -274,8 +274,8 @@ export default function AdminDashboard() {
             <Wind className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{shishaPending}</div>
-            <p className="text-xs text-muted-foreground">Pending items</p>
+            <div className="text-2xl font-bold">{shishaPending}</div>
+            <p className="text-xs">Pending items</p>
           </CardContent>
         </Card>
       </div>
@@ -323,14 +323,14 @@ export default function AdminDashboard() {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-lg">Order {order.orderNumber}</CardTitle>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="text-sm mt-1">
                     Customer: {order.customerInfo.name || 'Unknown'} | 
                     Phone: {order.customerInfo.phone || 'N/A'} |
                     Time: {new Date(order.orderDate).toLocaleString()} |
                     Source: {order.source}
                   </div>
                   {order.notes && (
-                    <div className="text-sm text-blue-600 mt-1">
+                    <div className="text-sm mt-1">
                       Notes: {order.notes}
                     </div>
                   )}
@@ -366,9 +366,9 @@ export default function AdminDashboard() {
                       <div>
                         <div className="font-medium">{item.menuItemName}</div>
                         {item.menuItemNameEn && (
-                          <div className="text-sm text-gray-500">{item.menuItemNameEn}</div>
+                          <div className="text-sm">{item.menuItemNameEn}</div>
                         )}
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm">
                           Quantity: {item.quantity} | 
                           Price: {item.totalPrice} ريال
                           {item.estimatedPrepTime && (
@@ -378,7 +378,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={item.departmentStatus === 'ready' ? 'default' : 'secondary'}>
+                      <Badge>
                         {item.departmentStatus}
                       </Badge>
                     </div>
@@ -409,7 +409,6 @@ export default function AdminDashboard() {
                   {order.items.some((item: any) => item.department === 'kitchen') && (
                     <Button
                       onClick={() => handlePrintOrder(order._id, 'kitchen')}
-                      variant="outline"
                       size="sm"
                     >
                       طباعة المطبخ
@@ -419,7 +418,6 @@ export default function AdminDashboard() {
                   {order.items.some((item: any) => item.department === 'barista') && (
                     <Button
                       onClick={() => handlePrintOrder(order._id, 'barista')}
-                      variant="outline"
                       size="sm"
                     >
                       طباعة البارستا
@@ -429,7 +427,6 @@ export default function AdminDashboard() {
                   {order.items.some((item: any) => item.department === 'shisha') && (
                     <Button
                       onClick={() => handlePrintOrder(order._id, 'shisha')}
-                      variant="outline"
                       size="sm"
                     >
                       طباعة الشيشة
@@ -445,9 +442,9 @@ export default function AdminDashboard() {
       {filteredOrders.length === 0 && (
         <Card>
           <CardContent className="text-center py-8">
-            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-500">No orders found</h3>
-            <p className="text-gray-400">Orders will appear here when customers place orders</p>
+            <Package className="w-12 h-12 mx-auto mb-4" />
+            <h3 className="text-lg font-medium">No orders found</h3>
+            <p>Orders will appear here when customers place orders</p>
           </CardContent>
         </Card>
       )}

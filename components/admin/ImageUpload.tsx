@@ -63,17 +63,17 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-2">
-      {label && <label className="text-sm font-semibold text-white">{label}</label>}
+      {label && <label className="text-sm font-semibold">{label}</label>}
 
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={handleClick}
-        className={`relative glass-effect rounded-xl border-2 border-dashed transition-all cursor-pointer ${
+        className={`relative admin-card rounded-xl border-2 border-dashed transition-all cursor-pointer ${
           isDragging
-            ? 'border-coffee-green bg-coffee-green/10'
-            : 'border-white/20 hover:border-white/40'
+            ? 'border-highlight'
+            : 'border-border-color'
         }`}
       >
         <input
@@ -101,25 +101,25 @@ export default function ImageUpload({
                 e.stopPropagation();
                 handleRemove();
               }}
-              className="absolute top-2 left-2 p-2 bg-red-500 rounded-lg text-white hover:bg-red-600 transition-colors"
+              className="absolute top-2 left-2 p-2 admin-button"
             >
               <X size={16} />
             </button>
           </div>
         ) : (
           <div className="p-8 text-center">
-            <div className="mx-auto w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 rounded-full flex items-center justify-center mb-4">
               {previewUrl ? (
-                <ImageIcon className="text-coffee-green" size={32} />
+                <ImageIcon size={32} />
               ) : (
-                <Upload className="text-white/50" size={32} />
+                <Upload size={32} />
               )}
             </div>
-            <p className="text-white font-semibold mb-1">
+            <p className="font-semibold mb-1">
               {previewUrl ? 'صورة محملة' : 'اسحب الصورة هنا'}
             </p>
-            <p className="text-white/60 text-sm">أو انقر للاختيار من جهازك</p>
-            <p className="text-white/40 text-xs mt-2">
+            <p className="text-sm">أو انقر للاختيار من جهازك</p>
+            <p className="text-xs mt-2">
               PNG, JPG, GIF up to 10MB
             </p>
             {previewUrl && (
@@ -129,7 +129,7 @@ export default function ImageUpload({
                   e.stopPropagation();
                   handleRemove();
                 }}
-                className="mt-4 px-4 py-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors text-sm"
+                className="mt-4 admin-button"
               >
                 إزالة الصورة
               </button>

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/SkeletonLoader";
+import { useAlert, useConfirmation } from "@/components/ui/alerts";
 
 interface Promotion {
   _id: string;
@@ -53,6 +54,14 @@ export default function PromotionsPage() {
   const [filterType, setFilterType] = useState<'all' | 'discount-code' | 'buy-x-get-y'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'expired'>('all');
 
+  const { showSuccess, showError } = useAlert();
+  const { confirm, ConfirmationComponent } = useConfirmation();
+
+  const showMessage = (type: "success" | "error", text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
   useEffect(() => {
     fetchPromotions();
   }, []);
@@ -74,30 +83,34 @@ export default function PromotionsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("هل أنت متأكد من حذف هذا العرض؟")) return;
+    confirm(
+      {
+        title: 'حذف العرض',
+        message: 'هل أنت متأكد من حذف هذا العرض؟ لا يمكن التراجع عن هذا الإجراء.',
+        confirmText: 'حذف',
+        cancelText: 'إلغاء',
+        type: 'danger',
+      },
+      async () => {
+        try {
+          const response = await fetch(`/api/promotions/${id}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/promotions/${id}`, {
-        method: "DELETE",
-      });
+          const data = await response.json();
 
-      const data = await response.json();
-
-      if (data.success) {
-        showMessage("success", "تم حذف العرض بنجاح");
-        fetchPromotions();
-      } else {
-        showMessage("error", data.error || "فشل حذف العرض");
+          if (data.success) {
+            showSuccess("تم حذف العرض بنجاح");
+            fetchPromotions();
+          } else {
+            showError(data.error || "فشل حذف العرض");
+          }
+        } catch (error) {
+          console.error("Error deleting promotion:", error);
+          showError("حدث خطأ أثناء الحذف");
+        }
       }
-    } catch (error) {
-      console.error("Error deleting promotion:", error);
-      showMessage("error", "حدث خطأ أثناء الحذف");
-    }
-  };
-
-  const showMessage = (type: "success" | "error", text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 3000);
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -111,7 +124,7 @@ export default function PromotionsPage() {
   const getStatusBadge = (promo: Promotion) => {
     if (!promo.active) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-500/20 text-gray-400 border border-gray-500/30 rounded-full text-xs font-medium">
+        <span className="inline-flex items-center gap-1 px-2 py-1 admin-badge rounded-full text-xs font-medium">
           <XCircle className="w-3 h-3" />
           غير نشط
         </span>
@@ -120,7 +133,7 @@ export default function PromotionsPage() {
 
     if (promo.isExpired) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-xs font-medium">
+        <span className="inline-flex items-center gap-1 px-2 py-1 admin-badge rounded-full text-xs font-medium">
           <AlertCircle className="w-3 h-3" />
           منتهي
         </span>
@@ -129,7 +142,7 @@ export default function PromotionsPage() {
 
     if (!promo.isValid) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-full text-xs font-medium">
+        <span className="inline-flex items-center gap-1 px-2 py-1 admin-badge rounded-full text-xs font-medium">
           <AlertCircle className="w-3 h-3" />
           قريباً
         </span>
@@ -138,7 +151,7 @@ export default function PromotionsPage() {
 
     if (promo.canBeUsed) {
       return (
-        <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-full text-xs font-medium">
+        <span className="inline-flex items-center gap-1 px-2 py-1 admin-badge rounded-full text-xs font-medium">
           <CheckCircle className="w-3 h-3" />
           نشط
         </span>
@@ -168,7 +181,7 @@ export default function PromotionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -179,7 +192,7 @@ export default function PromotionsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-card rounded-lg p-4 border border-border">
+              <div key={i} className="admin-card rounded-lg p-4">
                 <div className="flex items-center gap-3">
                   <Skeleton className="h-10 w-10 rounded-lg" />
                   <div>
@@ -196,7 +209,7 @@ export default function PromotionsPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-card rounded-xl p-6 border border-border">
+              <div key={i} className="admin-card rounded-xl p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Skeleton className="h-10 w-10 rounded-lg" />
@@ -213,7 +226,7 @@ export default function PromotionsPage() {
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-full" />
                 </div>
-                <div className="flex items-center gap-2 pt-4 border-t border-border">
+                <div className="flex items-center gap-2 pt-4 border-t">
                   <Skeleton className="h-10 flex-1 rounded-lg" />
                   <Skeleton className="h-10 w-10 rounded-lg" />
                 </div>
@@ -226,19 +239,19 @@ export default function PromotionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <div className="p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">إدارة العروض</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-3xl font-bold mb-2">إدارة العروض</h1>
+            <p>
               قم بإنشاء وإدارة أكواد الخصم وعروض اشتري X واحصل على Y
             </p>
           </div>
           <button
             onClick={() => router.push("/admin/promotions/new")}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-all"
+            className="admin-button"
           >
             <Plus className="w-5 h-5" />
             إضافة عرض جديد
@@ -265,50 +278,50 @@ export default function PromotionsPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-card rounded-lg p-4 border border-border">
+          <div className="admin-card rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Tag className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                <p className="text-xs text-muted-foreground">إجمالي العروض</p>
+                <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs">إجمالي العروض</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-lg p-4 border border-border">
+          <div className="admin-card rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-500/10 rounded-lg">
                 <CheckCircle className="w-5 h-5 text-green-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.active}</p>
-                <p className="text-xs text-muted-foreground">عروض نشطة</p>
+                <p className="text-2xl font-bold">{stats.active}</p>
+                <p className="text-xs">عروض نشطة</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-lg p-4 border border-border">
+          <div className="admin-card rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-red-500/10 rounded-lg">
                 <AlertCircle className="w-5 h-5 text-red-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.expired}</p>
-                <p className="text-xs text-muted-foreground">عروض منتهية</p>
+                <p className="text-2xl font-bold">{stats.expired}</p>
+                <p className="text-xs">عروض منتهية</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-lg p-4 border border-border">
+          <div className="admin-card rounded-lg p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-500/10 rounded-lg">
                 <TrendingUp className="w-5 h-5 text-blue-400" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.totalUsage}</p>
-                <p className="text-xs text-muted-foreground">إجمالي الاستخدامات</p>
+                <p className="text-2xl font-bold">{stats.totalUsage}</p>
+                <p className="text-xs">إجمالي الاستخدامات</p>
               </div>
             </div>
           </div>
@@ -316,68 +329,38 @@ export default function PromotionsPage() {
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
-          <div className="flex items-center gap-2 bg-card rounded-lg p-1 border border-border">
+          <div className="flex items-center gap-2 admin-card rounded-lg p-1">
             <button
               onClick={() => setFilterType('all')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterType === 'all'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterType === 'all' ? 'active' : ''}`}>
               الكل
             </button>
             <button
               onClick={() => setFilterType('discount-code')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterType === 'discount-code'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterType === 'discount-code' ? 'active' : ''}`}>
               أكواد خصم
             </button>
             <button
               onClick={() => setFilterType('buy-x-get-y')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterType === 'buy-x-get-y'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterType === 'buy-x-get-y' ? 'active' : ''}`}>
               اشتري X واحصل على Y
             </button>
           </div>
 
-          <div className="flex items-center gap-2 bg-card rounded-lg p-1 border border-border">
+          <div className="flex items-center gap-2 admin-card rounded-lg p-1">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterStatus === 'all'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterStatus === 'all' ? 'active' : ''}`}>
               جميع الحالات
             </button>
             <button
               onClick={() => setFilterStatus('active')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterStatus === 'active'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterStatus === 'active' ? 'active' : ''}`}>
               نشطة
             </button>
             <button
               onClick={() => setFilterStatus('expired')}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                filterStatus === 'expired'
-                  ? 'bg-primary text-white'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+              className={`admin-button ${filterStatus === 'expired' ? 'active' : ''}`}>
               منتهية
             </button>
           </div>
@@ -386,10 +369,10 @@ export default function PromotionsPage() {
         {/* Promotions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPromotions.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <Gift className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">لا توجد عروض</p>
-              <p className="text-muted-foreground/70 text-sm mt-2">ابدأ بإضافة عرض جديد</p>
+            <div className="col-span-full text-center py-12 admin-card">
+              <Gift className="w-16 h-16 mx-auto mb-4" />
+              <p className="text-lg">لا توجد عروض</p>
+              <p className="mt-2">ابدأ بإضافة عرض جديد</p>
             </div>
           ) : (
             filteredPromotions.map((promo) => (
@@ -397,7 +380,7 @@ export default function PromotionsPage() {
                 key={promo._id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="bg-card rounded-xl p-6 border border-card-foreground/10 hover:border-primary/30 transition-all"
+                className="admin-card rounded-xl p-6"
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -416,8 +399,8 @@ export default function PromotionsPage() {
                       )}
                     </div>
                     <div>
-                      <h3 className="font-bold text-foreground">{promo.name}</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h3 className="font-bold">{promo.name}</h3>
+                      <p className="text-xs">
                         {promo.type === 'discount-code' ? 'كود خصم' : 'اشتري واحصل'}
                       </p>
                     </div>
@@ -429,24 +412,24 @@ export default function PromotionsPage() {
                 <div className="space-y-3 mb-4">
                   {promo.type === 'discount-code' && (
                     <>
-                      <div className="flex items-center justify-between bg-background/50 rounded-lg p-3">
-                        <span className="text-sm text-muted-foreground">الكود</span>
-                        <span className="font-mono font-bold text-primary text-lg">
+                      <div className="flex items-center justify-between admin-card rounded-lg p-3">
+                        <span className="text-sm">الكود</span>
+                        <span className="font-mono font-bold text-lg">
                           {promo.code}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         {promo.discountType === 'percent' ? (
-                          <Percent className="w-4 h-4 text-muted-foreground" />
+                          <Percent className="w-4 h-4" />
                         ) : (
-                          <DollarSign className="w-4 h-4 text-muted-foreground" />
+                          <DollarSign className="w-4 h-4" />
                         )}
-                        <span className="text-sm text-foreground">
+                        <span className="text-sm">
                           خصم {promo.value} {promo.discountType === 'percent' ? '%' : 'ريال'}
                         </span>
                       </div>
                       {promo.minPurchaseAmount && promo.minPurchaseAmount > 0 && (
-                        <div className="text-sm text-muted-foreground">
+                        <div className="text-sm">
                           الحد الأدنى: {promo.minPurchaseAmount} ريال
                         </div>
                       )}
@@ -455,19 +438,19 @@ export default function PromotionsPage() {
 
                   {promo.type === 'buy-x-get-y' && (
                     <>
-                      <div className="bg-background/50 rounded-lg p-3">
-                        <p className="text-sm font-medium text-foreground">
+                      <div className="admin-card rounded-lg p-3">
+                        <p className="text-sm font-medium">
                           اشتري {promo.buyQty} واحصل على {promo.getQty} مجاناً
                         </p>
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm">
                         {promo.applicableItems?.length || 0} منتج مؤهل
                       </div>
                     </>
                   )}
 
                   {/* Date Range */}
-                  <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-start gap-2 text-xs">
                     <Calendar className="w-4 h-4 mt-0.5" />
                     <div>
                       <div>من: {formatDate(promo.startDate)}</div>
@@ -476,7 +459,7 @@ export default function PromotionsPage() {
                   </div>
 
                   {/* Usage Stats */}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 text-xs">
                     <TrendingUp className="w-4 h-4" />
                     <span>
                       {promo.usageCount} استخدام
@@ -486,17 +469,17 @@ export default function PromotionsPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 pt-4 border-t border-card-foreground/10">
+                <div className="flex items-center gap-2 pt-4 border-t">
                   <button
                     onClick={() => router.push(`/admin/promotions/${promo._id}`)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary py-2 px-4 rounded-lg text-sm font-medium transition-all"
+                    className="admin-button flex-1"
                   >
                     <Edit className="w-4 h-4" />
                     تعديل
                   </button>
                   <button
                     onClick={() => handleDelete(promo._id)}
-                    className="flex items-center justify-center bg-red-500/10 hover:bg-red-500/20 text-red-400 p-2 rounded-lg transition-all"
+                    className="admin-button"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -506,6 +489,7 @@ export default function PromotionsPage() {
           )}
         </div>
       </div>
+      {ConfirmationComponent}
     </div>
   );
 }

@@ -3,19 +3,35 @@
  *
  * Use these functions to clear client-side localStorage cache
  * when admin makes changes that should reflect on the public menu.
+ *
+ * Admin and public routes use SEPARATE cache keys to prevent interference.
  */
 
+// Public menu cache keys (used by customers)
 export const CACHE_KEYS = {
-  MENU_ITEMS: 'menu_items_cache_v1',
-  MENU_CATEGORIES: 'menu_categories_cache_v1',
-  INGREDIENTS: 'ingredients_cache_v1',
-  MODIFIERS: 'modifiers_cache_v1',
-  OFFERS: 'offers_cache_v1',
-  PROMOTIONS: 'promotions_cache_v1',
+  MENU_ITEMS: 'public_menu_items_v1',
+  MENU_CATEGORIES: 'public_menu_categories_v1',
+  INGREDIENTS: 'public_ingredients_v1',
+  MODIFIERS: 'public_modifiers_v1',
+  OFFERS: 'public_offers_v1',
+  PROMOTIONS: 'public_promotions_v1',
+};
+
+// Admin cache keys (completely separate from public)
+export const ADMIN_CACHE_KEYS = {
+  MENU_ITEMS: 'admin_menu_items_v1',
+  MENU_CATEGORIES: 'admin_menu_categories_v1',
+  INGREDIENTS: 'admin_ingredients_v1',
+  MODIFIERS: 'admin_modifiers_v1',
+  OFFERS: 'admin_offers_v1',
+  PROMOTIONS: 'admin_promotions_v1',
+  INVENTORY: 'admin_inventory_v1',
+  MATERIALS: 'admin_materials_v1',
 };
 
 /**
- * Clear all menu-related cache
+ * Clear all PUBLIC menu-related cache
+ * Use this in admin after making changes to invalidate customer cache
  */
 export function clearAllMenuCache() {
   if (typeof window === 'undefined') return;
@@ -24,7 +40,21 @@ export function clearAllMenuCache() {
     localStorage.removeItem(key);
   });
 
-  console.log('🗑️ All menu cache cleared');
+  console.log('🗑️ All PUBLIC menu cache cleared');
+}
+
+/**
+ * Clear all ADMIN cache
+ * Use this when admin data needs refresh
+ */
+export function clearAllAdminCache() {
+  if (typeof window === 'undefined') return;
+
+  Object.values(ADMIN_CACHE_KEYS).forEach(key => {
+    localStorage.removeItem(key);
+  });
+
+  console.log('🗑️ All ADMIN cache cleared');
 }
 
 /**

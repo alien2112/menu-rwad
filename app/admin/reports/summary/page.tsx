@@ -41,7 +41,7 @@ export default function SummaryReportPage() {
   }
 
   if (error) {
-    return <div className="p-8 text-red-500">Error: {error}</div>;
+    return <div className="p-8" style={{ color: '#dc2626' }}>Error: {error}</div>;
   }
 
   if (!report) {
@@ -49,39 +49,39 @@ export default function SummaryReportPage() {
   }
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Sales Summary Report</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">Sales Summary Report</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Total Revenue</h2>
-          <p className="text-3xl font-bold text-green-600">{report.totalRevenue.toFixed(2)} SAR</p>
+        <div className="admin-card p-6 rounded-lg">
+          <h2 className="text-lg font-semibold">Total Revenue</h2>
+          <p className="text-3xl font-bold">{report.totalRevenue.toFixed(2)} SAR</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Total Orders</h2>
-          <p className="text-3xl font-bold text-blue-600">{report.totalOrders}</p>
+        <div className="admin-card p-6 rounded-lg">
+          <h2 className="text-lg font-semibold">Total Orders</h2>
+          <p className="text-3xl font-bold">{report.totalOrders}</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold text-gray-600">Average Order Value</h2>
-          <p className="text-3xl font-bold text-purple-600">{report.averageOrderValue.toFixed(2)} SAR</p>
+        <div className="admin-card p-6 rounded-lg">
+          <h2 className="text-lg font-semibold">Average Order Value</h2>
+          <p className="text-3xl font-bold">{report.averageOrderValue.toFixed(2)} SAR</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Top Selling Items</h2>
+        <div className="admin-card p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">Top Selling Items</h2>
           <ul className="space-y-2">
             {report.topSellingItems.map((item, index) => (
-              <li key={index} className="flex justify-between items-center bg-gray-50 p-3 rounded-md">
-                <span className="font-medium text-gray-700">{item.name}</span>
-                <span className="font-bold text-gray-900">{item.quantity} sold</span>
+              <li key={index} className="flex justify-between items-center admin-card p-3 rounded-md">
+                <span className="font-medium">{item.name}</span>
+                <span className="font-bold">{item.quantity} sold</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Sales by Hour</h2>
+        <div className="admin-card p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-4">Sales by Hour</h2>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={report.salesByHour}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -89,7 +89,7 @@ export default function SummaryReportPage() {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="orders" fill="#8884d8" />
+              <Bar dataKey="orders" fill="var(--highlight)" />
             </BarChart>
           </ResponsiveContainer>
         </div>

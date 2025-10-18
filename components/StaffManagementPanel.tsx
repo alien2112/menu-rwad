@@ -25,7 +25,7 @@ import {
   Download,
   RefreshCw,
   Settings,
-  UserCheck,
+  UserCheck, 
   UserX,
   Star,
   Clock3
@@ -249,19 +249,19 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-green-500/20 rounded-xl">
-            <Users className="w-6 h-6 text-green-400" />
+          <div className="p-3 admin-card rounded-xl">
+            <Users className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-white">إدارة الموظفين</h2>
-            <p className="text-white/70">إدارة شاملة لفريق العمل</p>
+            <h2 className="text-2xl font-bold">إدارة الموظفين</h2>
+            <p>إدارة شاملة لفريق العمل</p>
           </div>
         </div>
         
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+            className="admin-button"
           >
             <UserPlus className="w-4 h-4" />
             إضافة موظف
@@ -270,7 +270,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
           <button
             onClick={onRefresh}
             disabled={loading}
-            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors disabled:opacity-50"
+            className="admin-button"
           >
             <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -279,78 +279,78 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/70 text-sm">إجمالي الموظفين</p>
-              <p className="text-2xl font-bold text-white">{totalStaff}</p>
+              <p className="text-sm">إجمالي الموظفين</p>
+              <p className="text-2xl font-bold">{totalStaff}</p>
             </div>
-            <div className="p-3 bg-blue-500/20 rounded-xl">
-              <Users className="w-6 h-6 text-blue-400" />
+            <div className="p-3 admin-card rounded-xl">
+              <Users className="w-6 h-6" />
             </div>
           </div>
         </div>
         
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/70 text-sm">الموظفين النشطين</p>
-              <p className="text-2xl font-bold text-white">{activeStaff}</p>
+              <p className="text-sm">الموظفين النشطين</p>
+              <p className="text-2xl font-bold">{activeStaff}</p>
             </div>
-            <div className="p-3 bg-green-500/20 rounded-xl">
-              <UserCheck className="w-6 h-6 text-green-400" />
+            <div className="p-3 admin-card rounded-xl">
+              <UserCheck className="w-6 h-6" />
             </div>
           </div>
         </div>
         
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/70 text-sm">متصل الآن</p>
-              <p className="text-2xl font-bold text-white">{onlineStaff}</p>
+              <p className="text-sm">متصل الآن</p>
+              <p className="text-2xl font-bold">{onlineStaff}</p>
             </div>
-            <div className="p-3 bg-purple-500/20 rounded-xl">
-              <Activity className="w-6 h-6 text-purple-400" />
+            <div className="p-3 admin-card rounded-xl">
+              <Activity className="w-6 h-6" />
             </div>
           </div>
         </div>
         
-        <div className="glass-effect rounded-2xl p-6">
+        <div className="admin-card rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-white/70 text-sm">متوسط الأداء</p>
-              <p className="text-2xl font-bold text-white">{averagePerformance.toFixed(1)}%</p>
+              <p className="text-sm">متوسط الأداء</p>
+              <p className="text-2xl font-bold">{averagePerformance.toFixed(1)}%</p>
             </div>
-            <div className="p-3 bg-orange-500/20 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-orange-400" />
+            <div className="p-3 admin-card rounded-xl">
+              <TrendingUp className="w-6 h-6" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="glass-effect rounded-2xl p-6">
+      <div className="admin-card rounded-2xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm text-white/70 mb-2">البحث</label>
+            <label className="block text-sm mb-2">البحث</label>
             <div className="relative">
-              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="البحث في الموظفين..."
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 pr-10 text-white placeholder-white/50 focus:outline-none focus:border-blue-500"
+                className="admin-input w-full pr-10"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm text-white/70 mb-2">الدور</label>
+            <label className="block text-sm mb-2">الدور</label>
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+              className="admin-input w-full"
             >
               <option value="">جميع الأدوار</option>
               {roleOptions.map(option => (
@@ -362,11 +362,11 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
           </div>
           
           <div>
-            <label className="block text-sm text-white/70 mb-2">الحالة</label>
+            <label className="block text-sm mb-2">الحالة</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+              className="admin-input w-full"
             >
               <option value="">جميع الحالات</option>
               {statusOptions.map(option => (
@@ -380,51 +380,32 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
       </div>
 
       {/* Staff List */}
-      <div className="glass-effect rounded-2xl p-6">
+      <div className="admin-card rounded-2xl p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white">قائمة الموظفين ({filteredStaff.length})</h3>
+          <h3 className="text-lg font-bold">قائمة الموظفين ({filteredStaff.length})</h3>
         </div>
 
         <div className="space-y-3">
           {filteredStaff.map((member) => (
             <div
-              key={member.id}
-              className="flex items-center gap-4 p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+              key={member._id || member.id}
+              className="flex items-center gap-4 p-4 admin-card rounded-lg"
             >
               <div className="flex-shrink-0">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  getRoleColor(member.role) === 'purple' ? 'bg-purple-500/20' :
-                  getRoleColor(member.role) === 'red' ? 'bg-red-500/20' :
-                  getRoleColor(member.role) === 'blue' ? 'bg-blue-500/20' :
-                  'bg-green-500/20'
-                }`}>
-                  <Users className={`w-6 h-6 ${
-                    getRoleColor(member.role) === 'purple' ? 'text-purple-400' :
-                    getRoleColor(member.role) === 'red' ? 'text-red-400' :
-                    getRoleColor(member.role) === 'blue' ? 'text-blue-400' :
-                    'text-green-400'
-                  }`} />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center`}>
+                  <Users className={`w-6 h-6`} />
                 </div>
               </div>
               
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-1">
-                  <h4 className="text-white font-bold">{member.name}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    getRoleColor(member.role) === 'purple' ? 'bg-purple-500/20 text-purple-400' :
-                    getRoleColor(member.role) === 'red' ? 'bg-red-500/20 text-red-400' :
-                    getRoleColor(member.role) === 'blue' ? 'bg-blue-500/20 text-blue-400' :
-                    'bg-green-500/20 text-green-400'
-                  }`}>
+                  <h4 className="font-bold">{member.name}</h4>
+                  <span className={`px-2 py-1 rounded-full text-xs`}>
                     {roleOptions.find(opt => opt.value === member.role)?.label}
                   </span>
                   
                   {member.activity?.status && (
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      getStatusColor(member.activity.status) === 'green' ? 'bg-green-500/20 text-green-400' :
-                      getStatusColor(member.activity.status) === 'gray' ? 'bg-gray-500/20 text-gray-400' :
-                      'bg-orange-500/20 text-orange-400'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs`}>
                       {statusOptions.find(opt => opt.value === member.activity.status)?.label}
                     </span>
                   )}
@@ -436,7 +417,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   )}
                 </div>
                 
-                <div className="flex items-center gap-4 text-sm text-white/60">
+                <div className="flex items-center gap-4 text-sm">
                   <span>@{member.username}</span>
                   {member.lastLogin && (
                     <span className="flex items-center gap-1">
@@ -447,7 +428,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   {member.performance && (
                     <span className="flex items-center gap-1">
                       <Star className="w-3 h-3" />
-                      تقييم: {member.performance.rating.toFixed(1)}
+                      تقييم: {member.performance.rating.toFixed(1)}/5
                     </span>
                   )}
                 </div>
@@ -456,7 +437,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => openPerformanceModal(member)}
-                  className="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-colors"
+                  className="admin-button"
                   title="عرض الأداء"
                 >
                   <BarChart3 className="w-4 h-4" />
@@ -464,7 +445,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                 
                 <button
                   onClick={() => openEditModal(member)}
-                  className="p-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg transition-colors"
+                  className="admin-button"
                   title="تعديل"
                 >
                   <Edit className="w-4 h-4" />
@@ -472,7 +453,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                 
                 <button
                   onClick={() => handleToggleStatus(member.id)}
-                  className={`p-2 rounded-lg transition-colors ${
+                  className={`admin-button ${
                     member.isActive 
                       ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400' 
                       : 'bg-green-500/20 hover:bg-green-500/30 text-green-400'
@@ -484,7 +465,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                 
                 <button
                   onClick={() => handleDeleteStaff(member.id)}
-                  className="p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg transition-colors"
+                  className="admin-button"
                   title="حذف"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -498,52 +479,52 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
       {/* Add Staff Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-effect rounded-2xl p-6 max-w-md w-full mx-4">
+          <div className="admin-card rounded-2xl p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
-              <UserPlus className="w-6 h-6 text-green-400" />
-              <h3 className="text-lg font-bold text-white">إضافة موظف جديد</h3>
+              <UserPlus className="w-6 h-6" />
+              <h3 className="text-lg font-bold">إضافة موظف جديد</h3>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-white/70 mb-2">اسم المستخدم</label>
+                <label className="block text-sm mb-2">اسم المستخدم</label>
                 <input
                   type="text"
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                   placeholder="اسم المستخدم"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">الاسم الكامل</label>
+                <label className="block text-sm mb-2">الاسم الكامل</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                   placeholder="الاسم الكامل"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">كلمة المرور</label>
+                <label className="block text-sm mb-2">كلمة المرور</label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                   placeholder="كلمة المرور"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">الدور</label>
+                <label className="block text-sm mb-2">الدور</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 >
                   {roleOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -557,7 +538,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
             <div className="flex items-center gap-3 mt-6">
               <button
                 onClick={handleAddStaff}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors"
+                className="admin-button flex-1"
               >
                 إضافة
               </button>
@@ -567,7 +548,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   setShowAddModal(false);
                   resetForm();
                 }}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors"
+                className="admin-button flex-1"
               >
                 إلغاء
               </button>
@@ -579,50 +560,50 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
       {/* Edit Staff Modal */}
       {showEditModal && selectedStaff && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-effect rounded-2xl p-6 max-w-md w-full mx-4">
+          <div className="admin-card rounded-2xl p-6 max-w-md w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
-              <Edit className="w-6 h-6 text-yellow-400" />
-              <h3 className="text-lg font-bold text-white">تعديل الموظف</h3>
+              <Edit className="w-6 h-6" />
+              <h3 className="text-lg font-bold">تعديل الموظف</h3>
             </div>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm text-white/70 mb-2">اسم المستخدم</label>
+                <label className="block text-sm mb-2">اسم المستخدم</label>
                 <input
                   type="text"
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">الاسم الكامل</label>
+                <label className="block text-sm mb-2">الاسم الكامل</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">كلمة المرور الجديدة (اختياري)</label>
+                <label className="block text-sm mb-2">كلمة المرور الجديدة (اختياري)</label>
                 <input
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                   placeholder="اتركه فارغاً للحفاظ على كلمة المرور الحالية"
                 />
               </div>
               
               <div>
-                <label className="block text-sm text-white/70 mb-2">الدور</label>
+                <label className="block text-sm mb-2">الدور</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({...formData, role: e.target.value as any})}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="admin-input w-full"
                 >
                   {roleOptions.map(option => (
                     <option key={option.value} value={option.value}>
@@ -638,16 +619,16 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-                  className="w-4 h-4 text-blue-600 bg-white/10 border-white/20 rounded focus:ring-blue-500"
+                  className="w-4 h-4 rounded"
                 />
-                <label htmlFor="isActive" className="text-white/70">نشط</label>
+                <label htmlFor="isActive">نشط</label>
               </div>
             </div>
             
             <div className="flex items-center gap-3 mt-6">
               <button
                 onClick={handleUpdateStaff}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors"
+                className="admin-button flex-1"
               >
                 تحديث
               </button>
@@ -658,7 +639,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   setSelectedStaff(null);
                   resetForm();
                 }}
-                className="flex-1 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors"
+                className="admin-button flex-1"
               >
                 إلغاء
               </button>
@@ -670,77 +651,77 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
       {/* Performance Modal */}
       {showPerformanceModal && selectedStaff && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="glass-effect rounded-2xl p-6 max-w-2xl w-full mx-4">
+          <div className="admin-card rounded-2xl p-6 max-w-2xl w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
-              <BarChart3 className="w-6 h-6 text-blue-400" />
-              <h3 className="text-lg font-bold text-white">أداء الموظف - {selectedStaff.name}</h3>
+              <BarChart3 className="w-6 h-6" />
+              <h3 className="text-lg font-bold">أداء الموظف - {selectedStaff.name}</h3>
             </div>
             
             {selectedStaff.performance ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <h4 className="text-white font-bold mb-2">إحصائيات الطلبات</h4>
+                  <div className="admin-card rounded-lg p-4">
+                    <h4 className="font-bold mb-2">إحصائيات الطلبات</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-white/70">إجمالي الطلبات:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.totalOrders}</span>
+                        <span>إجمالي الطلبات:</span>
+                        <span className="font-bold">{selectedStaff.performance.totalOrders}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">المهام المكتملة:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.tasksCompleted}</span>
+                        <span>المهام المكتملة:</span>
+                        <span className="font-bold">{selectedStaff.performance.tasksCompleted}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">المهام المعلقة:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.tasksPending}</span>
+                        <span>المهام المعلقة:</span>
+                        <span className="font-bold">{selectedStaff.performance.tasksPending}</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <h4 className="text-white font-bold mb-2">الإيرادات</h4>
+                  <div className="admin-card rounded-lg p-4">
+                    <h4 className="font-bold mb-2">الإيرادات</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-white/70">إجمالي الإيرادات:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.totalRevenue.toFixed(2)} ر.س</span>
+                        <span>إجمالي الإيرادات:</span>
+                        <span className="font-bold">{selectedStaff.performance.totalRevenue.toFixed(2)} ر.س</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">متوسط قيمة الطلب:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.averageOrderValue.toFixed(2)} ر.س</span>
+                        <span>متوسط قيمة الطلب:</span>
+                        <span className="font-bold">{selectedStaff.performance.averageOrderValue.toFixed(2)} ر.س</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <h4 className="text-white font-bold mb-2">الأداء</h4>
+                  <div className="admin-card rounded-lg p-4">
+                    <h4 className="font-bold mb-2">الأداء</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-white/70">الكفاءة:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.efficiency.toFixed(1)}%</span>
+                        <span>الكفاءة:</span>
+                        <span className="font-bold">{selectedStaff.performance.efficiency.toFixed(1)}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">التقييم:</span>
-                        <span className="text-white font-bold">{selectedStaff.performance.rating.toFixed(1)}/5</span>
+                        <span>التقييم:</span>
+                        <span className="font-bold">{selectedStaff.performance.rating.toFixed(1)}/5</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-white/5 rounded-lg p-4">
-                    <h4 className="text-white font-bold mb-2">النشاط</h4>
+                  <div className="admin-card rounded-lg p-4">
+                    <h4 className="font-bold mb-2">النشاط</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-white/70">عدد مرات الدخول:</span>
-                        <span className="text-white font-bold">{selectedStaff.activity?.loginCount || 0}</span>
+                        <span>عدد مرات الدخول:</span>
+                        <span className="font-bold">{selectedStaff.activity?.loginCount || 0}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">ساعات العمل:</span>
-                        <span className="text-white font-bold">{selectedStaff.activity?.hoursWorked || 0} ساعة</span>
+                        <span>ساعات العمل:</span>
+                        <span className="font-bold">{selectedStaff.activity?.hoursWorked || 0} ساعة</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-white/70">آخر نشاط:</span>
-                        <span className="text-white font-bold">
+                        <span>آخر نشاط:</span>
+                        <span className="font-bold">
                           {selectedStaff.activity?.lastActivity ? 
                             new Date(selectedStaff.activity.lastActivity).toLocaleDateString('ar-SA') : 
                             'غير محدد'
@@ -753,8 +734,8 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
               </div>
             ) : (
               <div className="text-center p-8">
-                <AlertTriangle className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-                <p className="text-white/70">لا توجد بيانات أداء متاحة لهذا الموظف</p>
+                <AlertTriangle className="w-16 h-16 mx-auto mb-4" />
+                <p>لا توجد بيانات أداء متاحة لهذا الموظف</p>
               </div>
             )}
             
@@ -764,7 +745,7 @@ export default function StaffManagementPanel({ onRefresh, loading = false }: Sta
                   setShowPerformanceModal(false);
                   setSelectedStaff(null);
                 }}
-                className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors"
+                className="admin-button"
               >
                 إغلاق
               </button>
