@@ -103,19 +103,19 @@ export default function SummaryReportPage() {
         <div className="admin-card p-6 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Top Selling Items</h2>
           <ul className="space-y-2">
-            {report.topSellingItems.map((item, index) => (
+            {report.topSellingItems?.map((item, index) => (
               <li key={index} className="flex justify-between items-center admin-card p-3 rounded-md">
                 <span className="font-medium">{item.name}</span>
                 <span className="font-bold">{item.quantity} sold</span>
               </li>
-            ))}
+            )) || []}
           </ul>
         </div>
 
         <div className="admin-card p-6 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Sales by Hour</h2>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={report.salesByHour}>
+            <BarChart data={report.salesByHour || []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="hour" />
               <YAxis />

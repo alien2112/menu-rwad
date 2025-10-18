@@ -27,6 +27,7 @@ import {
   Printer,
   Users,
   Building2,
+  Phone,
 } from 'lucide-react';
 import './admin.css';
 
@@ -45,7 +46,7 @@ const allNavigation = [
   { name: 'البارستا', href: '/admin/barista', icon: Coffee, roles: ['admin', 'barista'] },
   { name: 'الشيشة', href: '/admin/shisha', icon: Wind, roles: ['admin', 'shisha'] },
   { name: 'إدارة الموظفين', href: '/admin/staff-management', icon: Users, roles: ['admin'] },
-  { name: 'إدارة المخزون', href: '/admin/storage', icon: Warehouse, roles: ['admin'] },
+  { name: 'إدارة التخزين', href: '/admin/storage', icon: Warehouse, roles: ['admin'] },
   { name: 'الإشعارات', href: '/admin/notifications', icon: Bell, roles: ['admin', 'kitchen', 'barista', 'shisha'] },
   { name: 'الأرشيف', href: '/admin/archiving', icon: Archive, roles: ['admin'] },
   { name: 'الفئات', href: '/admin/categories', icon: FolderOpen, roles: ['admin'] },
@@ -56,6 +57,7 @@ const allNavigation = [
   { name: 'إدارة الطابعات', href: '/admin/printers', icon: Printer, roles: ['admin'] },
   { name: 'وسائط الصفحة', href: '/admin/page-hero', icon: Monitor, roles: ['admin'] },
   { name: 'قالب القائمة', href: '/admin/menu-template', icon: Monitor, roles: ['admin'] },
+  { name: 'إعدادات الاتصال', href: '/admin/contact-settings', icon: Phone, roles: ['admin'] },
 ];
 
 export default function AdminLayout({

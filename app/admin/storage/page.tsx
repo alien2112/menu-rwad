@@ -10,7 +10,6 @@ import { Badge } from "@/components/admin/Badge";
 import { Alert, AlertDescription } from "@/components/admin/Alert";
 import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
 import { IIngredient } from '@/lib/models/Ingredient';
-import { UnitType, UNIT_LABELS } from '@/lib/unitConversion';
 
 interface Material {
   _id: string;
@@ -458,12 +457,12 @@ export default function StorageManagementDashboard() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={UnitType.KILOGRAM}>{UNIT_LABELS[UnitType.KILOGRAM].ar} (kg)</SelectItem>
-                        <SelectItem value={UnitType.GRAM}>{UNIT_LABELS[UnitType.GRAM].ar} (g)</SelectItem>
-                        <SelectItem value={UnitType.LITER}>{UNIT_LABELS[UnitType.LITER].ar} (l)</SelectItem>
-                        <SelectItem value={UnitType.MILLILITER}>{UNIT_LABELS[UnitType.MILLILITER].ar} (ml)</SelectItem>
-                        <SelectItem value={UnitType.PIECE}>{UNIT_LABELS[UnitType.PIECE].ar} (piece)</SelectItem>
-                        <SelectItem value={UnitType.UNIT}>{UNIT_LABELS[UnitType.UNIT].ar} (unit)</SelectItem>
+                        <SelectItem value="kg">كيلوجرام (kg)</SelectItem>
+                        <SelectItem value="g">جرام (g)</SelectItem>
+                        <SelectItem value="l">لتر (l)</SelectItem>
+                        <SelectItem value="ml">مليلتر (ml)</SelectItem>
+                        <SelectItem value="piece">قطعة (piece)</SelectItem>
+                        <SelectItem value="unit">وحدة (unit)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

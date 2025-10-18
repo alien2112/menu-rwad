@@ -71,7 +71,7 @@ export default function SSENotificationCenter({
   const displayedNotifications = notifications.slice(0, maxNotifications);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative z-[9998] ${className}`}>
       {/* Notification Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -95,7 +95,7 @@ export default function SSENotificationCenter({
 
       {/* Notification Panel */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+        <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">الإشعارات</h3>
