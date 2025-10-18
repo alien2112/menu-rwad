@@ -175,25 +175,30 @@ export default function ItemsPage() {
 
   const handleEdit = (item: IMenuItem) => {
     setEditingItem(item);
-    
+
+    console.log('📝 Editing menu item:', item.name);
+    console.log('📦 Inventory items from API:', item.inventoryItems);
+
     // Handle migration from old ingredients format to new inventoryItems format
     const formData = { ...item };
-    
+
     // If the item has old ingredients format, convert it to inventoryItems
     if ((item as any).ingredients && !item.inventoryItems) {
+      console.log('🔄 Converting old ingredients format to inventoryItems');
       formData.inventoryItems = (item as any).ingredients.map((ing: any) => ({
         inventoryItemId: ing.ingredientId,
         portion: ing.portion,
         required: ing.required
       }));
     }
-    
+
     // Ensure inventoryItems is always an array
     if (!formData.inventoryItems) {
+      console.log('⚠️ No inventoryItems found, initializing empty array');
       formData.inventoryItems = [];
     }
-    
-    console.log('Form data set for editing:', formData);
+
+    console.log('✅ Final form data with inventoryItems:', formData.inventoryItems);
     setFormData(formData);
     setShowModal(true);
   };

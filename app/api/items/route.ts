@@ -60,9 +60,14 @@ export async function GET(request: NextRequest) {
 
     // Use lean() for better performance (returns plain JS objects instead of Mongoose documents)
     // Select only fields needed for menu display (projection)
+    // For admin requests, include all fields including inventoryItems
+    const selectFields = isAdmin
+      ? 'name nameEn description descriptionEn price discountPrice cost image images color inventoryItems preparationTime calories servingSize tags allergens categoryId status featured order sizeOptions addonOptions dietaryModifications modifiers rating reviewCount'
+      : 'name nameEn description price discountPrice cost image calories preparationTime categoryId status tags allergens rating reviewCount sizeOptions addonOptions dietaryModifications featured';
+
     const items = await MenuItem
       .find(query)
-      .select('name nameEn description price discountPrice cost image calories preparationTime categoryId status tags allergens rating reviewCount sizeOptions addonOptions dietaryModifications featured')
+      .select(selectFields)
       .sort({ order: 1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
