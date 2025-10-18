@@ -56,7 +56,6 @@ const allNavigation = [
   { name: 'الأرشيف', href: '/admin/archiving', icon: Archive, roles: ['admin'] },
   { name: 'الفئات', href: '/admin/categories', icon: FolderOpen, roles: ['admin'] },
   { name: 'المنتجات', href: '/admin/items', icon: Package, roles: ['admin'] },
-  { name: 'المكونات', href: '/admin/ingredients', icon: Leaf, roles: ['admin'] },
   { name: 'التحليلات', href: '/admin/analytics', icon: BarChart3, roles: ['admin'] },
   { name: 'الضرائب والامتثال', href: '/admin/tax-compliance', icon: Calculator, roles: ['admin'] },
   { name: 'إدارة الطابعات', href: '/admin/printers', icon: Printer, roles: ['admin'] },

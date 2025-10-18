@@ -145,3 +145,4 @@ export const CustomAlert: React.FC<AlertProps> = ({
 };
 
 export default CustomAlert;
+

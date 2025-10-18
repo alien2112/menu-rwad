@@ -1,9 +1,15 @@
+/**
+ * @deprecated MATERIAL API ROUTES - NO LONGER IN USE
+ * Use /api/inventory endpoints instead
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Material from '@/lib/models/Material';
 import MaterialUsage from '@/lib/models/MaterialUsage';
 
 // GET /api/materials/[id] - Get single material with usage history
+// @deprecated - Use /api/inventory instead
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

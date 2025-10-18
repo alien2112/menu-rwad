@@ -1,6 +1,17 @@
 import mongoose, { Schema, Model } from 'mongoose';
 import { UnitType } from '../unitConversion';
 
+/**
+ * @deprecated This model is NO LONGER IN USE
+ * The system now uses InventoryItem model (lib/models/Inventory.ts) directly
+ * Menu items link directly to InventoryItem without Material intermediary
+ *
+ * This model is kept for:
+ * - Backward compatibility with existing data
+ * - Historical records and analytics
+ *
+ * DO NOT USE for new features - use InventoryItem instead
+ */
 export interface IMaterial {
   _id?: string;
   name: string;

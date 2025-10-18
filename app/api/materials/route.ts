@@ -1,3 +1,13 @@
+/**
+ * @deprecated MATERIAL API ROUTES - NO LONGER IN USE
+ *
+ * The system now uses /api/inventory endpoints instead.
+ * These routes are kept for backward compatibility only.
+ *
+ * DO NOT USE - Use /api/inventory for all inventory operations
+ * See: app/api/inventory/route.ts
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Material from '@/lib/models/Material';
@@ -7,6 +17,7 @@ import InventoryItem from '@/lib/models/Inventory';
 import { convertUnit } from '@/lib/unitConversion';
 
 // GET /api/materials - Get all materials with filtering and pagination
+// @deprecated - Use /api/inventory instead
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();

@@ -1,9 +1,24 @@
 import mongoose, { Schema, Model } from 'mongoose';
 
+/**
+ * MaterialUsage - Tracks inventory consumption for analytics and reporting
+ *
+ * NOTE: Despite the name "Material", this model tracks INVENTORY ITEM usage
+ * - materialId = inventoryItem.ingredientId (for backward compatibility)
+ * - materialName = inventoryItem.ingredientName
+ *
+ * This model is ACTIVELY USED for:
+ * - Order tracking and history
+ * - Analytics and reporting
+ * - Consumption patterns analysis
+ * - Archive operations
+ *
+ * DO NOT REMOVE - This is a critical part of the analytics system
+ */
 export interface IMaterialUsage {
   _id?: string;
-  materialId: string;
-  materialName: string;
+  materialId: string; // Actually stores inventoryItem.ingredientId
+  materialName: string; // Actually stores inventoryItem.ingredientName
   quantityUsed: number;
   unit: string;
   orderId?: string;
