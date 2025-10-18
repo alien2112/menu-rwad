@@ -487,7 +487,7 @@ export default function ItemsPage() {
                 {[
                   { key: 'basic', label: 'الأساسي' },
                   { key: 'images', label: 'الصور' },
-                  { key: 'ingredients', label: 'المكونات' },
+                  { key: 'ingredients', label: 'المكونات من المخزون' },
                   { key: 'modifiers', label: 'المعدلات' },
                   { key: 'more', label: 'معلومات إضافية' },
                   { key: 'settings', label: 'الإعدادات' },
@@ -636,6 +636,17 @@ export default function ItemsPage() {
                   </button>
                 </div>
 
+                {Array.isArray(inventoryItems) && inventoryItems.length === 0 && (
+                  <div className="admin-card rounded-xl p-4 text-center">
+                    <p className="mb-2">لا توجد عناصر مخزون متاحة</p>
+                    <p className="text-sm">
+                      <a href="/admin/inventory" className="text-highlight hover:underline">
+                        قم بإضافة عناصر للمخزون أولاً
+                      </a>
+                    </p>
+                  </div>
+                )}
+                
                 <div className="space-y-3">
                   {formData.inventoryItems?.map((item, index) => (
                     <div key={index} className="admin-card rounded-xl p-4">
@@ -647,11 +658,15 @@ export default function ItemsPage() {
                             className="admin-input w-full"
                           >
                             <option value="">اختر عنصر المخزون</option>
-                            {inventoryItems.map((invItem) => (
-                              <option key={invItem._id} value={invItem._id}>
-                                {invItem.ingredientName} ({invItem.unit}) - {invItem.currentStock} متوفر
-                              </option>
-                            ))}
+                            {Array.isArray(inventoryItems) && inventoryItems.length > 0 ? (
+                              inventoryItems.map((invItem) => (
+                                <option key={invItem._id} value={invItem._id}>
+                                  {invItem.ingredientName} ({invItem.unit}) - {invItem.currentStock} متوفر
+                                </option>
+                              ))
+                            ) : (
+                              <option value="" disabled>لا توجد عناصر مخزون متاحة</option>
+                            )}
                           </select>
                         </div>
 
