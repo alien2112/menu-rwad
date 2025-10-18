@@ -8,7 +8,8 @@ import { Label } from "@/components/admin/Label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/admin/Select";
 import { Badge } from "@/components/admin/Badge";
 import { Alert, AlertDescription } from "@/components/admin/Alert";
-import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
+import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp, Edit, X } from "lucide-react";
+import { useAlert } from '@/components/ui/alerts';
 
 interface Material {
   _id: string;
@@ -39,6 +40,15 @@ export default function StorageManagementDashboard() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    currentStock: 0,
+    minStockLevel: 0,
+    maxStockLevel: 0
+  });
+
+  const { showSuccess, showError } = useAlert();
 
   // New material form state
   const [newMaterial, setNewMaterial] = useState({
@@ -143,8 +153,10 @@ export default function StorageManagementDashboard() {
         },
         body: JSON.stringify(newMaterial),
       });
-      
-      if (response.ok) {
+
+      const data = await response.json();
+
+      if (data.success) {
         setNewMaterial({
           ingredientId: '',
           ingredientName: '',
@@ -157,27 +169,66 @@ export default function StorageManagementDashboard() {
         });
         setShowAddForm(false);
         fetchMaterials();
+        showSuccess('تم إضافة المادة بنجاح');
+      } else {
+        showError(data.error || 'فشل في إضافة المادة');
       }
     } catch (error) {
       console.error('Error adding material:', error);
+      showError('حدث خطأ أثناء إضافة المادة');
     }
   };
 
-  const handleUpdateQuantity = async (materialId: string, newQuantity: number) => {
+  const handleOpenEditModal = (material: Material) => {
+    setEditingMaterial(material);
+    setEditFormData({
+      currentStock: material.currentStock,
+      minStockLevel: material.minStockLevel,
+      maxStockLevel: material.maxStockLevel
+    });
+    setShowEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingMaterial(null);
+    setEditFormData({
+      currentStock: 0,
+      minStockLevel: 0,
+      maxStockLevel: 0
+    });
+  };
+
+  const handleUpdateMaterial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMaterial) return;
+
     try {
-      const response = await fetch(`/api/materials/${materialId}`, {
-        method: 'PATCH',
+      const response = await fetch('/api/inventory', {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ currentQuantity: newQuantity }),
+        body: JSON.stringify({
+          id: editingMaterial._id,
+          currentStock: editFormData.currentStock,
+          minStockLevel: editFormData.minStockLevel,
+          maxStockLevel: editFormData.maxStockLevel
+        }),
       });
-      
-      if (response.ok) {
+
+      const data = await response.json();
+
+      if (data.success) {
         fetchMaterials();
+        handleCloseEditModal();
+        showSuccess('تم تحديث المادة بنجاح');
+      } else {
+        showError(data.error || 'فشل في تحديث المادة');
       }
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      console.error('Error updating material:', error);
+      showError('حدث خطأ أثناء تحديث المادة');
     }
   };
 
@@ -467,14 +518,10 @@ export default function StorageManagementDashboard() {
                     <td className="p-3 text-sm">{material.unit}</td>
                     <td className="p-3">
                       <Button
-                        className="text-xs px-2 py-1"
-                        onClick={() => {
-                          const newQty = prompt('Enter new quantity:', material.currentStock.toString());
-                          if (newQty !== null) {
-                            handleUpdateQuantity(material._id, Number(newQty));
-                          }
-                        }}
+                        className="text-xs px-2 py-1 flex items-center gap-1"
+                        onClick={() => handleOpenEditModal(material)}
                       >
+                        <Edit className="w-3 h-3" />
                         Update
                       </Button>
                     </td>
@@ -528,6 +575,126 @@ export default function StorageManagementDashboard() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {/* Edit Material Modal */}
+      {showEditModal && editingMaterial && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-content">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>تحديث المخزون - {editingMaterial.ingredientName}</CardTitle>
+              <Button
+                onClick={handleCloseEditModal}
+                className="w-8 h-8 p-0 rounded-full"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateMaterial} className="space-y-4">
+                <div className="admin-card rounded-xl p-4 bg-muted/30">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="font-semibold">ID:</span> {editingMaterial.ingredientId}
+                    </div>
+                    <div>
+                      <span className="font-semibold">Unit:</span> {editingMaterial.unit}
+                    </div>
+                    <div className="col-span-2">
+                      <span className="font-semibold">Current Status:</span>{' '}
+                      <Badge className={`${getStatusColor(editingMaterial.status)} text-xs ml-2`}>
+                        {editingMaterial.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="edit-currentStock">
+                      Current Stock ({editingMaterial.unit}) *
+                    </Label>
+                    <Input
+                      id="edit-currentStock"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editFormData.currentStock}
+                      onChange={(e) => setEditFormData({
+                        ...editFormData,
+                        currentStock: Number(e.target.value)
+                      })}
+                      required
+                      className="text-lg font-semibold"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-minStockLevel">
+                      Min Stock Level *
+                    </Label>
+                    <Input
+                      id="edit-minStockLevel"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editFormData.minStockLevel}
+                      onChange={(e) => setEditFormData({
+                        ...editFormData,
+                        minStockLevel: Number(e.target.value)
+                      })}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-maxStockLevel">
+                      Max Stock Level *
+                    </Label>
+                    <Input
+                      id="edit-maxStockLevel"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={editFormData.maxStockLevel}
+                      onChange={(e) => setEditFormData({
+                        ...editFormData,
+                        maxStockLevel: Number(e.target.value)
+                      })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Preview new status */}
+                <div className="admin-card rounded-xl p-4 bg-blue-500/10 border border-blue-500/30">
+                  <div className="text-sm">
+                    <span className="font-semibold">New Status Preview:</span>{' '}
+                    {editFormData.currentStock <= 0 ? (
+                      <Badge className="bg-red-500 text-xs ml-2">out_of_stock</Badge>
+                    ) : editFormData.currentStock <= editFormData.minStockLevel ? (
+                      <Badge className="bg-yellow-500 text-xs ml-2">low_stock</Badge>
+                    ) : (
+                      <Badge className="bg-green-500 text-xs ml-2">in_stock</Badge>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 pt-4 border-t">
+                  <Button type="submit" className="w-full sm:w-auto">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Update Material
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCloseEditModal}
+                    className="w-full sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );

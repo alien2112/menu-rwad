@@ -625,84 +625,177 @@ export default function ItemsPage() {
               {activeTab === 'ingredients' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">المكونات من المخزون</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold">المكونات من المخزون</h3>
+                    <p className="text-sm mt-1">
+                      قم بربط المنتج بمكونات المخزون للتحكم الآلي في الكميات
+                    </p>
+                  </div>
                   <button
                     type="button"
                     onClick={addInventoryItem}
                     className="admin-button"
                   >
                     <Plus size={16} />
-                    إضافة عنصر مخزون
+                    إضافة مكون
                   </button>
                 </div>
 
                 {Array.isArray(inventoryItems) && inventoryItems.length === 0 && (
-                  <div className="admin-card rounded-xl p-4 text-center">
-                    <p className="mb-2">لا توجد عناصر مخزون متاحة</p>
-                    <p className="text-sm">
-                      <a href="/admin/inventory" className="text-highlight hover:underline">
-                        قم بإضافة عناصر للمخزون أولاً
-                      </a>
+                  <div className="admin-card rounded-xl p-6 text-center border-2 border-dashed">
+                    <p className="mb-2 font-medium">لا توجد عناصر مخزون متاحة</p>
+                    <p className="text-sm mb-4">
+                      قم بإضافة عناصر للمخزون أولاً لربطها بالمنتجات
+                    </p>
+                    <a
+                      href="/admin/inventory"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-button inline-flex items-center gap-2"
+                    >
+                      <Plus size={16} />
+                      إدارة المخزون
+                    </a>
+                  </div>
+                )}
+
+                {/* Summary card */}
+                {formData.inventoryItems && formData.inventoryItems.length > 0 && (
+                  <div className="admin-card rounded-xl p-4 bg-blue-500/10 border border-blue-500/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">المكونات المرتبطة:</span>
+                        <span className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold">
+                          {formData.inventoryItems.length}
+                        </span>
+                      </div>
+                      <span className="text-xs">
+                        عند بيع هذا المنتج سيتم خصم المكونات تلقائياً
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-3">
+                  {formData.inventoryItems?.map((item, index) => {
+                    const selectedInventoryItem = inventoryItems.find(i => i._id === item.inventoryItemId);
+                    const stockStatus = selectedInventoryItem?.status || 'in_stock';
+                    const stockColor =
+                      stockStatus === 'out_of_stock' ? 'text-red-400 bg-red-500/20 border-red-500/30' :
+                      stockStatus === 'low_stock' ? 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30' :
+                      'text-green-400 bg-green-500/20 border-green-500/30';
+                    const stockIcon =
+                      stockStatus === 'out_of_stock' ? '⚠️' :
+                      stockStatus === 'low_stock' ? '⚡' :
+                      '✓';
+
+                    return (
+                      <div key={index} className="admin-card rounded-xl p-4 border-2 border-border-color hover:border-highlight transition-all">
+                        <div className="space-y-3">
+                          {/* Material selection with stock status */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-xs font-semibold mb-1 block">
+                                اختر المكون
+                              </label>
+                              <select
+                                value={item.inventoryItemId}
+                                onChange={(e) => updateInventoryItem(index, 'inventoryItemId', e.target.value)}
+                                className="admin-input w-full text-sm"
+                              >
+                                <option value="">-- اختر مكون من المخزون --</option>
+                                {Array.isArray(inventoryItems) && inventoryItems.length > 0 ? (
+                                  inventoryItems.map((invItem) => {
+                                    const status = invItem.status === 'out_of_stock' ? '❌' :
+                                                  invItem.status === 'low_stock' ? '⚠️' : '✅';
+                                    return (
+                                      <option key={invItem._id} value={invItem._id}>
+                                        {status} {invItem.ingredientName} - {invItem.currentStock} {invItem.unit} متوفر
+                                      </option>
+                                    );
+                                  })
+                                ) : (
+                                  <option value="" disabled>لا توجد عناصر مخزون متاحة</option>
+                                )}
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="text-xs font-semibold mb-1 block">
+                                الكمية المستخدمة
+                                {selectedInventoryItem && ` (${selectedInventoryItem.unit})`}
+                              </label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={item.portion}
+                                onChange={(e) => updateInventoryItem(index, 'portion', parseFloat(e.target.value) || 0)}
+                                placeholder={`أدخل الكمية${selectedInventoryItem ? ` بوحدة ${selectedInventoryItem.unit}` : ''}`}
+                                className="admin-input w-full text-sm"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Stock info and controls */}
+                          {selectedInventoryItem && (
+                            <div className="flex items-center justify-between gap-3 pt-2 border-t">
+                              <div className="flex items-center gap-2 flex-1">
+                                <span className={`px-2 py-1 rounded-md text-xs font-medium border ${stockColor}`}>
+                                  {stockIcon} {selectedInventoryItem.currentStock} {selectedInventoryItem.unit}
+                                </span>
+                                <span className="text-xs">
+                                  {stockStatus === 'out_of_stock' && 'نفذ من المخزون'}
+                                  {stockStatus === 'low_stock' && `قريب من النفاذ (حد أدنى: ${selectedInventoryItem.minStockLevel})`}
+                                  {stockStatus === 'in_stock' && 'متوفر في المخزون'}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={item.required}
+                                    onChange={(e) => updateInventoryItem(index, 'required', e.target.checked)}
+                                    className="rounded"
+                                  />
+                                  مكون إجباري
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => removeInventoryItem(index)}
+                                  className="admin-button text-red-400 hover:bg-red-500/20"
+                                  title="حذف المكون"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Consumption preview */}
+                          {selectedInventoryItem && item.portion > 0 && (
+                            <div className="admin-card rounded-lg p-2 bg-muted/30 text-xs">
+                              <span>💡 عند بيع وحدة واحدة من هذا المنتج، سيتم خصم </span>
+                              <span className="font-bold text-highlight">{item.portion} {selectedInventoryItem.unit}</span>
+                              <span> من {selectedInventoryItem.ingredientName}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Empty state when no materials added yet */}
+                {(!formData.inventoryItems || formData.inventoryItems.length === 0) && inventoryItems.length > 0 && (
+                  <div className="admin-card rounded-xl p-8 text-center border-2 border-dashed">
+                    <p className="text-sm mb-2">لم يتم ربط أي مكونات بهذا المنتج بعد</p>
+                    <p className="text-xs">
+                      انقر على "إضافة مكون" لربط مكونات المخزون بهذا المنتج
                     </p>
                   </div>
                 )}
-                
-                <div className="space-y-3">
-                  {formData.inventoryItems?.map((item, index) => (
-                    <div key={index} className="admin-card rounded-xl p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                        <div className="md:col-span-2">
-                          <select
-                            value={item.inventoryItemId}
-                            onChange={(e) => updateInventoryItem(index, 'inventoryItemId', e.target.value)}
-                            className="admin-input w-full"
-                          >
-                            <option value="">اختر عنصر المخزون</option>
-                            {Array.isArray(inventoryItems) && inventoryItems.length > 0 ? (
-                              inventoryItems.map((invItem) => (
-                                <option key={invItem._id} value={invItem._id}>
-                                  {invItem.ingredientName} ({invItem.unit}) - {invItem.currentStock} متوفر
-                                </option>
-                              ))
-                            ) : (
-                              <option value="" disabled>لا توجد عناصر مخزون متاحة</option>
-                            )}
-                          </select>
-                        </div>
-
-                        <div>
-                          <input
-                            type="number"
-                            step="0.1"
-                            value={item.portion}
-                            onChange={(e) => updateInventoryItem(index, 'portion', parseFloat(e.target.value))}
-                            placeholder={`الكمية${item.inventoryItemId ? ` (${inventoryItems.find(i => i._id === item.inventoryItemId)?.unit || ''})` : ''}`}
-                            className="admin-input w-full"
-                          />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <label className="flex items-center gap-2 text-sm">
-                            <input
-                              type="checkbox"
-                              checked={item.required}
-                              onChange={(e) => updateInventoryItem(index, 'required', e.target.checked)}
-                              className="rounded"
-                            />
-                            إجباري
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => removeInventoryItem(index)}
-                            className="admin-button mr-auto"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
               )}
 
