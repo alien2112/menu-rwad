@@ -347,7 +347,7 @@ export default function EnhancedAdminDashboard() {
             <QuickActionButton
               title="إدارة المخزون"
               icon={Package}
-              onClick={() => window.location.href = '/admin/inventory'}
+              onClick={() => window.location.href = '/admin/storage'}
               color="hover:bg-green-50"
             />
             <QuickActionButton

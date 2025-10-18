@@ -171,7 +171,7 @@ export default function AdminLayout({
 
       {/* Sidebar */}
       <aside
-        className={`admin-sidebar fixed top-0 right-0 z-40 h-screen transition-all duration-300 ${
+        className={`admin-sidebar fixed top-0 right-0 z-40 h-screen transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
           collapsed ? 'w-20' : 'w-72'
         } ${
           sidebarOpen ? 'translate-x-0' : 'translate-x-full'
@@ -187,7 +187,7 @@ export default function AdminLayout({
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                     className="text-2xl font-bold text-white font-arabic"
                   >
                     لوحة التحكم
@@ -202,10 +202,19 @@ export default function AdminLayout({
                 aria-label={collapsed ? 'توسيع الشريط الجانبي' : 'طي الشريط الجانبي'}
               >
                 <motion.div
-                  animate={{ rotate: collapsed ? 180 : 0 }}
-                  transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                  animate={{ 
+                    rotate: collapsed ? 0 : 180,
+                    x: collapsed ? 0 : -2
+                  }}
+                  transition={{ 
+                    duration: 0.6, 
+                    ease: [0.4, 0, 0.2, 1],
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 25
+                  }}
                 >
-                  {collapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+                  <ChevronLeft size={20} />
                 </motion.div>
               </motion.button>
             </div>
@@ -215,7 +224,7 @@ export default function AdminLayout({
                   initial={{ opacity: 0, y: -5 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -5 }}
-                  transition={{ duration: 0.2, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
+                  transition={{ duration: 0.4, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
                   className="text-sm text-white/90 mt-2"
                 >
                   إدارة قائمة المطعم
@@ -242,11 +251,11 @@ export default function AdminLayout({
                   <Link
                     href={item.href}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
                       isActive
                         ? 'active'
                         : ''
-                    } ${collapsed ? 'justify-center' : ''}`}
+                    } ${collapsed ? 'justify-center px-2' : ''}`}
                   >
                     <motion.div
                       whileHover={{ scale: 1.1, rotate: 5 }}
@@ -257,10 +266,14 @@ export default function AdminLayout({
                     <AnimatePresence mode="wait">
                       {!collapsed && (
                         <motion.span
-                          initial={{ opacity: 0, width: 0 }}
-                          animate={{ opacity: 1, width: 'auto' }}
-                          exit={{ opacity: 0, width: 0 }}
-                          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                          initial={{ opacity: 0, width: 0, marginLeft: -12 }}
+                          animate={{ opacity: 1, width: 'auto', marginLeft: 0 }}
+                          exit={{ opacity: 0, width: 0, marginLeft: -12 }}
+                          transition={{ 
+                            duration: 0.5, 
+                            ease: [0.4, 0, 0.2, 1],
+                            delay: 0.15
+                          }}
                           className="font-semibold whitespace-nowrap overflow-hidden"
                         >
                           {item.name}
@@ -275,19 +288,31 @@ export default function AdminLayout({
 
           {/* Footer */}
           <div className="p-4 border-t border-white/10 flex-shrink-0">
-            {!collapsed && (
-              <div className="admin-card rounded-xl p-4">
-                <p className="text-sm font-semibold">{placeName || 'مركش'}</p>
-                <p className="text-xs mt-1">{placeTagline || 'نظام إدارة المطاعم'}</p>
-              </div>
-            )}
+            <AnimatePresence mode="wait">
+              {!collapsed && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ 
+                    duration: 0.5, 
+                    ease: [0.4, 0, 0.2, 1],
+                    delay: 0.2
+                  }}
+                  className="admin-card rounded-xl p-4"
+                >
+                  <p className="text-sm font-semibold">{placeName || ''}</p>
+                  <p className="text-xs mt-1">{placeTagline || 'نظام إدارة المطاعم'}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </aside>
 
       {/* Main content with smooth page transitions */}
       <main
-        className={`admin-main-content transition-all duration-300 ${
+        className={`admin-main-content transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
           collapsed ? 'lg:mr-20' : 'lg:mr-72'
         }`}
       >

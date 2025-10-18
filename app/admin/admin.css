@@ -1447,6 +1447,241 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Custom Scrollbar Styles */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-scroll-track);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-end), var(--theme-scroll-thumb-start));
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--theme-scroll-thumb-end);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--theme-scroll-track);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) var(--theme-scroll-track);
+}
+
+/* Admin-specific scrollbar overrides */
+.admin-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 3px;
+  border: none;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-end), var(--theme-scroll-thumb-start));
+}
+
+/* Table scrollbars */
+.admin-table-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) var(--theme-scroll-track);
+}
+
+.admin-table-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.admin-table-container::-webkit-scrollbar-track {
+  background: var(--theme-scroll-track);
+  border-radius: 3px;
+}
+
+.admin-table-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 3px;
+  border: none;
+}
+
+/* Card content scrollbars */
+.admin-card {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) transparent;
+}
+
+.admin-card::-webkit-scrollbar {
+  width: 4px;
+}
+
+.admin-card::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 2px;
+  border: none;
+}
+
+/* Modal scrollbars */
+.modal-content {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) var(--theme-scroll-track);
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: var(--theme-scroll-track);
+  border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 3px;
+  border: none;
+}
+
+/* Dark theme scrollbar adjustments */
+.admin-theme.dark ::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-theme.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #4A9EFF, #1E40AF);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-theme.dark ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #1E40AF, #4A9EFF);
+}
+
+.admin-theme.dark * {
+  scrollbar-color: #4A9EFF rgba(255, 255, 255, 0.1);
+}
+
+/* Light theme scrollbar adjustments */
+.admin-theme.light ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.admin-theme.light ::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #1EA55E, #D3A34C);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-theme.light ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #D3A34C, #1EA55E);
+}
+
+.admin-theme.light * {
+  scrollbar-color: #1EA55E rgba(0, 0, 0, 0.05);
+}
+
+/* Additional scrollbar enhancements */
+/* Smooth scrollbar animations */
+::-webkit-scrollbar-thumb {
+  transition: all var(--transition-fast);
+}
+
+/* Scrollbar fade effect */
+.admin-sidebar:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  opacity: 0.7;
+  transition: opacity var(--transition-normal);
+}
+
+/* Custom scrollbar for notification panels */
+.notification-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) transparent;
+}
+
+.notification-panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notification-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-panel::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 2px;
+  border: none;
+}
+
+/* Scrollbar for dropdown menus */
+.dropdown-menu {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-scroll-thumb-start) transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--theme-scroll-thumb-start), var(--theme-scroll-thumb-end));
+  border-radius: 2px;
+  border: none;
+}
+
+/* Mobile scrollbar adjustments */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .admin-sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .admin-table-container::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
 /* Focus management for accessibility */
 .admin-button:focus-visible,
 .admin-input:focus-visible,

@@ -88,16 +88,16 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
 
             {/* Item Details */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-lg mb-1 leading-tight">
+              <h3 className="text-card-foreground font-bold text-lg mb-1 leading-tight">
                 {item.name}
               </h3>
 
               {item.nameEn && (
-                <p className="text-white/60 text-xs mb-1">{item.nameEn}</p>
+                <p className="text-muted-foreground text-xs mb-1">{item.nameEn}</p>
               )}
 
               {item.description && (
-                <p className="text-white/70 text-sm leading-relaxed line-clamp-2 mb-2">
+                <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 mb-2">
                   {item.description}
                 </p>
               )}
@@ -106,9 +106,9 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
               <div className="flex items-center gap-2 flex-wrap">
                 {/* Calories */}
                 {item.calories !== undefined && item.calories !== null && item.calories >= 0 && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                  <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-full">
                     <Flame className="w-3.5 h-3.5 text-orange-400" />
-                    <span className="text-white/90 text-xs font-medium">
+                    <span className="text-muted-foreground text-xs font-medium">
                       {item.calories} سعر
                     </span>
                   </div>
@@ -116,9 +116,9 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
 
                 {/* Preparation Time */}
                 {item.preparationTime !== undefined && item.preparationTime !== null && item.preparationTime >= 0 && (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                  <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-full">
                     <Clock className="w-3.5 h-3.5 text-blue-400" />
-                    <span className="text-white/90 text-xs font-medium">
+                    <span className="text-muted-foreground text-xs font-medium">
                       {item.preparationTime} دقيقة
                     </span>
                   </div>
@@ -126,9 +126,9 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
 
                 {/* Rating */}
                 {item.averageRating && item.reviewCount ? (
-                  <div className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full">
+                  <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-full">
                     <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
-                    <span className="text-white/90 text-xs font-medium">
+                    <span className="text-muted-foreground text-xs font-medium">
                       {item.averageRating.toFixed(1)} ({item.reviewCount})
                     </span>
                   </div>
@@ -138,16 +138,16 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
           </div>
 
           {/* Bottom Section: Price and Actions */}
-          <div className="flex items-center justify-between gap-3 pt-2 border-t border-white/10">
+          <div className="flex items-center justify-between gap-3 pt-2 border-t border-muted">
             {/* Price Section */}
             <div className="flex items-center gap-2">
-              <div className="bg-gradient-to-r from-[#C2914A] to-[#B8853F] text-white px-4 py-2 rounded-full shadow-lg">
+              <div className="bg-primary text-primary-foreground px-4 py-2 rounded-full shadow-lg">
                 <span className="font-bold text-base">{actualPrice}</span>
                 <span className="text-sm mr-1">ريال</span>
               </div>
 
               {hasDiscount && (
-                <div className="text-white/50 text-sm line-through">
+                <div className="text-muted-foreground text-sm line-through">
                   {item.price} ريال
                 </div>
               )}
@@ -158,7 +158,7 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
               {/* Review Button */}
               <button
                 onClick={() => setShowReviewModal(true)}
-                className="bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full transition-all duration-300 border border-white/30 hover:border-white/50 hover:scale-105"
+                className="bg-muted hover:bg-secondary text-card-foreground p-2.5 rounded-full transition-all duration-300 border border-muted hover:border-ring hover:scale-105"
                 title="عرض التقييمات"
               >
                 <Star className="w-4 h-4" />
@@ -167,7 +167,7 @@ export const ClassicLayout = ({ item, onAddToCart }: ClassicLayoutProps) => {
               {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
-                className="bg-gradient-to-r from-[#C2914A] to-[#B8853F] hover:from-[#B8853F] hover:to-[#A67939] text-white px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 shadow-lg hover:scale-105 hover:shadow-xl"
+                className="bg-accent hover:bg-accent/90 text-accent-foreground px-5 py-2.5 rounded-full font-bold text-sm transition-all duration-300 flex items-center gap-2 shadow-lg hover:scale-105 hover:shadow-xl"
               >
                 <ShoppingCart className="w-4 h-4" />
                 <span>أضف للسلة</span>

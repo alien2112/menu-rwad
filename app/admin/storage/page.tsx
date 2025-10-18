@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/Card";
 import { Button } from "@/components/admin/Button";
 import { Input } from "@/components/admin/Input";
@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/admin/Badge";
 import { Alert, AlertDescription } from "@/components/admin/Alert";
 import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-react";
-import { IIngredient } from '@/lib/models/Ingredient';
 
 interface Material {
   _id: string;
@@ -40,7 +39,6 @@ interface Notification {
 
 export default function StorageManagementDashboard() {
   const [materials, setMaterials] = useState<Material[]>([]);
-  const [ingredients, setIngredients] = useState<IIngredient[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -63,16 +61,39 @@ export default function StorageManagementDashboard() {
     ingredientId: ''
   });
 
+  const fetchMaterials = useCallback(async () => {
+    try {
+      const response = await fetch('/api/materials');
+      const data = await response.json();
+      if (data.success) {
+        setMaterials(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching materials:', error);
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const response = await fetch('/api/notifications?category=inventory');
+      const data = await response.json();
+      if (data.success) {
+        setNotifications(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchMaterials();
-    fetchIngredients();
     fetchNotifications();
     // Simulate initial loading
     const timer = setTimeout(() => {
       setIsInitialLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [fetchMaterials, fetchNotifications]);
 
   if (isInitialLoading) {
     return (
@@ -121,42 +142,6 @@ export default function StorageManagementDashboard() {
     );
   }
 
-  const fetchMaterials = async () => {
-    try {
-      const response = await fetch('/api/materials');
-      const data = await response.json();
-      if (data.success) {
-        setMaterials(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching materials:', error);
-    }
-  };
-
-  const fetchIngredients = async () => {
-    try {
-      const response = await fetch('/api/ingredients');
-      const data = await response.json();
-      if (data.success) {
-        setIngredients(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching ingredients:', error);
-    }
-  };
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await fetch('/api/notifications?category=inventory');
-      const data = await response.json();
-      if (data.success) {
-        setNotifications(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    }
-  };
-
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -167,10 +152,8 @@ export default function StorageManagementDashboard() {
         },
         body: JSON.stringify(newMaterial),
       });
-
-      const data = await response.json();
-      if (data.success) {
-        setMaterials([...materials, data.data]);
+      
+      if (response.ok) {
         setNewMaterial({
           name: '',
           nameEn: '',
@@ -185,7 +168,7 @@ export default function StorageManagementDashboard() {
           ingredientId: ''
         });
         setShowAddForm(false);
-        fetchNotifications(); // Refresh notifications
+        fetchMaterials();
       }
     } catch (error) {
       console.error('Error adding material:', error);
@@ -195,19 +178,15 @@ export default function StorageManagementDashboard() {
   const handleUpdateQuantity = async (materialId: string, newQuantity: number) => {
     try {
       const response = await fetch(`/api/materials/${materialId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ currentQuantity: newQuantity }),
       });
-
-      const data = await response.json();
-      if (data.success) {
-        setMaterials(materials.map(m => 
-          m._id === materialId ? { ...m, currentQuantity: newQuantity } : m
-        ));
-        fetchNotifications(); // Refresh notifications
+      
+      if (response.ok) {
+        fetchMaterials();
       }
     } catch (error) {
       console.error('Error updating quantity:', error);
@@ -216,14 +195,38 @@ export default function StorageManagementDashboard() {
 
   const markNotificationAsRead = async (notificationId: string) => {
     try {
-      await fetch(`/api/notifications?id=${notificationId}&action=read`, {
-        method: 'PUT',
+      const response = await fetch(`/api/notifications/${notificationId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isRead: true }),
       });
-      setNotifications(notifications.map(n => 
-        n._id === notificationId ? { ...n, isRead: true } : n
-      ));
+      
+      if (response.ok) {
+        fetchNotifications();
+      }
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'bg-red-500';
+      case 'high': return 'bg-orange-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-500';
+      case 'inactive': return 'bg-gray-500';
+      case 'out_of_stock': return 'bg-red-500';
+      default: return 'bg-gray-500';
     }
   };
 
@@ -235,221 +238,170 @@ export default function StorageManagementDashboard() {
     return matchesCategory && matchesStatus && matchesSearch;
   });
 
-  const lowStockMaterials = materials.filter(m => m.currentQuantity <= m.alertLimit);
-  const outOfStockMaterials = materials.filter(m => m.currentQuantity <= 0);
-
-  const getStatusBadge = (material: Material) => {
-    if (material.currentQuantity <= 0) {
-      return <Badge>Out of Stock</Badge>;
-    } else if (material.currentQuantity <= material.alertLimit) {
-      return <Badge>Low Stock</Badge>;
-    } else {
-      return <Badge>In Stock</Badge>;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return { color: '#dc2626' };
-      case 'high': return { color: '#ea580c' };
-      case 'medium': return { color: '#d97706' };
-      case 'low': return { color: '#16a34a' };
-      default: return { color: 'var(--text-secondary)' };
-    }
-  };
+  const lowStockCount = materials.filter(m => m.currentQuantity <= m.alertLimit).length;
+  const outOfStockCount = materials.filter(m => m.currentQuantity === 0).length;
+  const totalValue = materials.reduce((sum, m) => sum + (m.currentQuantity * m.costPerUnit), 0);
+  const totalItems = materials.length;
 
   return (
-    <div className="p-6 space-y-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Storage Management</h1>
-        <Button onClick={() => setShowAddForm(true)}>
+    <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Storage Management</h1>
+        <Button onClick={() => setShowAddForm(true)} className="w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           Add Material
         </Button>
       </div>
 
-      {/* Alerts */}
-      {notifications.filter(n => !n.isRead).length > 0 && (
-        <Alert>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            You have {notifications.filter(n => !n.isRead).length} unread inventory alerts
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-            <Package className="h-4 w-4" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{materials.length}</div>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Items</p>
+                <p className="text-lg sm:text-2xl font-bold">{totalItems}</p>
+              </div>
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
-            <TrendingDown className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{lowStockMaterials.length}</div>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Low Stock</p>
+                <p className="text-lg sm:text-2xl font-bold text-orange-600">{lowStockCount}</p>
+              </div>
+              <TrendingDown className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500" />
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Out of Stock</CardTitle>
-            <AlertTriangle className="h-4 w-4" style={{ color: '#dc2626' }} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{outOfStockMaterials.length}</div>
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Out of Stock</p>
+                <p className="text-lg sm:text-2xl font-bold text-red-600">{outOfStockCount}</p>
+              </div>
+              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-red-500" />
+            </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Materials</CardTitle>
-            <TrendingUp className="h-4 w-4" style={{ color: '#16a34a' }} />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {materials.filter(m => m.status === 'active').length}
+          <CardContent className="p-4 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Value</p>
+                <p className="text-lg sm:text-2xl font-bold text-green-600">${totalValue.toFixed(2)}</p>
+              </div>
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
         <Input
           placeholder="Search materials..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
-        <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="food">Food</SelectItem>
-            <SelectItem value="beverage">Beverage</SelectItem>
-            <SelectItem value="shisha">Shisha</SelectItem>
-            <SelectItem value="cleaning">Cleaning</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="out_of_stock">Out of Stock</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-3 sm:gap-4">
+          <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="food">Food</SelectItem>
+              <SelectItem value="beverage">Beverage</SelectItem>
+              <SelectItem value="shisha">Shisha</SelectItem>
+              <SelectItem value="cleaning">Cleaning</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-full sm:w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Materials Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Materials Inventory</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full admin-table" dir="rtl">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-right p-2">Name</th>
-                  <th className="text-right p-2">Category</th>
-                  <th className="text-right p-2">Current Quantity</th>
-                  <th className="text-right p-2">Alert Limit</th>
-                  <th className="text-right p-2">Status</th>
-                  <th className="text-right p-2">Cost/Unit</th>
-                  <th className="text-right p-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredMaterials.map((material) => (
-                  <tr key={material._id} className="border-b">
-                    <td className="p-2 text-right">
-                      <div>
-                        <div className="font-medium">{material.name}</div>
-                        {material.nameEn && (
-                          <div className="text-sm">{material.nameEn}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="p-2 capitalize text-right">{material.category}</td>
-                    <td className="p-2 text-right">
-                      <div className="flex flex-row-reverse items-center gap-2">
-                        <span>{material.currentQuantity}</span>
-                        <span>{material.unit}</span>
-                      </div>
-                    </td>
-                    <td className="p-2 text-right">
-                      <div className="flex flex-row-reverse items-center gap-2">
-                        <span>{material.alertLimit}</span>
-                        <span>{material.unit}</span>
-                      </div>
-                    </td>
-                    <td className="p-2 text-right">{getStatusBadge(material)}</td>
-                    <td className="p-2 text-right">{material.costPerUnit} ريال</td>
-                    <td className="p-2 text-right">
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          const newQuantity = prompt(`Enter new quantity for ${material.name}:`, material.currentQuantity.toString());
-                          if (newQuantity && !isNaN(Number(newQuantity))) {
-                            handleUpdateQuantity(material._id, Number(newQuantity));
-                          }
-                        }}
-                      >
-                        Update
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Add Material Modal */}
+      {/* Add Material Form */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card className="w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-content">
             <CardHeader>
               <CardTitle>Add New Material</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleAddMaterial} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    value={newMaterial.name}
-                    onChange={(e) => setNewMaterial({...newMaterial, name: e.target.value})}
-                    required
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Name (Arabic)</Label>
+                    <Input
+                      id="name"
+                      value={newMaterial.name}
+                      onChange={(e) => setNewMaterial({...newMaterial, name: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="nameEn">Name (English)</Label>
+                    <Input
+                      id="nameEn"
+                      value={newMaterial.nameEn}
+                      onChange={(e) => setNewMaterial({...newMaterial, nameEn: e.target.value})}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="nameEn">English Name</Label>
-                  <Input
-                    id="nameEn"
-                    value={newMaterial.nameEn}
-                    onChange={(e) => setNewMaterial({...newMaterial, nameEn: e.target.value})}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="currentQuantity">Current Quantity</Label>
+                    <Input
+                      id="currentQuantity"
+                      type="number"
+                      value={newMaterial.currentQuantity}
+                      onChange={(e) => setNewMaterial({...newMaterial, currentQuantity: Number(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="minLimit">Min Limit</Label>
+                    <Input
+                      id="minLimit"
+                      type="number"
+                      value={newMaterial.minLimit}
+                      onChange={(e) => setNewMaterial({...newMaterial, minLimit: Number(e.target.value)})}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="alertLimit">Alert Limit</Label>
+                    <Input
+                      id="alertLimit"
+                      type="number"
+                      value={newMaterial.alertLimit}
+                      onChange={(e) => setNewMaterial({...newMaterial, alertLimit: Number(e.target.value)})}
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="unit">Unit</Label>
                     <Select value={newMaterial.unit} onValueChange={(value) => setNewMaterial({...newMaterial, unit: value})}>
@@ -482,81 +434,30 @@ export default function StorageManagementDashboard() {
                     </Select>
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="currentQuantity">Current Quantity *</Label>
+                    <Label htmlFor="costPerUnit">Cost per Unit</Label>
                     <Input
-                      id="currentQuantity"
+                      id="costPerUnit"
                       type="number"
-                      value={newMaterial.currentQuantity}
-                      onChange={(e) => setNewMaterial({...newMaterial, currentQuantity: Number(e.target.value)})}
+                      step="0.01"
+                      value={newMaterial.costPerUnit}
+                      onChange={(e) => setNewMaterial({...newMaterial, costPerUnit: Number(e.target.value)})}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="minLimit">Min Limit *</Label>
+                    <Label htmlFor="supplier">Supplier</Label>
                     <Input
-                      id="minLimit"
-                      type="number"
-                      value={newMaterial.minLimit}
-                      onChange={(e) => setNewMaterial({...newMaterial, minLimit: Number(e.target.value)})}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="alertLimit">Alert Limit *</Label>
-                    <Input
-                      id="alertLimit"
-                      type="number"
-                      value={newMaterial.alertLimit}
-                      onChange={(e) => setNewMaterial({...newMaterial, alertLimit: Number(e.target.value)})}
-                      required
+                      id="supplier"
+                      value={newMaterial.supplier}
+                      onChange={(e) => setNewMaterial({...newMaterial, supplier: e.target.value})}
                     />
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="costPerUnit">Cost per Unit</Label>
-                  <Input
-                    id="costPerUnit"
-                    type="number"
-                    step="0.01"
-                    value={newMaterial.costPerUnit}
-                    onChange={(e) => setNewMaterial({...newMaterial, costPerUnit: Number(e.target.value)})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="supplier">Supplier</Label>
-                  <Input
-                    id="supplier"
-                    value={newMaterial.supplier}
-                    onChange={(e) => setNewMaterial({...newMaterial, supplier: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="ingredientId">Link to Ingredient (Optional)</Label>
-                  <Select
-                    value={newMaterial.ingredientId || "none"}
-                    onValueChange={(value) => setNewMaterial({...newMaterial, ingredientId: value === "none" ? "" : value})}
-                  >
-                    <SelectTrigger id="ingredientId">
-                      <SelectValue placeholder="Select ingredient to sync stock" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">None (Storage only)</SelectItem>
-                      {ingredients.map((ing) => (
-                        <SelectItem key={ing._id} value={ing._id!}>
-                          {ing.name} ({ing.unit})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs mt-1">
-                    Link this material to an ingredient to automatically sync stock levels
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button type="submit">Add Material</Button>
-                  <Button type="button" onClick={() => setShowAddForm(false)}>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button type="submit" className="w-full sm:w-auto">Add Material</Button>
+                  <Button type="button" onClick={() => setShowAddForm(false)} className="w-full sm:w-auto">
                     Cancel
                   </Button>
                 </div>
@@ -566,37 +467,106 @@ export default function StorageManagementDashboard() {
         </div>
       )}
 
+      {/* Materials Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Materials Inventory</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0 sm:p-6">
+          <div className="overflow-x-auto admin-table-container">
+            <table className="w-full admin-table min-w-[800px]" dir="rtl">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-right p-3 text-sm font-medium">Name</th>
+                  <th className="text-right p-3 text-sm font-medium">Category</th>
+                  <th className="text-right p-3 text-sm font-medium">Current Qty</th>
+                  <th className="text-right p-3 text-sm font-medium">Alert Limit</th>
+                  <th className="text-right p-3 text-sm font-medium">Status</th>
+                  <th className="text-right p-3 text-sm font-medium">Cost/Unit</th>
+                  <th className="text-right p-3 text-sm font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMaterials.map((material) => (
+                  <tr key={material._id} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <div>
+                        <div className="font-medium text-sm">{material.name}</div>
+                        {material.nameEn && (
+                          <div className="text-xs text-gray-500">{material.nameEn}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <Badge className="bg-blue-500 text-xs">{material.category}</Badge>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium">{material.currentQuantity}</span>
+                        <span className="text-xs text-gray-500">{material.unit}</span>
+                      </div>
+                    </td>
+                    <td className="p-3 text-sm">{material.alertLimit}</td>
+                    <td className="p-3">
+                      <Badge className={`${getStatusColor(material.status)} text-xs`}>
+                        {material.status}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-sm">${material.costPerUnit.toFixed(2)}</td>
+                    <td className="p-3">
+                      <Button
+                        size="sm"
+                        className="text-xs px-2 py-1"
+                        onClick={() => {
+                          const newQty = prompt('Enter new quantity:', material.currentQuantity.toString());
+                          if (newQty !== null) {
+                            handleUpdateQuantity(material._id, Number(newQty));
+                          }
+                        }}
+                      >
+                        Update
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Notifications */}
       {notifications.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Recent Alerts</CardTitle>
+            <CardTitle>Storage Notifications</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
-              {notifications.slice(0, 5).map((notification) => (
+            <div className="space-y-3">
+              {notifications.map((notification) => (
                 <div
                   key={notification._id}
                   className={`p-3 rounded-lg border ${
                     notification.isRead ? '' : 'bg-yellow-500/20'
                   }`}
                 >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-medium">{notification.title}</h4>
-                        <Badge className={getPriorityColor(notification.priority)}>
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                        <h4 className="font-medium text-sm">{notification.title}</h4>
+                        <Badge className={`${getPriorityColor(notification.priority)} text-xs w-fit`}>
                           {notification.priority}
                         </Badge>
                       </div>
                       <p className="text-sm mt-1">{notification.message}</p>
-                      <p className="text-xs mt-1">
+                      <p className="text-xs mt-1 text-gray-500">
                         {new Date(notification.createdAt).toLocaleString()}
                       </p>
                     </div>
                     {!notification.isRead && (
                       <Button
                         size="sm"
+                        className="text-xs px-3 py-1 w-full sm:w-auto"
                         onClick={() => markNotificationAsRead(notification._id)}
                       >
                         Mark Read
@@ -612,4 +582,3 @@ export default function StorageManagementDashboard() {
     </div>
   );
 }
-
