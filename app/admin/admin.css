@@ -97,8 +97,12 @@
   box-shadow: var(--shadow-xl),
               inset -1px 0 0 rgba(255, 255, 255, 0.05);
   transition: all var(--transition-slow) var(--ease-smooth);
-  position: relative;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
   overflow: hidden;
+  z-index: 40;
 }
 
 .admin-sidebar::before {
@@ -275,6 +279,7 @@
 .admin-main-content {
   background-color: var(--accent);
   color: var(--text-primary);
+  min-height: 100vh;
 }
 
 /* Enhanced Card, Panel, and Table Styles with Premium Depth */
