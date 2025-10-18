@@ -38,14 +38,14 @@ interface AdvancedSearchFilterProps {
 }
 
 const DIETARY_OPTIONS = [
-  { id: 'vegan', label: 'نباتي', icon: '🌱' },
-  { id: 'vegetarian', label: 'نباتي (يشمل الألبان)', icon: '🥬' },
-  { id: 'gluten-free', label: 'خالي من الجلوتين', icon: '🌾' },
-  { id: 'halal', label: 'حلال', icon: '☪️' },
-  { id: 'dairy-free', label: 'خالي من الألبان', icon: '🥛' },
-  { id: 'nut-free', label: 'خالي من المكسرات', icon: '🥜' },
-  { id: 'low-calorie', label: 'قليل السعرات', icon: '🔥' },
-  { id: 'keto', label: 'كيتو', icon: '🥑' },
+  { id: 'vegan', label: 'نباتي' },
+  { id: 'vegetarian', label: 'نباتي (يشمل الألبان)' },
+  { id: 'gluten-free', label: 'خالي من الجلوتين' },
+  { id: 'halal', label: 'حلال' },
+  { id: 'dairy-free', label: 'خالي من الألبان' },
+  { id: 'nut-free', label: 'خالي من المكسرات' },
+  { id: 'low-calorie', label: 'قليل السعرات' },
+  { id: 'keto', label: 'كيتو' },
 ];
 
 const PREPARATION_TIME_OPTIONS = [
@@ -370,7 +370,6 @@ export const AdvancedSearchFilter = ({ items, onFilteredItems, categories }: Adv
                       }}
                       className="sr-only"
                     />
-                    <span className="text-lg">{option.icon}</span>
                     <span className="text-sm text-foreground">{option.label}</span>
                   </label>
                 ))}
