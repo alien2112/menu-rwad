@@ -12,19 +12,14 @@ import { Plus, AlertTriangle, Package, TrendingDown, TrendingUp } from "lucide-r
 
 interface Material {
   _id: string;
-  name: string;
-  nameEn?: string;
+  ingredientId: string;
+  ingredientName: string;
+  currentStock: number;
   unit: string;
-  currentQuantity: number;
-  minLimit: number;
-  alertLimit: number;
-  costPerUnit: number;
-  category: 'food' | 'beverage' | 'shisha' | 'cleaning' | 'other';
-  status: 'active' | 'inactive' | 'out_of_stock';
-  supplier?: string;
-  lastRestocked?: string;
-  expiryDate?: string;
-  ingredientId?: string;
+  minStockLevel: number;
+  maxStockLevel: number;
+  status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  lastUpdated: string;
 }
 
 interface Notification {
@@ -41,29 +36,25 @@ export default function StorageManagementDashboard() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [filterCategory, setFilterCategory] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   // New material form state
   const [newMaterial, setNewMaterial] = useState({
-    name: '',
-    nameEn: '',
+    ingredientId: '',
+    ingredientName: '',
     unit: 'kg',
-    currentQuantity: 0,
-    minLimit: 0,
-    alertLimit: 0,
-    costPerUnit: 0,
-    category: 'food' as const,
+    currentStock: 0,
+    minStockLevel: 0,
+    maxStockLevel: 0,
     supplier: '',
-    notes: '',
-    ingredientId: ''
+    notes: ''
   });
 
   const fetchMaterials = useCallback(async () => {
     try {
-      const response = await fetch('/api/materials');
+      const response = await fetch('/api/inventory');
       const data = await response.json();
       if (data.success) {
         setMaterials(data.data);
@@ -145,7 +136,7 @@ export default function StorageManagementDashboard() {
   const handleAddMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/materials', {
+      const response = await fetch('/api/inventory', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -155,17 +146,14 @@ export default function StorageManagementDashboard() {
       
       if (response.ok) {
         setNewMaterial({
-          name: '',
-          nameEn: '',
+          ingredientId: '',
+          ingredientName: '',
           unit: 'kg',
-          currentQuantity: 0,
-          minLimit: 0,
-          alertLimit: 0,
-          costPerUnit: 0,
-          category: 'food',
+          currentStock: 0,
+          minStockLevel: 0,
+          maxStockLevel: 0,
           supplier: '',
-          notes: '',
-          ingredientId: ''
+          notes: ''
         });
         setShowAddForm(false);
         fetchMaterials();
@@ -223,24 +211,22 @@ export default function StorageManagementDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'inactive': return 'bg-gray-500';
+      case 'in_stock': return 'bg-green-500';
+      case 'low_stock': return 'bg-yellow-500';
       case 'out_of_stock': return 'bg-red-500';
       default: return 'bg-gray-500';
     }
   };
 
   const filteredMaterials = materials.filter(material => {
-    const matchesCategory = filterCategory === 'all' || material.category === filterCategory;
     const matchesStatus = filterStatus === 'all' || material.status === filterStatus;
-    const matchesSearch = material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         material.nameEn?.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesStatus && matchesSearch;
+    const matchesSearch = material.ingredientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         material.ingredientId.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesSearch;
   });
 
-  const lowStockCount = materials.filter(m => m.currentQuantity <= m.alertLimit).length;
-  const outOfStockCount = materials.filter(m => m.currentQuantity === 0).length;
-  const totalValue = materials.reduce((sum, m) => sum + (m.currentQuantity * m.costPerUnit), 0);
+  const lowStockCount = materials.filter(m => m.status === 'low_stock').length;
+  const outOfStockCount = materials.filter(m => m.status === 'out_of_stock').length;
   const totalItems = materials.length;
 
   return (
@@ -296,10 +282,10 @@ export default function StorageManagementDashboard() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Value</p>
-                <p className="text-lg sm:text-2xl font-bold text-green-600">${totalValue.toFixed(2)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Items</p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-600">{totalItems}</p>
               </div>
-              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-green-500" />
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
@@ -314,27 +300,14 @@ export default function StorageManagementDashboard() {
           className="w-full sm:max-w-sm"
         />
         <div className="flex gap-3 sm:gap-4">
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger className="w-full sm:w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="food">Food</SelectItem>
-              <SelectItem value="beverage">Beverage</SelectItem>
-              <SelectItem value="shisha">Shisha</SelectItem>
-              <SelectItem value="cleaning">Cleaning</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
           <Select value={filterStatus} onValueChange={setFilterStatus}>
             <SelectTrigger className="w-full sm:w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
+              <SelectItem value="in_stock">In Stock</SelectItem>
+              <SelectItem value="low_stock">Low Stock</SelectItem>
               <SelectItem value="out_of_stock">Out of Stock</SelectItem>
             </SelectContent>
           </Select>
@@ -352,51 +325,52 @@ export default function StorageManagementDashboard() {
               <form onSubmit={handleAddMaterial} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Name (Arabic)</Label>
+                    <Label htmlFor="ingredientName">Ingredient Name</Label>
                     <Input
-                      id="name"
-                      value={newMaterial.name}
-                      onChange={(e) => setNewMaterial({...newMaterial, name: e.target.value})}
+                      id="ingredientName"
+                      value={newMaterial.ingredientName}
+                      onChange={(e) => setNewMaterial({...newMaterial, ingredientName: e.target.value})}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="nameEn">Name (English)</Label>
+                    <Label htmlFor="ingredientId">Ingredient ID</Label>
                     <Input
-                      id="nameEn"
-                      value={newMaterial.nameEn}
-                      onChange={(e) => setNewMaterial({...newMaterial, nameEn: e.target.value})}
+                      id="ingredientId"
+                      value={newMaterial.ingredientId}
+                      onChange={(e) => setNewMaterial({...newMaterial, ingredientId: e.target.value})}
+                      required
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="currentQuantity">Current Quantity</Label>
+                    <Label htmlFor="currentStock">Current Stock</Label>
                     <Input
-                      id="currentQuantity"
+                      id="currentStock"
                       type="number"
-                      value={newMaterial.currentQuantity}
-                      onChange={(e) => setNewMaterial({...newMaterial, currentQuantity: Number(e.target.value)})}
+                      value={newMaterial.currentStock}
+                      onChange={(e) => setNewMaterial({...newMaterial, currentStock: Number(e.target.value)})}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="minLimit">Min Limit</Label>
+                    <Label htmlFor="minStockLevel">Min Stock Level</Label>
                     <Input
-                      id="minLimit"
+                      id="minStockLevel"
                       type="number"
-                      value={newMaterial.minLimit}
-                      onChange={(e) => setNewMaterial({...newMaterial, minLimit: Number(e.target.value)})}
+                      value={newMaterial.minStockLevel}
+                      onChange={(e) => setNewMaterial({...newMaterial, minStockLevel: Number(e.target.value)})}
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="alertLimit">Alert Limit</Label>
+                    <Label htmlFor="maxStockLevel">Max Stock Level</Label>
                     <Input
-                      id="alertLimit"
+                      id="maxStockLevel"
                       type="number"
-                      value={newMaterial.alertLimit}
-                      onChange={(e) => setNewMaterial({...newMaterial, alertLimit: Number(e.target.value)})}
+                      value={newMaterial.maxStockLevel}
+                      onChange={(e) => setNewMaterial({...newMaterial, maxStockLevel: Number(e.target.value)})}
                       required
                     />
                   </div>
@@ -418,40 +392,22 @@ export default function StorageManagementDashboard() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={newMaterial.category} onValueChange={(value: any) => setNewMaterial({...newMaterial, category: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="food">Food</SelectItem>
-                        <SelectItem value="beverage">Beverage</SelectItem>
-                        <SelectItem value="shisha">Shisha</SelectItem>
-                        <SelectItem value="cleaning">Cleaning</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="costPerUnit">Cost per Unit</Label>
-                    <Input
-                      id="costPerUnit"
-                      type="number"
-                      step="0.01"
-                      value={newMaterial.costPerUnit}
-                      onChange={(e) => setNewMaterial({...newMaterial, costPerUnit: Number(e.target.value)})}
-                      required
-                    />
-                  </div>
                   <div>
                     <Label htmlFor="supplier">Supplier</Label>
                     <Input
                       id="supplier"
                       value={newMaterial.supplier}
                       onChange={(e) => setNewMaterial({...newMaterial, supplier: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="notes">Notes</Label>
+                    <Input
+                      id="notes"
+                      value={newMaterial.notes}
+                      onChange={(e) => setNewMaterial({...newMaterial, notes: e.target.value})}
                     />
                   </div>
                 </div>
@@ -478,11 +434,11 @@ export default function StorageManagementDashboard() {
               <thead>
                 <tr className="border-b">
                   <th className="text-right p-3 text-sm font-medium">Name</th>
-                  <th className="text-right p-3 text-sm font-medium">Category</th>
-                  <th className="text-right p-3 text-sm font-medium">Current Qty</th>
-                  <th className="text-right p-3 text-sm font-medium">Alert Limit</th>
+                  <th className="text-right p-3 text-sm font-medium">Current Stock</th>
+                  <th className="text-right p-3 text-sm font-medium">Min Level</th>
+                  <th className="text-right p-3 text-sm font-medium">Max Level</th>
                   <th className="text-right p-3 text-sm font-medium">Status</th>
-                  <th className="text-right p-3 text-sm font-medium">Cost/Unit</th>
+                  <th className="text-right p-3 text-sm font-medium">Unit</th>
                   <th className="text-right p-3 text-sm font-medium">Actions</th>
                 </tr>
               </thead>
@@ -491,34 +447,29 @@ export default function StorageManagementDashboard() {
                   <tr key={material._id} className="border-b hover:bg-gray-50">
                     <td className="p-3">
                       <div>
-                        <div className="font-medium text-sm">{material.name}</div>
-                        {material.nameEn && (
-                          <div className="text-xs text-gray-500">{material.nameEn}</div>
-                        )}
+                        <div className="font-medium text-sm">{material.ingredientName}</div>
+                        <div className="text-xs text-gray-500">ID: {material.ingredientId}</div>
                       </div>
-                    </td>
-                    <td className="p-3">
-                      <Badge className="bg-blue-500 text-xs">{material.category}</Badge>
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-1">
-                        <span className="text-sm font-medium">{material.currentQuantity}</span>
+                        <span className="text-sm font-medium">{material.currentStock}</span>
                         <span className="text-xs text-gray-500">{material.unit}</span>
                       </div>
                     </td>
-                    <td className="p-3 text-sm">{material.alertLimit}</td>
+                    <td className="p-3 text-sm">{material.minStockLevel}</td>
+                    <td className="p-3 text-sm">{material.maxStockLevel}</td>
                     <td className="p-3">
                       <Badge className={`${getStatusColor(material.status)} text-xs`}>
                         {material.status}
                       </Badge>
                     </td>
-                    <td className="p-3 text-sm">${material.costPerUnit.toFixed(2)}</td>
+                    <td className="p-3 text-sm">{material.unit}</td>
                     <td className="p-3">
                       <Button
-                        size="sm"
                         className="text-xs px-2 py-1"
                         onClick={() => {
-                          const newQty = prompt('Enter new quantity:', material.currentQuantity.toString());
+                          const newQty = prompt('Enter new quantity:', material.currentStock.toString());
                           if (newQty !== null) {
                             handleUpdateQuantity(material._id, Number(newQty));
                           }
@@ -565,7 +516,6 @@ export default function StorageManagementDashboard() {
                     </div>
                     {!notification.isRead && (
                       <Button
-                        size="sm"
                         className="text-xs px-3 py-1 w-full sm:w-auto"
                         onClick={() => markNotificationAsRead(notification._id)}
                       >
